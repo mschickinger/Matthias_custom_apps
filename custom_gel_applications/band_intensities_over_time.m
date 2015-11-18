@@ -5,7 +5,7 @@ run('my_prefs.m')
 n_data = str2double(inputdlg('How many time data would you like to compare?', 'Enter n_data', 1, {'4'}));
 bands_over_time = cell(n_data,1);
 for i = 1:n_data
-    [tmp_filename, tmp_pathname] = uigetfile('/Users/matthiasschickinger/Public/Gels_SG/*.mat', 'Choose .mat file containing bandsets');
+    [tmp_filename, tmp_pathname] = uigetfile('/Users/matthiasschickinger/PhD/Gels/*.mat', 'Choose .mat file containing bandsets');
     tmp = load([tmp_pathname tmp_filename], 'bandsets');
     bands_over_time{i} = tmp.bandsets;
 end

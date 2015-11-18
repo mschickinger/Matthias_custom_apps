@@ -1,8 +1,8 @@
 %% startup
 close all, clear all, clc
-run('my_prefs_SG.m')
+run('my_prefs.m')
 
-[tmp_filename, path_out] = uigetfile('/Users/matthiasschickinger/Public/Gels_SG/*.mat', 'Choose .mat file containing lane data');
+[tmp_filename, path_out] = uigetfile('/Users/matthiasschickinger/PhD/Gels/*.mat', 'Choose .mat file containing lane data');
 tmp = load([path_out tmp_filename]);
 lanes = tmp.lanes;
 single_gelData = tmp.single_gelData;
