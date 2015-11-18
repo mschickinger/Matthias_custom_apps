@@ -72,13 +72,14 @@ for i = 1:size(bandsets.medians.ratios,1)
     bandsets.stDevs.ratios(i) = std(bandsets.ratios(i,:));
 end
 %% create output dir
-prefix_out = [datasets.filenames{1}(1:end-4) '_data-comparison_' datestr(now, 'yyyy-mm-dd_HH-MM')];
-tmp = inputdlg({'Name of analysis (prefix):'}, 'Name of analysis (prefix):' , 1, {prefix_out} );
-prefix_out = tmp{1};
+path_out = [datasets.pathnames{1}(1:end-19) '-comparison_' datestr(now, 'yyyy-mm-dd_HH-MM') filesep];
+%tmp = inputdlg({'Name of analysis (prefix):'}, 'Name of analysis (prefix):' , 1, {prefix_out} );
+%prefix_out = tmp{1};
 tmp = find(datasets.pathnames{1} == filesep, 2, 'last');
 tmp = tmp(1);
-path_out = [datasets.pathnames{1}(1:tmp-1) filesep prefix_out filesep];
+%path_out = [datasets.pathnames{1}(1:tmp-1) filesep prefix_out filesep];
 mkdir(path_out);
+prefix_out = path_out(tmp+1:end-1);
 
 %% save data
 save([path_out 'data-comparison_results.mat'], 'datasets', 'bandsets')
