@@ -88,6 +88,7 @@ for i = 1:length(xmax)
     xmax(i) = length(lanes{i}.profiles{1});
 end
 xmax = max(xmax);
+
 close all
 figure('Position', scrsz, 'PaperPositionMode', 'auto', 'Visible', 'off')
 for i = 1:n_lanes
