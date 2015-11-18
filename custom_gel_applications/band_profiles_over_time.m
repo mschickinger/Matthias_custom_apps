@@ -36,10 +36,12 @@ end
 %% Get gel run times
 times = cell(n_images,1);
 for i = 1:n_images
-    times{i} = ['Time ' num2str(i) ' (h:mm)'];
+    times{i} = ['Time ' num2str(i)];
 end
 
-times = inputdlg(times, 'Enter gel run times', 1);
+default_times = {'1:30','3:00','4:30','6:00'};
+default_times = default_times(1:n_images);
+times = inputdlg(times, 'Enter gel run times', 1, default_times);
 
 for i = 1:n_images
     times{i} = [times{i} ' h'];
@@ -83,13 +85,16 @@ else
        lane_labels{i} = ['Lane ' num2str(i)];
    end
 end
+%%
 xmax = zeros(n_images,1);
 for i = 1:length(xmax)
     xmax(i) = length(lanes{i}.profiles{1});
 end
 xmax = max(xmax);
+
 close all
-figure('Position', scrsz, 'PaperPositionMode', 'auto', 'Visible', 'off')
+figure('Position', [1 1 1920 1080], 'PaperPositionMode', 'auto');
+set(gcf, 'Visible', 'off');
 for i = 1:n_lanes
     for j = 1:n_images
         subplot(n_images,1,j)
@@ -101,7 +106,7 @@ for i = 1:n_lanes
         title([lane_labels{i} ', profile after ' times{j}])
     end
     xlabel('Pixels (25 \mum / px)', 'Interpreter', 'tex')
-    suplabel(prefix_out, 't')
+    suplabel(prefix_out, 't');
     print('-dpng', '-r96', [path_out 'profile_over_time_lane' num2str(i) '.png'])
 end
     

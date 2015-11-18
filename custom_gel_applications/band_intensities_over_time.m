@@ -59,7 +59,15 @@ save([path_out 'bands_data.mat'], 'means', 'stdevs')
 %% plot band values over gel run time
 ctl = strcmp(questdlg('Enter custom lane labels for bands-over-time plots?','','Yes'),'Yes');
 if ctl
-   lane_labels = custom_labels(n_lanes);
+   use_default = questdlg('Use default values?','','Excess', 'Length', 'None', 'None');
+   switch use_default
+       case 'Excess'
+           lane_labels = {'linked', '0,25x', '0,5x', 'linked', '0,75x', '1,0x', '1,25x', '1,5x', 'linked', '2,0x', '2,5x', '5,0x', '10x', 'linked', '20x', 'linked'};
+       case 'Length'
+           lane_labels = {'linked', 'linked', 'linked', 'i9', 'linked', 'linked', 'i10', 'linked'};
+       case 'None'
+           lane_labels = custom_labels(n_lanes);
+   end
 else
    lane_labels = cell(n_lanes,1);
    for i = 1:n_lanes
@@ -88,8 +96,8 @@ for i = 1:n_lanes
     legend({'Ratio leading:sum'})
     xlabel('Gel run time')
     ylabel('Ratio')
-    ylim([0 1])
-    set(gca, 'XTick', 1:length(times), 'XTickLabel', times, 'YGrid', 'on');
+    ylim([0.9*min(means.ratios(i,:)-3*stdevs.ratios(i,:)) 1.1*max(means.ratios(i,:)+3*stdevs.ratios(i,:))])
+    set(gca, 'XTick', 1:length(times), 'XTickLabel', times, 'YTick', 0:.05:1, 'YGrid', 'on');
     print('-dpng', '-r96', [path_out 'intensities_over_time_lane' num2str(i) '.png'])
 end
     
