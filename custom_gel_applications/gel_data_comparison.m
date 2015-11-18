@@ -90,8 +90,16 @@ display('Data comparison results saved.')
 % possible to enter custom tick labels
 %% Intensities comparison
 ctl = strcmp(questdlg('Enter custom XTick Labels for intensity plots?','','No'),'Yes');
-if ctl
-   xtlabels = custom_labels(length(bandsets.medians.intensities));
+if ctl  
+   use_default = questdlg('Use default values?','','Excess', 'Length', 'None', 'None');
+   switch use_default
+       case 'Excess'
+           xtlabels = {'linked', '0,25x', '0,5x', 'linked', '0,75x', '1,0x', '1,25x', '1,5x', 'linked', '2,0x', '2,5x', '5,0x', '10x', 'linked', '20x', 'linked'};
+       case 'Length'
+           xtlabels = {'linked', 'linked', 'linked', 'i9', 'linked', 'linked', 'i10', 'linked'};
+       case 'None'  
+          xtlabels = custom_labels(length(bandsets.medians.intensities));
+   end
 end
 % Means and errors of intensities
 close all
@@ -163,7 +171,15 @@ print('-dpng', '-r150', [path_out 'intensities_variation2.png'])
 %% Sums comparison
 ctl = strcmp(questdlg('Enter custom XTick Labels for sums and ratios plots?','','Yes'),'Yes');
 if ctl
-   xtlabels = custom_labels(length(bandsets.medians.sums));
+   use_default = questdlg('Use default values?','','Excess', 'Length', 'None', 'None');
+   switch use_default
+       case 'Excess'
+           xtlabels = {'linked', '0,25x', '0,5x', 'linked', '0,75x', '1,0x', '1,25x', '1,5x', 'linked', '2,0x', '2,5x', '5,0x', '10x', 'linked', '20x', 'linked'};
+       case 'Length'
+           xtlabels = {'linked', 'linked', 'linked', 'i9', 'linked', 'linked', 'i10', 'linked'};
+       case 'None'  
+          xtlabels = custom_labels(length(bandsets.medians.sums));
+   end
 end
 % Means and errors of sums
 figure('Position', [1 1 1920 1080], 'PaperPositionMode', 'auto')
