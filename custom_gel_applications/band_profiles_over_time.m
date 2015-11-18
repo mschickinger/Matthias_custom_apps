@@ -36,10 +36,12 @@ end
 %% Get gel run times
 times = cell(n_images,1);
 for i = 1:n_images
-    times{i} = ['Time ' num2str(i) ' (h:mm)'];
+    times{i} = ['Time ' num2str(i)];
 end
 
-times = inputdlg(times, 'Enter gel run times', 1);
+default_times = {'1:30','3:00','4:30','6:00'};
+default_times = default_times(1:n_images);
+times = inputdlg(times, 'Enter gel run times', 1, default_times);
 
 for i = 1:n_images
     times{i} = [times{i} ' h'];
