@@ -83,6 +83,7 @@ else
        lane_labels{i} = ['Lane ' num2str(i)];
    end
 end
+%%
 xmax = zeros(n_images,1);
 for i = 1:length(xmax)
     xmax(i) = length(lanes{i}.profiles{1});
