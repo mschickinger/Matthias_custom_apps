@@ -102,7 +102,6 @@ if ctl
    end
 end
 % Means and errors of intensities
-close all
 figure('Position', [1 1 1920 1080], 'PaperPositionMode', 'auto')
 bar(bandsets.medians.intensities)
 xlabel('band number')
