@@ -106,7 +106,7 @@ for i = 1:n_lanes
         title([lane_labels{i} ', profile after ' times{j}])
     end
     xlabel('Pixels (25 \mum / px)', 'Interpreter', 'tex')
-    suplabel(prefix_out, 't');
+    %suplabel(prefix_out, 't');
     print('-dpng', '-r96', [path_out 'profile_over_time_lane' num2str(i) '.png'])
 end
     
