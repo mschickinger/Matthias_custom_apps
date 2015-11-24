@@ -13,7 +13,7 @@ if ~exist('gelData', 'var')
 end
 %}
 %% load gel data
-gelData_raw = load_gel_image('data_dir', '/Users/matthiasschickinger/PhD/Gels/', 'n_images', n_images);
+gelData_raw = load_gel_image('data_dir', 'C:\', 'n_images', n_images);
 
 %%
 [gelData_raw, cf] = check_gel_saturation(gelData_raw);
