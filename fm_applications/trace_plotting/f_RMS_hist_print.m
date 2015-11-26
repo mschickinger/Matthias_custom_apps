@@ -8,16 +8,9 @@ clear avg_img r_integrate channel chb cut fit_cutoff data
 cd(path_out)
 mkdir([path_out filesep method '_traces']);
 
-%load('movie_objects.mat', 'ch1');
 load('data_archive.mat', 'avg_img', 'r_integrate');
 load('data_plot.mat');
 load('data_spot_pairs.mat', 'data');
-
-
-%{
-load('all_data.mat', 'ch1', 'avg_img', 'r_integrate', 'channel', 'chb','fit_cutoff');
-load('all_data_struct.mat', 'data');
-%}
 
 disp('All data loaded. Starting plots.')
 
