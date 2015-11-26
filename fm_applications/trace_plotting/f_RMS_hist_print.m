@@ -3,6 +3,13 @@ function f_RMS_hist_print( path_out, varargin)
 
 % Input dialog for cutoff type selection (if needed)
 % Cutoff can be plotted as intensity or frame
+%% parse input
+
+p = inputParser;
+
+addRequired(p, 'path_out', @isstring);
+addParameter(p, 'method', @isstring);
+addParameter(p, 'YLIM', [0 3], @isvector);
 
 clear avg_img r_integrate channel chb cut fit_cutoff data
 cd(path_out)
