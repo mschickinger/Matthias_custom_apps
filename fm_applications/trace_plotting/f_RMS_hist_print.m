@@ -11,6 +11,7 @@ addRequired(p, 'path_out', @isstring);
 addParameter(p, 'method', @isstring);
 addParameter(p, 'YLIM', [0 3], @isvector);
 
+%% load data
 clear avg_img r_integrate channel chb cut fit_cutoff data
 cd(path_out)
 mkdir([path_out filesep method '_traces']);
