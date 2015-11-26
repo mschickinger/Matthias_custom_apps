@@ -1,8 +1,5 @@
-% What's new in version 6?
 function f_RMS_hist_print( path_out, varargin)
 
-% Input dialog for cutoff type selection (if needed)
-% Cutoff can be plotted as intensity or frame
 %% parse input
 
 p = inputParser;
