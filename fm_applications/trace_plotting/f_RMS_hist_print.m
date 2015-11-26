@@ -178,7 +178,7 @@ for m=1:N_movie
         print('-dpng', '-r96', [path_out filesep method '_traces_v6' filesep 'traces_RMS_hist_m' num2str(m) '_s' num2str(s) '.png']);
         close(gcf)
     end
-    display(['Done printing figures for movie #' num2str(m)])
+    display(['Done printing figures for movie #' num2str(m)]) 
 end
 end
 
