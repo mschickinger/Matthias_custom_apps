@@ -6,7 +6,7 @@ function f_RMS_hist_print( path_out, varargin)
 
 clear avg_img r_integrate channel chb cut fit_cutoff data
 cd(path_out)
-mkdir([path_out filesep meth '_traces_v6']);
+mkdir([path_out filesep method '_traces']);
 
 %load('movie_objects.mat', 'ch1');
 load('data_archive.mat', 'avg_img', 'r_integrate');
@@ -48,9 +48,9 @@ for m=1:N_movie
         figure('Visible','off', 'PaperPositionMode', 'manual','PaperUnits',...
         'centimeters', 'PaperPosition', [0 0 29.7 21]);
         for c=1:2
-            if strcmp(meth,'vwcm')
-            plot_data = data{m}{s,c}.vwcm; %adjust meth for switching between FITTED and VWCM traces!!!
-            elseif strcmp(meth,'gF')
+            if strcmp(method,'vwcm')
+                plot_data = data{m}{s,c}.vwcm; %adjust method for switching between FITTED and VWCM traces!!!
+            elseif strcmp(method,'gF')
                 plot_data = data{m}{s,c}.gF;
             end
             if ceil(size(plot_data.pos,1)/1000) == 1
@@ -175,7 +175,7 @@ for m=1:N_movie
         %%
         % Save as image
         %set(gcf, 'PaperPositionMode', 'auto')
-        print('-dpng', '-r96', [path_out filesep meth '_traces_v6' filesep 'traces_RMS_hist_m' num2str(m) '_s' num2str(s) '.png']);
+        print('-dpng', '-r96', [path_out filesep method '_traces_v6' filesep 'traces_RMS_hist_m' num2str(m) '_s' num2str(s) '.png']);
         close(gcf)
     end
     display(['Done printing figures for movie #' num2str(m)])
