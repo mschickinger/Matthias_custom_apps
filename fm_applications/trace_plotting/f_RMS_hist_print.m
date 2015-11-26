@@ -68,10 +68,10 @@ for m=1:N_movie
                 hold off
 
                 if ~isempty(tmp_plot(tmp_plot(:,2)>5,1))
-                for i = tmp_plot(tmp_plot(:,2)>5,1)
-                    plot([i i], YLIM, '-', 'Color', [1 1 1].*.7);
-                hold on
-                end
+                    for i = tmp_plot(tmp_plot(:,2)>5,1)
+                        plot([i i], YLIM, '-', 'Color', [1 1 1].*.7);
+                    hold on
+                    end
                 end
                 plot(tmp_plot(:,1), tmp_plot(:,2),['.' channel{c}(1)], 'MarkerSize', 5);
                 hold on
