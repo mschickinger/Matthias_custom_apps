@@ -19,7 +19,7 @@ clear avg_img r_integrate channel chb cut fit_cutoff data
 cd(path_out)
 mkdir([path_out filesep p.Results.method '_traces_new']);
 
-load('data_proc.mat', 'time_per_frame');
+load('data_proc.mat');
 load('data_archive.mat', 'avg_img', 'r_integrate');
 load('data_plot.mat');
 load('data_spot_pairs.mat', 'data');
