@@ -96,33 +96,32 @@ for m=1:size(data,1)
         title('Mean100 displacements of mobile spot from mapped fixed spot position')
         
         % displacement scatter plot
-        subplot('Position', [0.825 upper 0.175 0.35])
+        subplot('Position',[0.8, lower - 0.05, 0.19, 0.57])   
         plot(disp_from_map(:,1), disp_from_map(:,2),'.', 'MarkerSize', 3)
         xlim([-5 5])
         ylim([-5 5])
         TC = cell(1,11); TC{1} = -5; TC{6} = 0; TC{11} = 5;
-        set(gca, 'XTick', -5:5, 'YTick', -5:5, 'XTickLabel', TC, 'YTickLabel', TC)
+        set(gca, 'XTick', -5:5, 'YTick', -5:5, 'XTickLabel', {}, 'YTickLabel', {})
         grid on, axis square
-        title('X/Y-displacements')
+        %title('X/Y-displacements')
         
         % x-displacement distribution
-        subplot('Position',[0.71, lower, 0.12, 0.35])
+        subplot('Position', [0.8, upper + 0.1, 0.19, 0.24])      
         hx = histogram(disp_from_map(:,1),-5:.5:5,'Normalization', 'probability');
         hx.FaceColor = [0 0.4470 0.7410];
         hx.EdgeColor = [0 0.4470 0.7410];
         set(gca, 'XTick', -5:5, 'XTickLabel', {-5, [], -3, [], -1, [], 1, [], 3, [], 5},...
-            'YTickLabel', {}, 'TickDir', 'in', 'Xlim', [-5 5], 'XGrid', 'on', 'YTick', [])
-        ylabel('Frequency')
-        xlabel('X-displacements')
+            'YTickLabel', {}, 'TickDir', 'in', 'Xlim', [-5 5], 'XGrid', 'on', 'YTick', [], ...
+            'Ylim', 1.1*[0 max(hx.Values)], 'XAxisLocation', 'top')
         
         % y-displacement distribution
-        subplot('Position',[0.8515, lower, 0.12, 0.35])
+        subplot('Position',[0.71, lower - 0.05, 0.08, 0.57])
         hy = histogram(disp_from_map(:,2),-5:.5:5,'Normalization', 'probability');
         hy.FaceColor = [0 0.4470 0.7410];
         hy.EdgeColor = [0 0.4470 0.7410];
-        set(gca, 'XTick', -5:5, 'XTickLabel', {-5, [], -3, [], -1, [], 1, [], 3, [], 5},...
-            'YTick', 0:1, 'YTickLabel', {0, 1}, 'TickDir', 'in', 'Xlim', [-5 5], 'XGrid', 'on')
-        xlabel('Y-displacements')
+        set(gca, 'view', [-90 90], 'XTick', -5:5, 'XTickLabel', {-5, [], -3, [], -1, [], 1, [], 3, [], 5},...
+            'YTick', 0:1, 'YTickLabel', {}, 'TickDir', 'in', 'Xlim', [-5 5], 'XGrid', 'on', ...
+            'Ylim', 1.1*[0 max(hy.Values)])
         
         % save .png picture
         print('-dpng', '-r96', [folder_out filesep 'disp_from_map_m' num2str(m) '_s' num2str(s) '.png'])
