@@ -1,24 +1,32 @@
-function f_RMS_hist_print( path_out, varargin)
+function f_pos_hist_print(path_out, varargin)
 
 %% parse input
 
 p = inputParser;
 
-addRequired(p, 'path_out', @isstring);
-addParameter(p, 'method', @isstring);
+addRequired(p, 'path_out', @isdir);
+addParameter(p, 'filter', 'RMS', @ischar);
+addParameter(p, 'method', 'vwcm', @ischar);
 addParameter(p, 'YLIM', [0 3], @isvector);
+addParameter(p, 'horzAx', 'frames', @ischar);
+
+parse(p, path_out, varargin{:});
+YLIM = p.Results.YLIM;
 
 %% load data
 clear avg_img r_integrate channel chb cut fit_cutoff data
-cd(path_out)
-mkdir([path_out filesep method '_traces']);
 
+cd(path_out)
+mkdir([path_out filesep p.Results.method '_traces_new']);
+
+load('data_proc.mat', 'time_per_frame');
 load('data_archive.mat', 'avg_img', 'r_integrate');
 load('data_plot.mat');
 load('data_spot_pairs.mat', 'data');
 
-disp('All data loaded. Starting plots.')
+disp('All data loaded.')
 
+%% Set parameters
 N_movie = size(data,1);
 
 if chb == 1
@@ -32,31 +40,76 @@ type{chm} = 'mobile';
 type{chb} = 'fixed';
 
 if ~exist('cut', 'var')
-cut = questdlg('Intensity threshold or maximum frame?','Cutoff method','Intensity','Frame','Frame');
+    cut = questdlg('Intensity threshold or maximum frame?','Cutoff method','Intensity','Frame','Frame');
 end
-
 if strcmp(cut, 'Intensity') || cut == 1
     cut_plot = [0 1];
 elseif strcmp(cut,'Frame') || cut == 2
     cut_plot = [1 0];
 end
 
+if strcmp(p.Results.horzAx, 'time')
+    if ~exist('time_per_frame', 'var')
+        prompt = cell(N_movie, 1);
+        default_ans = prompt;
+        for m = 1:N_movie
+            prompt{m} = ['Enter time per frame in movie #' num2str(m) ':'];
+            default_ans{m} = '100';
+        end
+        tmp = inputdlg(prompt, 'Time per frame', 1, default_ans);
+        time_per_frame = zeros(N_movie,1);
+        for m = 1:N_movie
+            time_per_frame(m) = str2double(tmp{m});
+        end
+    end
+end
+
+%% Plot and print
 for m=1:N_movie
+    switch p.Results.horzAx
+        case 'frames'
+            if ceil(size(data{m}{1,1}.vwcm.pos,1)/1000) == 1
+                XTickDiv = 20;
+            elseif ceil(size(data{m}{1,1}.vwcm.pos,1)/1000) <= 10
+                XTickDiv = 100;
+            else
+                XTickDiv = 1000;
+            end
+        case 'time'
+            tpf_factor = time_per_frame(m)/500;
+            if ceil(size(data{m}{1,1}.vwcm.pos,1)*tpf_factor/120) == 1
+                XTickDiv = 15/tpf_factor;
+                timestring = 'seconds';
+            else
+                if ceil(size(data{m}{1,1}.vwcm.pos,1)*tpf_factor/120) <= 10
+                    XTickDiv = 60/tpf_factor;
+                else
+                    XTickDiv = 240/tpf_factor;
+                end
+                timestring = 'minutes';
+            end
+    end
+    XTC = cell(1,floor(size(data{m}{1,1}.vwcm.pos,1)/XTickDiv)); %DO PROPERLY IN THE LONG RUN!!!!
+    switch p.Results.horzAx
+        case 'frames'
+            for i = 1:floor(size(data{m}{1,1}.vwcm.pos,1)/(5*XTickDiv)) %DO PROPERLY IN THE LONG RUN!!!!
+                XTC{5*i+1} = i*5*XTickDiv;
+            end
+        case 'time'
+            for i = 1:floor(size(data{m}{1,1}.vwcm.pos,1)/(6*XTickDiv)) %DO PROPERLY IN THE LONG RUN!!!!
+                XTC{6*i+1} = i*6*XTickDiv*tpf_factor/60;
+            end
+    end
     for s=1:size(data{m},1)
         figure('Visible','off', 'PaperPositionMode', 'manual','PaperUnits',...
         'centimeters', 'PaperPosition', [0 0 29.7 21]);
         for c=1:2
-            if strcmp(method,'vwcm')
-                plot_data = data{m}{s,c}.vwcm; %adjust method for switching between FITTED and VWCM traces!!!
-            elseif strcmp(method,'gF')
-                plot_data = data{m}{s,c}.gF;
-            end
-            if ceil(size(plot_data.pos,1)/1000) == 1
-                XTickDiv = 20;
-            elseif ceil(size(plot_data.pos,1)/1000) <= 10
-                XTickDiv = 100;
-            else
-                XTickDiv = 1000;
+            switch p.Results.method
+                
+                case 'vwcm'
+                    plot_data = data{m}{s,c}.vwcm; %adjust method for switching between FITTED and VWCM traces!!!
+                case 'gF'
+                    plot_data = data{m}{s,c}.gF;
             end
             tmp_plot = (1:size(plot_data.pos,1))';
             tmp_plot = [tmp_plot(plot_data.pos(:,1)>0) plot_data.r(plot_data.pos(:,1)>0)];
@@ -71,15 +124,17 @@ for m=1:N_movie
                     hold on
                     end
                 end
+                
                 plot(tmp_plot(:,1), tmp_plot(:,2),['.' channel{c}(1)], 'MarkerSize', 5);
                 hold on
-                plot(tmp_plot(:,1),plot_data.rms10(plot_data.pos(:,1)>0),'-k', 'LineWidth', 0.1);
+                switch p.Results.filter
+                    case 'RMS'
+                        plot(tmp_plot(:,1),plot_data.rms10(plot_data.pos(:,1)>0),'-k', 'LineWidth', 0.1);
+                    case 'median'
+                        plot(tmp_plot(:,1),medfilt1(plot_data.r(plot_data.pos(:,1)>0),11),'-c', 'LineWidth', 0.1);
+                end
                 xlim([0 size(plot_data.pos,1)]) %DO PROPERLY IN THE LONG RUN!!!!
                 ylim(YLIM) %WATCH OUT - NEED TO ADJUST FOR OTHER PLOTS !!!!!
-                XTC = cell(1,floor(size(plot_data.pos,1)/XTickDiv)); %DO PROPERLY IN THE LONG RUN!!!!
-                for i = 1:floor(size(plot_data.pos,1)/(5*XTickDiv)) %DO PROPERLY IN THE LONG RUN!!!!
-                    XTC{5*i+1} = i*5*XTickDiv;
-                end
                 set(gca, 'XTick', 0:XTickDiv:size(plot_data.pos,1), 'XTickLabel', XTC, 'TickDir', 'in', 'Layer', 'top');
                 grid on 
                 title([channel{c} ' (' type{c} ') spot: Excursion / Rms10 traces. Spot pair # ' num2str(s) ' of '...
@@ -138,7 +193,14 @@ for m=1:N_movie
                 ylim([.9*min(data{m}{s,c}.itrace) max([data{m}{s,c}.itrace; 1])])
                 set(gca, 'XTick', 0:XTickDiv:size(data{m}{s,c}.itrace,1), 'XTickLabel', XTC, 'TickDir', 'in', 'Layer', 'top');
                 grid on
-                title(['Summed pixel Intensities. Cutoff: ' num2str(double(fit_cutoff{m,c}(s)))])
+                switch p.Results.horzAx
+                    case 'frames'
+                        title(['Summed pixel Intensities. Cutoff: ' num2str(double(fit_cutoff{m,c}(s)))])
+                        xlabel('frames')
+                    case 'time'
+                        title(['Summed pixel Intensities. Cutoff: ' num2str(double(fit_cutoff{m,c}(s)*tpf_factor)) ' ' timestring '.'])
+                        xlabel('time (' timestring ')')
+                end
 
                 subplot('Position',[0.69, ((2-c)*0.5+0.025), 0.155, 0.175])
                 hold off
@@ -173,7 +235,7 @@ for m=1:N_movie
         %%
         % Save as image
         %set(gcf, 'PaperPositionMode', 'auto')
-        print('-dpng', '-r96', [path_out filesep method '_traces_v6' filesep 'traces_RMS_hist_m' num2str(m) '_s' num2str(s) '.png']);
+        print('-dpng', '-r96', [path_out filesep p.Results.method '_traces_new' filesep 'traces_RMS_hist_m' num2str(m) '_s' num2str(s) '.png']);
         close(gcf)
     end
     display(['Done printing figures for movie #' num2str(m)]) 
