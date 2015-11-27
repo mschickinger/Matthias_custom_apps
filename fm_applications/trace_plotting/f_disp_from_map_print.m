@@ -24,7 +24,7 @@ clear channel chb cut fit_cutoff data
 
 load('data_plot.mat');
 load('data_spot_pairs.mat', 'data');
-disp('All data loaded. Starting plots.')
+disp('All data loaded.')
 
 if chb == 1
     chm = 2;
@@ -44,7 +44,7 @@ upper = 0.575;
 %% Get and plot displacement traces
 for m=1:size(data,1)
     if ceil(size(data{m}{1,1}.pos0,1)/1000) == 1
-                XTickDiv = 20;
+        XTickDiv = 20;
     elseif ceil(size(data{m}{1,1}.pos0,1)/1000) <= 10
         XTickDiv = 100;
     else
@@ -68,14 +68,14 @@ for m=1:size(data,1)
 
         % make plots
         figure('Visible','off', 'PaperPositionMode', 'manual','PaperUnits',...
-        'centimeters', 'PaperPosition', [0 0 29.7 10]);
+        'centimeters', 'PaperPosition', [0 0 29.7 9.9]);
         
         % displacement subplot
         subplot('Position', [0.035 upper 0.65 0.35])
         hold off
         plot(abs_disp_from_map(:), '.', 'MarkerSize', 5)
         hold on
-        plot(med_abs_disp_from_map(:), 'Color', [1 1 1].*.6, 'LineWidth', .1)
+        plot(med_abs_disp_from_map(:), 'Color', 'c', 'LineWidth', .2)
         set(gca, 'Ylim', YLIM, 'YTick', YLIM(1):YLIM(2), 'Xlim',[0 size(data{m}{s,1}.pos0,1)], ...
                 'XTick', 0:XTickDiv:size(data{m}{s,1}.pos0,1), 'XTickLabel', {},...
                 'TickDir', 'in', 'Layer', 'top');    
@@ -89,7 +89,7 @@ for m=1:size(data,1)
         hold off
         plot(abs_disp_mean_from_map(:), '.', 'MarkerSize', 5)
         hold on
-        plot(med_abs_disp_mean_from_map(:), 'Color', [1 1 1].*.6, 'LineWidth', .1)
+        plot(med_abs_disp_mean_from_map(:), 'Color', 'c', 'LineWidth', .2)
         set(gca, 'Ylim', YLIM, 'YTick', YLIM(1):YLIM(2), 'Xlim',[0 size(data{m}{s,1}.pos0,1)], ...
                 'XTick', 0:XTickDiv:size(data{m}{s,1}.pos0,1), 'XTickLabel', XTC,...
                 'TickDir', 'in', 'Layer', 'top');
