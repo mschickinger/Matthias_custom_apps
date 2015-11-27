@@ -89,14 +89,14 @@ for m=1:N_movie
                 timestring = 'minutes';
             end
     end
-    XTC = cell(1,floor(size(data{m}{1,1}.vwcm.pos,1)/XTickDiv)); %DO PROPERLY IN THE LONG RUN!!!!
+    XTC = cell(1,floor(size(data{m}{1,1}.vwcm.pos,1)/XTickDiv));
     switch p.Results.horzAx
         case 'frames'
-            for i = 1:floor(size(data{m}{1,1}.vwcm.pos,1)/(5*XTickDiv)) %DO PROPERLY IN THE LONG RUN!!!!
+            for i = 1:floor(size(data{m}{1,1}.vwcm.pos,1)/(5*XTickDiv))
                 XTC{5*i+1} = i*5*XTickDiv;
             end
         case 'time'
-            for i = 1:floor(size(data{m}{1,1}.vwcm.pos,1)/(5*XTickDiv)) %DO PROPERLY IN THE LONG RUN!!!!
+            for i = 1:floor(size(data{m}{1,1}.vwcm.pos,1)/(5*XTickDiv))
                 XTC{5*i+1} = i*5*XTickDiv*tpf_factor/60;
             end
     end
