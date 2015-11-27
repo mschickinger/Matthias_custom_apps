@@ -116,15 +116,14 @@ for m=1:N_movie
             %tmp_rms = [plot_data.frames(plot_data.frames>0) plot_data.rms10(plot_data.frames>0)];
                 % Plot some subplots (first row for channel c)
                 subplot('Position', [0.035 ((2-c)*0.5+0.28) 0.65 0.175])
+                
                 hold off
-
                 if ~isempty(tmp_plot(tmp_plot(:,2)>5,1))
                     for i = tmp_plot(tmp_plot(:,2)>5,1)
                         plot([i i], YLIM, '-', 'Color', [1 1 1].*.7);
                     hold on
                     end
                 end
-                
                 plot(tmp_plot(:,1), tmp_plot(:,2),['.' channel{c}(1)], 'MarkerSize', 5);
                 hold on
                 switch p.Results.filter
@@ -141,6 +140,7 @@ for m=1:N_movie
                     num2str(size(data{m},1)) ' / movie: ' num2str(m) ' of ' num2str(N_movie)])
 
                 subplot('Position', [0.69 ((2-c)*0.5+0.28) 0.0625 0.175])
+                
                 hold off
                 if sum(plot_data.pos(:,1) > 0) > 0
                     hist(plot_data.r(plot_data.r<=5),0:.05:5);
@@ -155,6 +155,7 @@ for m=1:N_movie
                 xlim(YLIM)
 
                 subplot('Position', [0.7625 ((2-c)*0.5+0.28) 0.0625 0.175])
+                
                 hold off
                 if sum(plot_data.pos(:,1) > 0) > 0
                     hist(plot_data.rms10(plot_data.rms10<=5),0:.05:5);
@@ -169,6 +170,7 @@ for m=1:N_movie
                 xlim(YLIM)
 
                 subplot('Position', [0.825 ((2-c)*0.5+0.28) 0.175 0.175])
+                
                 hold off
                 plot(0, 0, [channel{c}(1) 'x'])
                 plot(plot_data.disp100(plot_data.r>5,1),plot_data.disp100(plot_data.r>5,2), 'o', 'Color', [1 1 1]*.7, 'MarkerSize', 3);
@@ -181,6 +183,7 @@ for m=1:N_movie
                 grid on, axis square
                 title('Positions (drift corrected)')
 
+                
                 % Plot more subplots (second row for channel c)
                 subplot('Position',[0.035, ((2-c)*0.5+0.035), 0.65, 0.175])
                 hold off
@@ -203,6 +206,7 @@ for m=1:N_movie
                 end
 
                 subplot('Position',[0.69, ((2-c)*0.5+0.025), 0.155, 0.175])
+                
                 hold off
                 x_0 = round(mean(data{m}{s,c}.pos0(1:100,1)));
                 y_0 = round(mean(data{m}{s,c}.pos0(1:100,2)));
@@ -218,6 +222,7 @@ for m=1:N_movie
                 set(gca, 'YDir', 'normal', 'XTickLabel', {}, 'YTickLabel', {});
 
                 subplot('Position',[0.845, ((2-c)*0.5+0.025), 0.155, 0.175])
+                
                 hold off
                 x_0 = round(mean(data{m}{s,c}.pos0(end-99:end,1)));
                 y_0 = round(mean(data{m}{s,c}.pos0(end-99:end,2)));

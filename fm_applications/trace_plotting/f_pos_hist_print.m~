@@ -78,7 +78,7 @@ for m=1:N_movie
         case 'time'
             tpf_factor = time_per_frame(m)/500;
             if ceil(size(data{m}{1,1}.vwcm.pos,1)*tpf_factor/120) == 1
-                XTickDiv = 15/tpf_factor;
+                XTickDiv = 12/tpf_factor;
                 timestring = 'seconds';
             else
                 if ceil(size(data{m}{1,1}.vwcm.pos,1)*tpf_factor/120) <= 10
@@ -96,8 +96,8 @@ for m=1:N_movie
                 XTC{5*i+1} = i*5*XTickDiv;
             end
         case 'time'
-            for i = 1:floor(size(data{m}{1,1}.vwcm.pos,1)/(6*XTickDiv)) %DO PROPERLY IN THE LONG RUN!!!!
-                XTC{6*i+1} = i*6*XTickDiv*tpf_factor/60;
+            for i = 1:floor(size(data{m}{1,1}.vwcm.pos,1)/(5*XTickDiv)) %DO PROPERLY IN THE LONG RUN!!!!
+                XTC{5*i+1} = i*5*XTickDiv*tpf_factor/60;
             end
     end
     for s=1:size(data{m},1)
@@ -114,17 +114,16 @@ for m=1:N_movie
             tmp_plot = (1:size(plot_data.pos,1))';
             tmp_plot = [tmp_plot(plot_data.pos(:,1)>0) plot_data.r(plot_data.pos(:,1)>0)];
             %tmp_rms = [plot_data.frames(plot_data.frames>0) plot_data.rms10(plot_data.frames>0)];
-                % Plot some subplots (first row for channel c)
-                subplot('Position', [0.035 ((2-c)*0.5+0.28) 0.65 0.175])
+                
+            % Plot some subplots (first row for channel c)
+                subplot('Position', [0.045 ((2-c)*0.5+0.29) 0.65 0.175])
                 hold off
-
                 if ~isempty(tmp_plot(tmp_plot(:,2)>5,1))
                     for i = tmp_plot(tmp_plot(:,2)>5,1)
                         plot([i i], YLIM, '-', 'Color', [1 1 1].*.7);
                     hold on
                     end
                 end
-                
                 plot(tmp_plot(:,1), tmp_plot(:,2),['.' channel{c}(1)], 'MarkerSize', 5);
                 hold on
                 switch p.Results.filter
@@ -139,8 +138,17 @@ for m=1:N_movie
                 grid on 
                 title([channel{c} ' (' type{c} ') spot: Excursion / Rms10 traces. Spot pair # ' num2str(s) ' of '...
                     num2str(size(data{m},1)) ' / movie: ' num2str(m) ' of ' num2str(N_movie)])
+                ylabel('px')
+                switch p.Results.horzAx
+                    case 'frames'
+                        xlabel('frames')
+                    case 'time'
+                        xlabel(['time (' timestring ')'])
+                end
 
-                subplot('Position', [0.69 ((2-c)*0.5+0.28) 0.0625 0.175])
+                
+      
+                subplot('Position', [0.70 ((2-c)*0.5+0.29) 0.0625 0.165])
                 hold off
                 if sum(plot_data.pos(:,1) > 0) > 0
                     hist(plot_data.r(plot_data.r<=5),0:.05:5);
@@ -154,7 +162,8 @@ for m=1:N_movie
                 %title('Histogram excursion')
                 xlim(YLIM)
 
-                subplot('Position', [0.7625 ((2-c)*0.5+0.28) 0.0625 0.175])
+                
+                subplot('Position', [0.7725 ((2-c)*0.5+0.29) 0.0625 0.165])
                 hold off
                 if sum(plot_data.pos(:,1) > 0) > 0
                     hist(plot_data.rms10(plot_data.rms10<=5),0:.05:5);
@@ -168,7 +177,8 @@ for m=1:N_movie
                 %title('Histogram RMS10 deviation')
                 xlim(YLIM)
 
-                subplot('Position', [0.825 ((2-c)*0.5+0.28) 0.175 0.175])
+                
+                subplot('Position', [0.835 ((2-c)*0.5+0.29) 0.165 0.165])
                 hold off
                 plot(0, 0, [channel{c}(1) 'x'])
                 plot(plot_data.disp100(plot_data.r>5,1),plot_data.disp100(plot_data.r>5,2), 'o', 'Color', [1 1 1]*.7, 'MarkerSize', 3);
@@ -181,8 +191,9 @@ for m=1:N_movie
                 grid on, axis square
                 title('Positions (drift corrected)')
 
+                
                 % Plot more subplots (second row for channel c)
-                subplot('Position',[0.035, ((2-c)*0.5+0.035), 0.65, 0.175])
+                subplot('Position',[0.045, ((2-c)*0.5+0.040), 0.65, 0.175])
                 hold off
                 plot(data{m}{s,c}.itrace, ['-' channel{c}(1)], 'LineWidth', 0.75);
                 hold on
@@ -198,11 +209,12 @@ for m=1:N_movie
                         title(['Summed pixel Intensities. Cutoff: ' num2str(double(fit_cutoff{m,c}(s)))])
                         xlabel('frames')
                     case 'time'
-                        title(['Summed pixel Intensities. Cutoff: ' num2str(double(fit_cutoff{m,c}(s)*tpf_factor)) ' ' timestring '.'])
-                        xlabel('time (' timestring ')')
+                        title(['Summed pixel Intensities. Cutoff: ' num2str(double(fit_cutoff{m,c}(s)*tpf_factor/60)) ' ' timestring '.'])
+                        xlabel(['time (' timestring ')'])
                 end
 
-                subplot('Position',[0.69, ((2-c)*0.5+0.025), 0.155, 0.175])
+                
+                subplot('Position',[0.70, ((2-c)*0.5+0.030), 0.155, 0.175])
                 hold off
                 x_0 = round(mean(data{m}{s,c}.pos0(1:100,1)));
                 y_0 = round(mean(data{m}{s,c}.pos0(1:100,2)));
@@ -217,7 +229,8 @@ for m=1:N_movie
                 axis square
                 set(gca, 'YDir', 'normal', 'XTickLabel', {}, 'YTickLabel', {});
 
-                subplot('Position',[0.845, ((2-c)*0.5+0.025), 0.155, 0.175])
+                
+                subplot('Position',[0.85, ((2-c)*0.5+0.030), 0.155, 0.175])
                 hold off
                 x_0 = round(mean(data{m}{s,c}.pos0(end-99:end,1)));
                 y_0 = round(mean(data{m}{s,c}.pos0(end-99:end,2)));
