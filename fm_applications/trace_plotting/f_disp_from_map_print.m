@@ -3,10 +3,6 @@ function f_disp_from_map_print (path_out, varargin)
 % Plots the displacements of mobile spot position (single frame and mean)
 % from mapped fixed spot position and produces .png images of these graphs
 
-%% Load data and set parameters
-cd(path_out)
-folder_out = [path_out filesep 'disp_from_map_traces_v1'];
-mkdir(folder_out)
 %% parse input
 
 p = inputParser;
@@ -20,22 +16,24 @@ addParameter(p, 'YLIM', [0 2], @isvector);
 parse(p, path_out, varargin{:});
 YLIM = p.Results.YLIM;
 
+%% Load data
 clear channel chb cut fit_cutoff data
 
+cd(path_out)
+folder_out = [path_out filesep 'disp_from_map_traces_new'];
+mkdir(folder_out)
+
+load('data_proc.mat');
 load('data_plot.mat');
 load('data_spot_pairs.mat', 'data');
 disp('All data loaded.')
 
+%% Set parameters
 if chb == 1
     chm = 2;
 else
     chm = 1;
 end
-%{
-type = cell(2,1);
-type{chm} = 'mobile';
-type{chb} = 'fixed';
-%}
 
 % subplot parameters
 lower = 0.125;
