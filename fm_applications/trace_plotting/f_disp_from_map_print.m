@@ -7,6 +7,18 @@ function f_disp_from_map_print (path_out, varargin)
 cd(path_out)
 folder_out = [path_out filesep 'disp_from_map_traces_v1'];
 mkdir(folder_out)
+%% parse input
+
+p = inputParser;
+
+addRequired(p, 'path_out', @isdir);
+%addParameter(p, 'filter', 'RMS', @ischar);
+%addParameter(p, 'method', 'vwcm', @ischar);
+addParameter(p, 'YLIM', [0 2], @isvector);
+%addParameter(p, 'horzAx', 'frames', @ischar);
+
+parse(p, path_out, varargin{:});
+YLIM = p.Results.YLIM;
 
 clear channel chb cut fit_cutoff data
 
