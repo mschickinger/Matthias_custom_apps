@@ -138,6 +138,13 @@ for m=1:N_movie
                 grid on 
                 title([channel{c} ' (' type{c} ') spot: Excursion / Rms10 traces. Spot pair # ' num2str(s) ' of '...
                     num2str(size(data{m},1)) ' / movie: ' num2str(m) ' of ' num2str(N_movie)])
+                ylabel('px')
+                switch p.Results.horzAx
+                    case 'frames'
+                        xlabel('frames')
+                    case 'time'
+                        xlabel(['time (' timestring ')'])
+                end
 
                 subplot('Position', [0.69 ((2-c)*0.5+0.28) 0.0625 0.175])
                 
