@@ -112,7 +112,7 @@ for m=1:size(data,1)
         hx.EdgeColor = [0 0.4470 0.7410];
         set(gca, 'XTick', -5:5, 'XTickLabel', {-5, [], -3, [], -1, [], 1, [], 3, [], 5},...
             'YTickLabel', {}, 'TickDir', 'in', 'Xlim', [-5 5], 'XGrid', 'on', 'YTick', [], ...
-            'Ylim', 1.1*[0 max(hx.Values)], 'XAxisLocation', 'top')
+            'YLim', [0 1], 'XAxisLocation', 'top')
         
         % y-displacement distribution
         subplot('Position',[0.71, lower - 0.05, 0.08, 0.57])
@@ -121,7 +121,7 @@ for m=1:size(data,1)
         hy.EdgeColor = [0 0.4470 0.7410];
         set(gca, 'view', [-90 90], 'XTick', -5:5, 'XTickLabel', {-5, [], -3, [], -1, [], 1, [], 3, [], 5},...
             'YTick', 0:1, 'YTickLabel', {}, 'TickDir', 'in', 'Xlim', [-5 5], 'XGrid', 'on', ...
-            'Ylim', 1.1*[0 max(hy.Values)])
+            'YLim', [0 1])
         
         % save .png picture
         print('-dpng', '-r96', [folder_out filesep 'disp_from_map_m' num2str(m) '_s' num2str(s) '.png'])
