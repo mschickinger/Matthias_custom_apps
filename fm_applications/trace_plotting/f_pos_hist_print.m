@@ -114,9 +114,9 @@ for m=1:N_movie
             tmp_plot = (1:size(plot_data.pos,1))';
             tmp_plot = [tmp_plot(plot_data.pos(:,1)>0) plot_data.r(plot_data.pos(:,1)>0)];
             %tmp_rms = [plot_data.frames(plot_data.frames>0) plot_data.rms10(plot_data.frames>0)];
-                % Plot some subplots (first row for channel c)
-                subplot('Position', [0.035 ((2-c)*0.5+0.28) 0.65 0.175])
                 
+            % Plot some subplots (first row for channel c)
+                subplot('Position', [0.045 ((2-c)*0.5+0.3) 0.65 0.165])
                 hold off
                 if ~isempty(tmp_plot(tmp_plot(:,2)>5,1))
                     for i = tmp_plot(tmp_plot(:,2)>5,1)
@@ -146,8 +146,8 @@ for m=1:N_movie
                         xlabel(['time (' timestring ')'])
                 end
 
-                subplot('Position', [0.69 ((2-c)*0.5+0.28) 0.0625 0.175])
                 
+                subplot('Position', [0.70 ((2-c)*0.5+0.3) 0.0625 0.165])
                 hold off
                 if sum(plot_data.pos(:,1) > 0) > 0
                     hist(plot_data.r(plot_data.r<=5),0:.05:5);
@@ -161,8 +161,8 @@ for m=1:N_movie
                 %title('Histogram excursion')
                 xlim(YLIM)
 
-                subplot('Position', [0.7625 ((2-c)*0.5+0.28) 0.0625 0.175])
                 
+                subplot('Position', [0.7675 ((2-c)*0.5+0.3) 0.0625 0.165])
                 hold off
                 if sum(plot_data.pos(:,1) > 0) > 0
                     hist(plot_data.rms10(plot_data.rms10<=5),0:.05:5);
@@ -176,8 +176,8 @@ for m=1:N_movie
                 %title('Histogram RMS10 deviation')
                 xlim(YLIM)
 
-                subplot('Position', [0.825 ((2-c)*0.5+0.28) 0.175 0.175])
                 
+                subplot('Position', [0.83 ((2-c)*0.5+0.3) 0.165 0.165])
                 hold off
                 plot(0, 0, [channel{c}(1) 'x'])
                 plot(plot_data.disp100(plot_data.r>5,1),plot_data.disp100(plot_data.r>5,2), 'o', 'Color', [1 1 1]*.7, 'MarkerSize', 3);
@@ -192,7 +192,7 @@ for m=1:N_movie
 
                 
                 % Plot more subplots (second row for channel c)
-                subplot('Position',[0.035, ((2-c)*0.5+0.035), 0.65, 0.175])
+                subplot('Position',[0.045, ((2-c)*0.5+0.05), 0.65, 0.175])
                 hold off
                 plot(data{m}{s,c}.itrace, ['-' channel{c}(1)], 'LineWidth', 0.75);
                 hold on
@@ -212,8 +212,8 @@ for m=1:N_movie
                         xlabel(['time (' timestring ')'])
                 end
 
-                subplot('Position',[0.69, ((2-c)*0.5+0.025), 0.155, 0.175])
                 
+                subplot('Position',[0.70, ((2-c)*0.5+0.04), 0.155, 0.175])
                 hold off
                 x_0 = round(mean(data{m}{s,c}.pos0(1:100,1)));
                 y_0 = round(mean(data{m}{s,c}.pos0(1:100,2)));
@@ -228,8 +228,8 @@ for m=1:N_movie
                 axis square
                 set(gca, 'YDir', 'normal', 'XTickLabel', {}, 'YTickLabel', {});
 
-                subplot('Position',[0.845, ((2-c)*0.5+0.025), 0.155, 0.175])
                 
+                subplot('Position',[0.85, ((2-c)*0.5+0.04), 0.155, 0.175])
                 hold off
                 x_0 = round(mean(data{m}{s,c}.pos0(end-99:end,1)));
                 y_0 = round(mean(data{m}{s,c}.pos0(end-99:end,2)));
