@@ -1,7 +1,7 @@
-function f_disp_from_map_print_v1 (path_out, YLIM)
+function f_disp_from_map_print (path_out, varargin)
 
-% Plots the displacements of mobile spot actual and mean position from
-% mapped fixed spot position and produces .png images of these graphs
+% Plots the displacements of mobile spot position (single frame and mean)
+% from mapped fixed spot position and produces .png images of these graphs
 
 %% Load data and set parameters
 cd(path_out)
