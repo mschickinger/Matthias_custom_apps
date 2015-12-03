@@ -24,6 +24,7 @@ function [ boundaries, interval_plots ] = get_intervals( traces, ax, varargin )
     interval_plots = cell(N,1);
 
     figure(traces)
+    XLIM = get(ax, 'XLim');
     YLIM = get(ax, 'YLim');
 
     %Create done button
@@ -54,6 +55,8 @@ function [ boundaries, interval_plots ] = get_intervals( traces, ax, varargin )
             h = imrect(ax);
             pos = wait(h);
             pos = round(pos);
+            pos(1) = max([round(pos(1)) XLIM(1)+1]);
+            pos(3) = min([round(pos(3)) XLIM(2)-ceil(pos(1))]);
             switch n<=N
                 case true
                     boundaries(n,:) = [max([2 pos(1)]) pos(3)]; % Mininum value 2 to avoid indexing error for delta_pos calculation
