@@ -9,8 +9,17 @@ function [ boundaries, interval_plots ] = get_intervals( traces, ax, varargin )
     % interval_plots: cell array with handles to rectangles depicting
     %                 picked intervals
     
+    % parse input
+    p = inputParser;
+    
+    addRequired(p, 'traces', @ishandle)
+    addRequired(p, 'ax', @ishandle)
+    addOptional(p, 'N', 20, @isnumeric)
+    
+    parse(p, traces, ax, varargin{:})
+    
     % set parameters
-    N = 20;
+    N = p.Results.N;
     boundaries = zeros(N,2);
     interval_plots = cell(N,1);
 
@@ -35,7 +44,7 @@ function [ boundaries, interval_plots ] = get_intervals( traces, ax, varargin )
 
     pick = 1;
     n = 1;
-    while pick
+    while pick && n<=N
         uiwait(traces)
     end
     close(traces)
