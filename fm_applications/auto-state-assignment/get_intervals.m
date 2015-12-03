@@ -47,7 +47,6 @@ function [ boundaries, interval_plots ] = get_intervals( traces, ax, varargin )
     while pick && n<=N
         uiwait(traces)
     end
-    close(traces)
     boundaries = boundaries(boundaries(:,1)>0,:);
 
         function add(source, callbackdata)
