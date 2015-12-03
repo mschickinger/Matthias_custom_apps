@@ -17,7 +17,7 @@ function [bound_states_data] = collect_bound_states(movie_data, correlations, be
     while i <= min([N_max length(spots)]) && go_on
         [traces, primary_ax] = plot_time_traces(movie_data(spots(i),:));
         bs_params{i,1} = spots(i);
-        bs_params{i,2} = get_intervals(traces, primary_ax);
+        [bs_params{i,2}, ~ ] = get_intervals(traces, primary_ax);
         go_on = strcmp(questdlg('Keep collecting states?','Go on?','Yes', 'No', 'Stats', 'Yes'),'Yes');
         i = i+1;
     end
