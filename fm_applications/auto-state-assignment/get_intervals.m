@@ -1,4 +1,4 @@
-function [ boundaries ] = get_intervals( traces, ax, varargin )
+function [ boundaries, interval_plots ] = get_intervals( traces, ax, varargin )
 %GET_INTERVALS lets the user pick N intervals from a time trace
     % INPUT
     % traces: handle to figure with time trace plots
