@@ -21,7 +21,7 @@ function [ traces, primary_ax ] = plot_time_traces(spot_pair_data, varargin)
     p = inputParser;
     
     addRequired(p, 'spot_pair_data', @iscell);
-    addParamter(p, 'YLIM', [0 2], @isvector);
+    addParameter(p, 'YLIM', [0 2], @isvector);
     addParameter(p, 'cl', true, @islogical);
     
     parse(p, spot_pair_data, varargin{:});
