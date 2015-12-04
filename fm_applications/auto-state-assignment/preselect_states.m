@@ -45,5 +45,6 @@ function [ states ] = preselect_states(movie_data, behaviour)
             end
         end
     end
+    close all
 end
 
