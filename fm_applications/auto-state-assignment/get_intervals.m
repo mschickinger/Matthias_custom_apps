@@ -55,13 +55,16 @@ function [ boundaries, interval_plots ] = get_intervals( traces, ax, varargin )
             h = imrect(ax);
             pos = wait(h);
             pos = round(pos);
-            pos(1) = max([round(pos(1)) XLIM(1)+1]);
-            pos(3) = min([round(pos(3)) XLIM(2)-ceil(pos(1))]);
+            if pos(1)<2
+                pos(3) = pos(3)+pos(1)-2; 
+                pos(1) = 2; % Mininum value 2 to avoid indexing error for delta_pos calculation
+            end
+            pos(3) = min([XLIM(2)-pos(1)-1 pos(3)]); % Maximum value second to last to avoid indexing error for (forward) delta_pos calculation
             switch n<=N
                 case true
-                    boundaries(n,:) = [max([2 pos(1)]) pos(3)]; % Mininum value 2 to avoid indexing error for delta_pos calculation
+                    boundaries(n,:) = [pos(1) pos(3)]; 
                 case false
-                    boundaries = [boundaries; [max([2 pos(1)]) pos(3)]];
+                    boundaries = [boundaries; [pos(1) pos(3)]];
             end
             delete(h)
             interval_plots{n} = rectangle('Position', [pos(1) YLIM(1)+.1 pos(3) YLIM(2)-.2], 'EdgeColor', 'b', 'LineWidth', 2);
