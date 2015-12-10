@@ -33,7 +33,7 @@ function [ boundaries, interval_plots ] = get_intervals( traces, ax, varargin )
 
     %Create undo button
     undo_button = uicontrol('Style', 'pushbutton', 'String', 'Undo',...
-        'Units', 'normalized', 'Position', [.425 .925 .15 .05],... %location, values based on plot_time_traces
+        'Units', 'normalized', 'Position', [.6 .925 .15 .05],... %location, values based on plot_time_traces
         'Callback', @undo); 
 
     %Create "next" button
