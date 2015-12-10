@@ -27,7 +27,6 @@ function [ boundaries, interval_plots ] = get_intervals( traces, ax, varargin )
     XLIM = get(ax, 'XLim');
     YLIM = get(ax, 'YLim');
 
-    %Create done button
     add_button = uicontrol('Style', 'pushbutton', 'String', 'Add',...
         'Units', 'normalized', 'Position', [.05 .925 .15 .05],... %location, values based on plot_time_traces
         'Callback', @add); 
@@ -37,10 +36,10 @@ function [ boundaries, interval_plots ] = get_intervals( traces, ax, varargin )
         'Units', 'normalized', 'Position', [.425 .925 .15 .05],... %location, values based on plot_time_traces
         'Callback', @undo); 
 
-    %Create done button
-    done_button = uicontrol('Style', 'pushbutton', 'String', 'Done',...
-        'Units', 'normalized', 'Position', [.8 .925 .15 .05],... %location, values based on plot_time_traces
-        'Callback', @done); 
+    %Create "next" button
+    next_button = uicontrol('Style', 'pushbutton', 'String', 'Next',...
+        'Units', 'normalized', 'Position', [.775 .925 .15 .05],... %location, values based on plot_time_traces
+        'Callback', @next); 
 
 
     pick = 1;
@@ -80,7 +79,7 @@ function [ boundaries, interval_plots ] = get_intervals( traces, ax, varargin )
             uiresume(traces)
         end
 
-        function done(source, callbackdata)
+        function next(source, callbackdata)
             pick = 0;
             uiresume(traces)
         end
