@@ -1,12 +1,32 @@
-function [ states ] = preselect_states(movie_data, behaviour)
+function [ states ] = preselect_states(movie_data, behaviour, varargin)
     %PRESELECT_STATES
     % Detailed explanation goes here
 
+    %% parse input
+    p = inputParser;
+    
+    addRequired(p, 'movie_data', @iscell);
+    addRequired(p, 'behaviour', @isvector);
+    addOptional(p, 'previous_states', [], @isstruct);
+    
+    parse(p, movie_data, behaviour, varargin{:});
+    
     %% set parameters
-    spots = find(behaviour==2)';
-    states.spotnums = spots';
-    states.unbound = cell(size(spots'));
-    states.bound = cell(size(spots'));
+    spots = find(behaviour==2);
+    
+    if ~isempty(p.Results.previous_states)
+        states = p.Results.previous_states;
+        i = find(states.spotnums==0, 1);
+        while isempty(states.unbound{i}) && isempty(states.bound{i}) && i>1
+            i = i-1;
+        end
+    else
+        states.spotnums = zeros(size(spots));
+        states.unbound = cell(size(spots));
+        states.bound = cell(size(spots));
+        i = 1;
+    end
+    
     state_colors = {'c','b'};
     
     %% collect intervals, assign states with Otsu and write to output
