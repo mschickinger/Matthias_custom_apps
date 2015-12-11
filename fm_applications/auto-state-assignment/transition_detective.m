@@ -1,4 +1,4 @@
-function [ ausgabe ] = transition_detective( vector, vector2 )
+function [ ausgabe ] = transition_detective( vector )
 
 
     %z?hlvariablen
@@ -135,23 +135,12 @@ function [ ausgabe ] = transition_detective( vector, vector2 )
     i=i+1;
     counter=counter+1;
 
-     end
-     
-     
     end
+     
     
-    
-    
-    
-    end
-    
-
     %ausgabe ausgabe vector
     plot(ausgabe,'g');
     hold on;
     plot(vector,'o', 'MarkerSize', 4);
 
-
-    %   matthiasfreetimemachine(sample_data{15,1}.rms10)
-    %   matthiasfreetimemachine(sample_data{24,1}.rms10)
 end
