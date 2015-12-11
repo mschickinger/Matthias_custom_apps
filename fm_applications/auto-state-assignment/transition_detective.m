@@ -87,8 +87,8 @@ function [ ausgabe ] = transition_detective( vector, vector2 )
 
          %wenn bl?d geswitcht nicht speichern
           if abs(oldmean-savedlowmean)<0.3
-          savedlowmean=oldmean;
-          savedlowstd=oldstandard;
+              savedlowmean=oldmean;
+              savedlowstd=oldstandard;
           end
 
         %wenn in neuen Modus geprungen wird, bleibe in altem bis mean von 3 Werten 0.7 der Diff.
