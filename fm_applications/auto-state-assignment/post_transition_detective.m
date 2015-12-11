@@ -1,4 +1,4 @@
-function [ output_args ] = untitled( input_args )
+function [ output_args ] = post_transition_detective( ... )
 %UNTITLED Summary of this function goes here
 %   Detailed explanation goes here
 
