@@ -140,43 +140,11 @@ function [ ausgabe ] = transition_detective( vector, vector2 )
      
     end
     
-     state=2;
-     counter=0;
-        
-%neuer Modus: bound 
-elseif newmean<oldmean-a2*oldstandard && abs(newmean-savedlowmean)<b2*savedlowstd
     
-      distance=oldmean-newmean;
-      
-       if abs(oldmean-savedhighmean)<0.3
-       savedhighmean=oldmean;
-       savedhighstd=oldstandard;
-       end
     
-        while mean(vector(i:i+2))>(oldmean-distance*0.7)
-        unbound=unbound+1;
-        ausgabe(i)=state;
-        i=i+1;
-
-        end
-        
-     state=1;
-     counter=0;
-      
-end
-%jenachdem hochz?hlen
-    if state==2
-   unbound=unbound+1; 
-    else
-    bound=bound+1;
     
     end
     
-ausgabe(i)=state;
-i=i+1;
-counter=counter+1;
-
- end
 
     %ausgabe ausgabe vector
     plot(ausgabe,'g');
