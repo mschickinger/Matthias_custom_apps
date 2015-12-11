@@ -1,4 +1,4 @@
-function [ ausgabe ] = matthiasfreetimemachine( x )
+function [ ausgabe ] = transition_detective( vector )
 
 
 %z?hlvariablen
