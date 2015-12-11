@@ -35,40 +35,6 @@ function [ ausgabe ] = transition_detective( vector, vector2 )
     ausgabe(length(vector)-22)=0;
 
 
-%Anfangsstate
-if abs(median(vector(1:10))-max(vector))>abs(median(vector(1:10))-min(vector)) && median(vector(1:10))<0.7
-    state=1;
-else state=2;
-end
-
- while i<length(vector)-22
-     
-         %DEBUGGING
-%              if 35935<i
-%             disp(i);
-%             disp(state);
-%             disp(oldmean);
-%             disp(savedlowmean+2*savedlowstd);
-%             pause;
-%              end
-
-    %vergleich mit 18-28 vor jetzigem i  <<18
-    newmean=mean(vector(i+18:i+22));
-    
-             %standard und mean berechnung
-    
-    %wenn lange genug im zustand, oldmean ?ber "back"werte
-    if  counter>back
-         oldmean=mean(vector(i-back:i));
-         oldstandard=std(vector(i-back:i));
-         
-    else
-        %nicht lange genug, mittelwert zwischen so vielen werten jetzt wie
-        %m?glich und gespeichertem mittelwert
-        if state==2
-            
-            oldmean=(mean(vector(i-counter:i))*counter+(back-counter)*savedhighmean)/back;
-            oldstandard=(std(vector(i-counter:i))*counter+(back-counter)*savedhighstd)/back;
     %Anfangsstate
     if abs(median(vector(1:10))-max(vector))>abs(median(vector(1:10))-min(vector)) && median(vector(1:10))<0.7
         state=1;
