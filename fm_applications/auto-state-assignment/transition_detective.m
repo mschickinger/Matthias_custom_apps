@@ -38,7 +38,8 @@ function [ ausgabe ] = transition_detective( vector, vector2 )
     %Anfangsstate
     if abs(median(vector(1:10))-max(vector))>abs(median(vector(1:10))-min(vector)) && median(vector(1:10))<0.7
         state=1;
-    else state=2;
+    else
+        state=2;
     end
 
      while i<length(vector)-22
