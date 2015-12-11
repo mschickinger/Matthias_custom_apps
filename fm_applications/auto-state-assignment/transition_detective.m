@@ -1,4 +1,4 @@
-function [ ausgabe ] = transition_detective( vector )
+function [ ausgabe ] = transition_detective( vector, vector2 )
 
 
     %z?hlvariablen
