@@ -31,7 +31,6 @@ unbound=0;
 bound=0;
 
 %data
-vector=x;
 
 ausgabe(length(vector)-22)=0;
 
