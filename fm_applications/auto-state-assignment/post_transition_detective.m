@@ -41,13 +41,13 @@ zustand(zaehler,1)=eingabe(length(eingabe));
     zustand(zaehler,3)=length(eingabe);
      
      %mittel und std f?r alle zust?nde berechnen
-    for i=1:length(zustand(:,1));
+    for i=1:size(zustand,1)
 
         zustand(i,4)=mean(zustand(i,2):zustand(i,3));
         zustand(i,5)=std(zustand(i,2):zustand(i,3));
     end
     %aussortieren
-    for i=1:length(zustand(:,1))
+    for i=1:size(zustand,1)
         for j=zustand(i,2):zustand(i,3)
             %je nach Zustand
             if zustand(i,1)==1 && vector(j)>zustand(i,4)+x1*zustand(i,5)
