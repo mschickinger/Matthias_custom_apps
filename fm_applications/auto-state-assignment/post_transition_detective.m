@@ -43,22 +43,22 @@ zustand(zaehler,1)=eingabe(length(eingabe));
      %mittel und std f?r alle zust?nde berechnen
     for i=1:size(zustand,1)
 
-        zustand(i,4)=mean(zustand(i,2):zustand(i,3));
-        zustand(i,5)=std(zustand(i,2):zustand(i,3));
+        zustand(i,4)=mean(rms10(zustand(i,2):zustand(i,3)));
+        zustand(i,5)=std(rms10(zustand(i,2):zustand(i,3)));
     end
     %aussortieren
     for i=1:size(zustand,1)
         for j=zustand(i,2):zustand(i,3)
             %je nach Zustand
-            if zustand(i,1)==1 && vector(j)>zustand(i,4)+x1*zustand(i,5)
                 for k=j-4:j+4
                     if vector2(j)>y1
+            if zustand(i,1)==1 && rms10(j)>zustand(i,4)+x1*zustand(i,5)
                         eingabe(j)=2;
                     end
                 end
-            elseif zustand(i,1)==2 && vector(j)<zustand(i,4)-x2*zustand(i,5)
                 for k=j-4:j+4
                     if vector2(j)<y2
+            elseif zustand(i,1)==2 && rms10(j)<zustand(i,4)-x2*zustand(i,5)
                         eingabe(j)=1;
                     end
                 end
