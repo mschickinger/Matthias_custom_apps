@@ -25,11 +25,11 @@ end
      zustand(1,2)=1;
      
      %?nderung der zust?nde und jeweiligezust?nde merken
-     for i=1:length(ausgabe)
+     for i=1:length(eingabe)-1
          
-        if ausgabe(i+1)-ausgabe(i)~=0
+        if eingabe(i+1)-eingabe(i)~=0
 
-            zustand(zaehler,1)=ausgabe(i);
+            zustand(zaehler,1)=eingabe(i);
             zustand(zaehler,3)=i;
             zustand(zaehler+1,2)=i+1;
 
@@ -37,8 +37,8 @@ end
         end
      end
     
-zustand(zaehler,1)=ausgabe(length(ausgabe));
-    zustand(zaehler,3)=length(ausgabe);
+zustand(zaehler,1)=eingabe(length(eingabe));
+    zustand(zaehler,3)=length(eingabe);
      
      %mittel und std f?r alle zust?nde berechnen
     for i=1:length(zustand(:,1));
@@ -53,13 +53,13 @@ zustand(zaehler,1)=ausgabe(length(ausgabe));
             if zustand(i,1)==1 && vector(j)>zustand(i,4)+x1*zustand(i,5)
                 for k=j-4:j+4
                     if vector2(j)>y1
-                        ausgabe(j)=2;
+                        eingabe(j)=2;
                     end
                 end
             elseif zustand(i,1)==2 && vector(j)<zustand(i,4)-x2*zustand(i,5)
                 for k=j-4:j+4
                     if vector2(j)<y2
-                        ausgabe(j)=1;
+                        eingabe(j)=1;
                     end
                 end
             end
