@@ -2,7 +2,12 @@ function [ eingabe ] = post_transition_detective( eingabe, radius ,rms10)
 %UNTITLED Summary of this function goes here
 %   Detailed explanation goes here
 
-
+zahl=0;
+for i=1:length(eingabe)-1
+   if eingabe(i+1)-eingabe(i)~=0
+       zahl=zahl+1;
+   end
+end
          
      zaehler=1;
      zustand(10000000,5)=0;
