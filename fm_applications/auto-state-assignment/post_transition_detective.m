@@ -50,15 +50,15 @@ zustand(zaehler,1)=eingabe(length(eingabe));
     for i=1:size(zustand,1)
         for j=zustand(i,2):zustand(i,3)
             %je nach Zustand
-                for k=j-4:j+4
                     if vector2(j)>y1
             if zustand(i,1)==1 && rms10(j)>zustand(i,4)+x1*zustand(i,5)
+                for k=j-5:j+5
                         eingabe(j)=2;
                     end
                 end
-                for k=j-4:j+4
                     if vector2(j)<y2
             elseif zustand(i,1)==2 && rms10(j)<zustand(i,4)-x2*zustand(i,5)
+                for k=j-5:j+5   
                         eingabe(j)=1;
                     end
                 end
