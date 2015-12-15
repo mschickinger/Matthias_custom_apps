@@ -137,22 +137,10 @@ function [ ausgabe ] = transition_detective( vector )
     counter=counter+1;
 
      end
-     
-     
-    end
-    
-    
-    
-    
-    end
-    
 
-    %ausgabe ausgabe vector
+    %ausgabe  vector
     plot(ausgabe,'g');
     hold on;
     plot(vector,'o', 'MarkerSize', 4);
 
-
-    %   matthiasfreetimemachine(sample_data{15,1}.rms10)
-    %   matthiasfreetimemachine(sample_data{24,1}.rms10)
 end
