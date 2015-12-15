@@ -10,7 +10,7 @@ for i=1:length(eingabe)-1
 end
          
      zaehler=1;
-     zustand(10000000,5)=0;
+     zustand(zahl,5)=0;
      
      %sigmas entfernung von bound mittel
      x1=1.5;
