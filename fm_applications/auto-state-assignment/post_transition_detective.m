@@ -64,6 +64,10 @@ zustand(zaehler,1)=eingabe(length(eingabe));
                 end
             end
         end
-   end
+    end
+   plot(eingabe,'r');
+   hold on;
+    plot(rms10,'o', 'MarkerSize', 4);
+
 end
 
