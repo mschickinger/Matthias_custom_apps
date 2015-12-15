@@ -13,9 +13,9 @@ end
      zustand(zahl,5)=0;
      
      %sigmas entfernung von bound mittel
-     x1=1.5;
+     x1=4;
      %sigmas entfernung von unbound mittel
-     x2=1.5;
+     x2=3;
      
      %mindestradius f?r unbound
      y1=0.5;
