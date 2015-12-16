@@ -134,22 +134,6 @@ function [ ausgabe ] = transition_detective( vector )
     counter=counter+1;
 
      end
-<<<<<<< HEAD
-=======
-     
-     
-     
-     
-     
-     
-     
-     
-     
-
-     
-    
-     
->>>>>>> origin/short_time_state_analysis
 
     %ausgabe  vector
     plot(ausgabe,'g');

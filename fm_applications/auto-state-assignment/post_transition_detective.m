@@ -1,8 +1,5 @@
-<<<<<<< HEAD
 function [ eingabe ] = post_transition_detective( eingabe, radius ,rms10)
-=======
-function [ output_args ] = post_transition_detective( ... )
->>>>>>> origin/short_time_state_analysis
+
 %UNTITLED Summary of this function goes here
 %   Detailed explanation goes here
 
