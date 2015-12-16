@@ -50,13 +50,13 @@ end
             if zustand(i,1)==1 && rms10(j)>zustand(i,4)+x1*zustand(i,5)
                 for k=j-5:j+5
                     if radius(j)>y1
-                        eingabe(j)=2;
+                        eingabe(k)=2;
                     end
                 end
             elseif zustand(i,1)==2 && rms10(j)<zustand(i,4)-x2*zustand(i,5)
                 for k=j-5:j+5   
-                    if radius(j)<y2
-                        eingabe(j)=1;
+                    if radius(k)<y2
+                        eingabe(k)=1;
                     end
                 end
             end
@@ -64,7 +64,7 @@ end
     end
    plot(eingabe,'r');
    hold on;
-   plot(rms10,'o', 'MarkerSize', 4);
+    plot(rms10,'o', 'MarkerSize', 4);
 
 end
 
