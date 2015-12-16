@@ -62,18 +62,15 @@ function [ ausgabe ] = transition_detective( vector )
         if  counter>back
              oldmean=mean(vector(i-back:i));
              oldstandard=std(vector(i-back:i));
-
         else
             %nicht lange genug, mittelwert zwischen so vielen werten jetzt wie
             %m?glich und gespeichertem mittelwert
             if state==2
-
                 oldmean=(mean(vector(i-counter:i))*counter+(back-counter)*savedhighmean)/back;
                 oldstandard=(std(vector(i-counter:i))*counter+(back-counter)*savedhighstd)/back;
             else
                 oldmean=(mean(vector(i-counter:i))*counter+(back-counter)*savedlowmean)/back;
                 oldstandard=(std(vector(i-counter:i))*counter+(back-counter)*savedlowstd)/back;
-
             end
         end
 
@@ -137,6 +134,22 @@ function [ ausgabe ] = transition_detective( vector )
     counter=counter+1;
 
      end
+<<<<<<< HEAD
+=======
+     
+     
+     
+     
+     
+     
+     
+     
+     
+
+     
+    
+     
+>>>>>>> origin/short_time_state_analysis
 
     %ausgabe  vector
     plot(ausgabe,'g');
