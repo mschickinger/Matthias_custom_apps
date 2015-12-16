@@ -49,14 +49,14 @@ end
             %je nach Zustand
             if zustand(i,1)==1 && rms10(j)>zustand(i,4)+x1*zustand(i,5)
                 for k=j-5:j+5
-                    if radius(j)>y1
-                        eingabe(j)=2;
+                    if radius(k)>y1
+                        eingabe(k)=2;
                     end
                 end
             elseif zustand(i,1)==2 && rms10(j)<zustand(i,4)-x2*zustand(i,5)
-                for k=j-5:j+5   
-                    if radius(j)<y2
-                        eingabe(j)=1;
+                for k=j-4:j+4   
+                    if all(radius(k-1:k+1))<y2
+                        eingabe(k-1:k+1)=1;
                     end
                 end
             end
