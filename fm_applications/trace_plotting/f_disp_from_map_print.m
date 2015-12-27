@@ -20,7 +20,7 @@ YLIM = p.Results.YLIM;
 clear channel chb cut fit_cutoff data
 
 cd(path_out)
-folder_out = [path_out filesep 'disp_from_map_traces_new'];
+folder_out = [path_out filesep 'disp_from_map_traces'];
 mkdir(folder_out)
 
 load('data_proc.mat');
