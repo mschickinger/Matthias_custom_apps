@@ -138,5 +138,4 @@ h4 = bar(proz_ueberein);
 title('Übereinstimmung in %');
 set(h4,'FaceColor','b');
 str = num2str(proz_ueberein); 
-
 text(1,1,str,'horizontalalignment','center','verticalalignment','bottom','FontSize',20); 
