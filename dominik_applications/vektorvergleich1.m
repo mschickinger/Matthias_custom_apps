@@ -1,4 +1,4 @@
-toleranz_max = 5;
+toleranz_max = 5; %bla
 vektor1 = ones(1,36000);
 vektor1([6 7 8 9 10 500:550 600:20000 35000:end]) = 2;
 vektor2 = ones(1,36000);
