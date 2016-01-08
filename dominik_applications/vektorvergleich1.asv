@@ -93,16 +93,11 @@ function [] = vektorvergleich1(vektor1,vektor2,toleranz_max)
     b_ausser_tol2 = 0;
     for j = (1:length(b_pos2))
         if any(ismember(b_matrix(1:end,j),-toleranz_max:toleranz_max)==1)
-            b_ausser_tol2 = b_ausser_tol2;
+            b_ausser_tol2 = unb_ausser_tol2;
         else
-            b_ausser_tol2 = b_ausser_tol2 +1;
+            unb_ausser_tol2 = unb_ausser_tol2 +1;
         end
     end
-    
-    %unb_ausser_tol1
-    %unb_ausser_tol2
-    %b_ausser_tol1
-    %b_ausser_tol2
     
     %b_matrix_in_tol = find(ismember(b_matrix,-toleranz_max:toleranz_max)==1);
     
