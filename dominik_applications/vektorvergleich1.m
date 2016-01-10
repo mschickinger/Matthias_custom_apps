@@ -1,6 +1,23 @@
-function [] = vektorvergleich1(vektor1,vektor2,toleranz_max)
-%UNTITLED Summary of this function goes here
+function [pos_b_event,pos_unb_event] = vektorvergleich1(vektor1,vektor2,toleranz_max)
+        
+%{
+    input: 
+    zwei ersten beiden variablen (vektor1, vektor2) sind vektoren mit 
+    36.000 komponenten, die entweder 1 oder 2 sein druerfen. 1 steht dabei
+    für den gebundenen zustand und 2 für den ungebundenen zustand. die 
+    funktion vergleicht nun diese beiden vektoren. zum einen auf ihre 
+    globale deckung und zum anderen auf die uebergänge zwischen den beiden 
+    zustaenden. 
+    die dritte variable (toleranz_max) gibt die toleranz an, bei der zwei 
+    uebergaenge mit abweichung noch als dasselbe event erkannt wird.
+    
+    output:
+    die beiden variablen (pos_b_event, pos_unb_event) geben sie positionen
+    der events an, die innerhalb der toleranz liegen. fuer binding events
+    und unbinding events.
 
+%}
+    
     %prozentuale deckung der beiden vektoren:
     ueberein = vektor1==vektor2;
     proz_ueberein = (sum(ueberein)*100)/length(ueberein);
@@ -42,6 +59,7 @@ function [] = vektorvergleich1(vektor1,vektor2,toleranz_max)
         
     %unb_vektor_plot gibt die abweichungen der unbinding events von 2 zu 1
     %fuer den plot
+    unb_vektor_plot = [];
     for j = (1:length(unb_vektor_in_tol))
          unb_vektor_plot(j) = unb_matrix(unb_vektor_in_tol(j));       
     end
@@ -81,6 +99,7 @@ function [] = vektorvergleich1(vektor1,vektor2,toleranz_max)
         
     %b_vektor_plot gibt die abweichungen der binding events von 2 zu 1 fuer
     %den plot
+    b_vektor_plot = [];
     for j = (1:length(b_vektor_in_tol))
          b_vektor_plot(j) = b_matrix(b_vektor_in_tol(j));       
     end
@@ -88,6 +107,11 @@ function [] = vektorvergleich1(vektor1,vektor2,toleranz_max)
     %anzahl der binding events innerhalb der toleranz
     n_b = length(b_vektor_plot);
     
+    
+    %OUTPUT
+    %das sind jetzt aber die positionen in der matrix, nicht in vektor1!!!
+    pos_b_event = b_vektor_in_tol;
+    pos_unb_event = unb_vektor_plot;
     
     %EVENTS AUSSERHALB TOLERANZ:
     %unbinding events von 1 auf 2:
