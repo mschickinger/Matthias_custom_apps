@@ -1,4 +1,4 @@
-function [pos_b_event,pos_unb_event] = vektorvergleich1(vektor1,vektor2,toleranz_max)
+function [pos_unique] = vektorvergleich1(vektor1,vektor2,toleranz_max)
         
 %{
     input: 
@@ -12,10 +12,11 @@ function [pos_b_event,pos_unb_event] = vektorvergleich1(vektor1,vektor2,toleranz
     uebergaenge mit abweichung noch als dasselbe event erkannt wird.
     
     output:
-    die beiden variablen (pos_b_event, pos_unb_event) geben sie positionen
-    der events an, die innerhalb der toleranz liegen. fuer binding events
-    und unbinding events.
-
+    die variable (pos_unique) vereint die positionen von events, die
+    innerhalb der toleranz in beiden vektoren vorhanden sind. zuerst kommen
+    die positionen der binding events anschlieﬂend die der unbinding
+    events.
+    
 %}
     
     %prozentuale deckung der beiden vektoren:
@@ -108,11 +109,20 @@ function [pos_b_event,pos_unb_event] = vektorvergleich1(vektor1,vektor2,toleranz
     n_b = length(b_vektor_plot);
     
     
-    %OUTPUT
-    %das sind jetzt aber die positionen in der matrix, nicht in vektor1!!!
-    pos_b_event = b_vektor_in_tol;
-    pos_unb_event = unb_vektor_plot;
+    %OUTPUT:
+    pos_unique = [];
+    for i = (1:length(b_pos1))
+        if any(b_matrix_in_tol(i,:)==1)
+            pos_unique = [pos_unique b_pos1(i)];
+        end
+    end
+    for j = (1:length(unb_pos1))
+        if any(unb_matrix_in_tol(j,:)==1)
+            pos_unique = [pos_unique unb_pos1(j)];
+        end
+    end
     
+   
     %EVENTS AUSSERHALB TOLERANZ:
     %unbinding events von 1 auf 2:
     unb_ausser_tol1 = 0;    
