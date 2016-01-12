@@ -4,9 +4,9 @@ function [pos_unique] = vektorvergleich1(vektor1,vektor2,toleranz_max)
     input: 
     zwei ersten beiden variablen (vektor1, vektor2) sind vektoren mit 
     36.000 komponenten, die entweder 1 oder 2 sein druerfen. 1 steht dabei
-    für den gebundenen zustand und 2 für den ungebundenen zustand. die 
+    f?r den gebundenen zustand und 2 f?r den ungebundenen zustand. die 
     funktion vergleicht nun diese beiden vektoren. zum einen auf ihre 
-    globale deckung und zum anderen auf die uebergänge zwischen den beiden 
+    globale deckung und zum anderen auf die ueberg?nge zwischen den beiden 
     zustaenden. 
     die dritte variable (toleranz_max) gibt die toleranz an, bei der zwei 
     uebergaenge mit abweichung noch als dasselbe event erkannt wird.
@@ -14,7 +14,7 @@ function [pos_unique] = vektorvergleich1(vektor1,vektor2,toleranz_max)
     output:
     die variable (pos_unique) vereint die positionen von events, die
     innerhalb der toleranz in beiden vektoren vorhanden sind. zuerst kommen
-    die positionen der binding events anschließend die der unbinding
+    die positionen der binding events anschlie?end die der unbinding
     events.
     
 %}
@@ -46,29 +46,25 @@ function [pos_unique] = vektorvergleich1(vektor1,vektor2,toleranz_max)
     %innerhalb der toleranz
     unb_matrix_in_tol = ismember(unb_matrix,-toleranz_max:toleranz_max);
     
-    %event aus 1 soll nur einem event aus 2 zugeordnet werden, dem nächsten
+    %event aus 1 soll nur einem event aus 2 zugeordnet werden, dem n?chsten
     for j = (1:length(unb_pos1))
-        if sum(ismember(unb_matrix(j,1:end),-toleranz_max:toleranz_max)==1)>1
-            a = find(abs(unb_matrix)==min(abs(unb_matrix(j,1:end))));          
-            unb_matrix_in_tol(j,1:end) = 0;
-            unb_matrix_in_tol(a) = 1;          
+        if sum(unb_matrix_in_tol(j,:))>1
+            [~,a] = min(abs(unb_matrix(j,:)));          
+            unb_matrix_in_tol(j,:) = 0;
+            unb_matrix_in_tol(j,a) = 1;          
         end
     end
     
     %unb_matrix_in_tol wird in vektor umgewandelt
     unb_vektor_in_tol = find(unb_matrix_in_tol==1);
-        
+
     %unb_vektor_plot gibt die abweichungen der unbinding events von 2 zu 1
     %fuer den plot
-    unb_vektor_plot = [];
-    for j = (1:length(unb_vektor_in_tol))
-         unb_vektor_plot(j) = unb_matrix(unb_vektor_in_tol(j));       
-    end
+    unb_vektor_plot = unb_matrix(unb_vektor_in_tol);
     
     %anzahl der unbinding events innerhalb der toleranz
     n_unb = length(unb_vektor_plot);
 
-    
     %BINDING EVENTS:
     b_pos1 = find(dv1==-1);
     b_pos2 = find(dv2==-1);
@@ -86,7 +82,7 @@ function [pos_unique] = vektorvergleich1(vektor1,vektor2,toleranz_max)
     %innerhalb der toleranz
     b_matrix_in_tol = ismember(b_matrix,-toleranz_max:toleranz_max);
         
-    %event aus 1 soll nur einem event aus 2 zugeordnet werden, dem nächsten
+    %event aus 1 soll nur einem event aus 2 zugeordnet werden, dem n?chsten
     for j = (1:length(b_pos1))
         if sum(ismember(b_matrix(j,1:end),-toleranz_max:toleranz_max)==1)>1
             a = find(abs(b_matrix)==min(abs(b_matrix(j,1:end))));     
@@ -127,8 +123,7 @@ function [pos_unique] = vektorvergleich1(vektor1,vektor2,toleranz_max)
     %unbinding events von 1 auf 2:
     unb_ausser_tol1 = 0;    
     for j = (1:length(unb_pos1))
-        if any(ismember(unb_matrix(j,1:end),-toleranz_max:toleranz_max)==1)
-        else
+        if all(unb_matrix_in_tol(j,:)==0)
             unb_ausser_tol1 = unb_ausser_tol1 + 1;
         end
     end
@@ -211,4 +206,3 @@ function [pos_unique] = vektorvergleich1(vektor1,vektor2,toleranz_max)
     text(1,1,str,'horizontalalignment','center','verticalalignment','bottom','FontSize',30); 
 
 end
-
