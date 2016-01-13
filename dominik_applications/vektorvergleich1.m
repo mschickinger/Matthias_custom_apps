@@ -1,21 +1,10 @@
-function [pos_unique] = vektorvergleich1(vektor1,vektor2,toleranz_max)
+function [output] = vektorvergleich1(vektor1,vektor2,toleranz_max)
         
 %{
     input: 
-    zwei ersten beiden variablen (vektor1, vektor2) sind vektoren mit 
-    36.000 komponenten, die entweder 1 oder 2 sein druerfen. 1 steht dabei
-    f?r den gebundenen zustand und 2 f?r den ungebundenen zustand. die 
-    funktion vergleicht nun diese beiden vektoren. zum einen auf ihre 
-    globale deckung und zum anderen auf die ueberg?nge zwischen den beiden 
-    zustaenden. 
-    die dritte variable (toleranz_max) gibt die toleranz an, bei der zwei 
-    uebergaenge mit abweichung noch als dasselbe event erkannt wird.
+    
     
     output:
-    die variable (pos_unique) vereint die positionen von events, die
-    innerhalb der toleranz in beiden vektoren vorhanden sind. zuerst kommen
-    die positionen der binding events anschlie?end die der unbinding
-    events.
     
 %}
     
@@ -28,154 +17,91 @@ function [pos_unique] = vektorvergleich1(vektor1,vektor2,toleranz_max)
     dv2 = vektor2(2:end) - vektor2(1:end-1);
     dv2 = [0,dv2];
 
+    %UNBINDING {1} UND BINDING {2} EVENTS:
+    pos1{1} = find(dv1==1);
+    pos1{2} = find(dv1==-1);
+    pos2{1} = find(dv2==1);
+    pos2{2} = find(dv2==-1);
     
-    %UNBINDING EVENTS:
-    unb_pos1 = find(dv1==1);
-    unb_pos2 = find(dv2==1);
+    %matrix gibt differenz zwischen den events aus 1 und 2
+    matrix{1} = zeros(length(pos1{1}),length(pos2{1}));
+    matrix{2} = zeros(length(pos1{2}),length(pos2{2}));
+    matrix_in_tol{1} = zeros(length(matrix{1}));
+    matrix_in_tol{2} = zeros(length(matrix{2}));
     
-    %unb_matrix gibt differenz zwischen den events aus 1 und 2
-    unb_matrix = zeros(length(unb_pos1),length(unb_pos2));
-    unb_matrix_in_tol = unb_matrix;
-    for j = (1:length(unb_pos1))
-       for i = (1:length(unb_pos2))
-          unb_matrix(j,i) = unb_pos1(j)-unb_pos2(i);
-       end
-    end
-    
-    %unb_matrix_in_tol gibt positionen der matrix, wo unbinding events 
-    %innerhalb der toleranz
-    unb_matrix_in_tol = ismember(unb_matrix,-toleranz_max:toleranz_max);
-    
-    %event aus 1 soll nur einem event aus 2 zugeordnet werden, dem n?chsten
-    for j = (1:length(unb_pos1))
-        if sum(unb_matrix_in_tol(j,:))>1
-            [~,a] = min(abs(unb_matrix(j,:)));          
-            unb_matrix_in_tol(j,:) = 0;
-            unb_matrix_in_tol(j,a) = 1;          
+    for k = (1:2)
+        for j = (1:length(pos1{k}))
+            for i = (1:length(pos2{k}))
+                matrix{k}(j,i) = pos1{k}(j) - pos2{k}(i);
+            end
         end
+        %matrix_in_tol gibt positionen der matrix, wo unbinding events 
+        %innerhalb der toleranz
+        matrix_in_tol{k} = ismember(matrix{k},-toleranz_max:toleranz_max);
     end
     
-    %unb_matrix_in_tol wird in vektor umgewandelt
-    unb_vektor_in_tol = find(unb_matrix_in_tol==1);
-
-    %unb_vektor_plot gibt die abweichungen der unbinding events von 2 zu 1
-    %fuer den plot
-    unb_vektor_plot = unb_matrix(unb_vektor_in_tol);
-    
-    %anzahl der unbinding events innerhalb der toleranz
-    n_unb = length(unb_vektor_plot);
-
-    %BINDING EVENTS:
-    b_pos1 = find(dv1==-1);
-    b_pos2 = find(dv2==-1);
-    
-    %b_matrix gibt differenz zwischen den events aus 1 und 2
-    b_matrix = zeros(length(b_pos1),length(b_pos2));
-    b_matrix_in_tol = b_matrix;
-    for j = (1:length(b_pos1))
-       for i = (1:length(b_pos2))
-          b_matrix(j,i) = b_pos1(j)-b_pos2(i);
-       end
-    end
-    
-    %b_matrix_in_tol gibt positionen der matrix, wo binding events 
-    %innerhalb der toleranz
-    b_matrix_in_tol = ismember(b_matrix,-toleranz_max:toleranz_max);
-        
-    %event aus 1 soll nur einem event aus 2 zugeordnet werden, dem n?chsten
-    for j = (1:length(b_pos1))
-        if sum(ismember(b_matrix(j,1:end),-toleranz_max:toleranz_max)==1)>1
-            a = find(abs(b_matrix)==min(abs(b_matrix(j,1:end))));     
-            b_matrix_in_tol(j,1:end) = 0;
-            b_matrix_in_tol(a) = 1;
+    %event aus 1 soll nur dem naechsten event aus 2 zugeordnet werden
+    n{1} = 0;
+    n{2} = 0;
+    for k = (1:2)
+        for j = (1:length(pos1{k}))
+            if sum(matrix_in_tol{k}(j,:))>1
+                [~,a] = min(abs(matrix{k}(j,:)));          
+                matrix_in_tol{k}(j,:) = 0;
+                matrix_in_tol{k}(j,a) = 1;          
+            end
         end
+        %vektor_plot gibt die abweichungen der unbinding events von 2 zu 1
+        %fuer den plot
+        vektor_plot{k} = matrix{k}(find(matrix_in_tol{k}==1));
+        %anzahl der events innerhalb der toleranz
+        n{k} = length(vektor_plot{k});
+        output{k+2} = n{k};
     end
-    
-    %b_matrix_in_tol wird in vektor umgewandelt
-    b_vektor_in_tol = find(b_matrix_in_tol==1);
-        
-    %b_vektor_plot gibt die abweichungen der binding events von 2 zu 1 fuer
-    %den plot
-    b_vektor_plot = [];
-    for j = (1:length(b_vektor_in_tol))
-         b_vektor_plot(j) = b_matrix(b_vektor_in_tol(j));       
-    end
-    
-    %anzahl der binding events innerhalb der toleranz
-    n_b = length(b_vektor_plot);
-    
     
     %OUTPUT:
-    pos_unique = [];
-    for i = (1:length(b_pos1))
-        if any(b_matrix_in_tol(i,:)==1)
-            pos_unique = [pos_unique b_pos1(i)];
-        end
-    end
-    for j = (1:length(unb_pos1))
-        if any(unb_matrix_in_tol(j,:)==1)
-            pos_unique = [pos_unique unb_pos1(j)];
-        end
+    %ausgabe der positionen, an denen ein event innerhalb der toleranz in
+    %beiden vektoren vorkommt; mithilfe der zeilensummme
+    for k = (1:2)
+        output{k} = pos1{k}(find(sum(matrix_in_tol{k},2)==1));
     end
     
-   
     %EVENTS AUSSERHALB TOLERANZ:
-    %unbinding events von 1 auf 2:
-    unb_ausser_tol1 = 0;    
-    for j = (1:length(unb_pos1))
-        if all(unb_matrix_in_tol(j,:)==0)
-            unb_ausser_tol1 = unb_ausser_tol1 + 1;
-        end
-    end
-    
-    %unbinding events von 2 auf 1:
-    unb_ausser_tol2 = 0;
-    for j = (1:length(unb_pos2))
-        if any(ismember(unb_matrix(1:end,j),-toleranz_max:toleranz_max)==1)
-        else
-            unb_ausser_tol2 = unb_ausser_tol2 + 1;
-        end
-    end
-    
-    %binding events von 1 auf 2:
-    b_ausser_tol1 = 0;    
-    for j = (1:length(b_pos1))
-        if any(ismember(b_matrix(j,1:end),-toleranz_max:toleranz_max)==1)
-        else
-            b_ausser_tol1 = b_ausser_tol1 + 1;
-        end
-    end
-    
-    %binding events von 2 auf 1:
-    b_ausser_tol2 = 0;
-    for j = (1:length(b_pos2))
-        if any(ismember(b_matrix(1:end,j),-toleranz_max:toleranz_max)==1)
-        else
-            b_ausser_tol2 = b_ausser_tol2 + 1;
-        end
+    ausser_tol1{1} = 0;
+    ausser_tol1{2} = 0;
+    ausser_tol2{1} = 0;
+    ausser_tol2{2} = 0;
+    %events von 1 auf 2 und events von 2 auf 1 ergeben 4 werte
+    %mithilfe von zeilen- und spaltensumme
+    for k = (1:2)
+        ausser_tol1{k} = sum(find(sum(matrix_in_tol{k},2)==0));
+        output{k+4} = ausser_tol1{k};
+        ausser_tol2{k} = sum(find(sum(matrix_in_tol{k},1)==0));
+        output{k+6} = ausser_tol2{k};
     end
     
     %hilfsvariablen fuer plots:
     toleranz_max_neg = -toleranz_max-1;
     
-    y_max_b = length(find(b_vektor_plot==mode(b_vektor_plot))) + 1;
-    y_max_unb = length(find(unb_vektor_plot==mode(unb_vektor_plot))) + 1;
-    
-    x = [b_ausser_tol1,unb_ausser_tol1,b_ausser_tol2,unb_ausser_tol2];
+    for k = (1:2)
+        y_max{k} = length(find(vektor_plot{k}==mode(vektor_plot{k}))) + 1;
+    end
+        
+    x = [ausser_tol1{2},ausser_tol1{1},ausser_tol2{2},ausser_tol2{1}];
     y_max_x = max(x) + 1;
         
-    %alle plots:
+    %PLOTS:
     close all
     
     figure
     subplot(2,2,1)
-    h1 = histogram(b_vektor_plot);
+    h1 = histogram(vektor_plot{2});
     title('binding events');
     xlim([toleranz_max_neg toleranz_max+1]);
-    ylim([0 y_max_b]);
+    ylim([0 y_max{2}]);
     set(h1,'FaceColor','b');
-    str_b = num2str(sum(n_b)); 
-    text(toleranz_max,y_max_b,str_b,'horizontalalignment','center','verticalalignment','bottom','FontSize',20);
+    str_b = num2str(sum(n{2})); 
+    text(toleranz_max,y_max{2},str_b,'horizontalalignment','center','verticalalignment','bottom','FontSize',20);
 
     subplot(2,2,2)
     h2 = bar(x);
@@ -188,13 +114,13 @@ function [pos_unique] = vektorvergleich1(vektor1,vektor2,toleranz_max)
     ax.XTickLabels = {'b: 1->2','unb: 1->2','b: 2->1','unb: 2->1'};
         
     subplot(2,2,3)
-    h3 = histogram(unb_vektor_plot);
+    h3 = histogram(vektor_plot{1});
     title('unbinding events');
     xlim([toleranz_max_neg toleranz_max+1]);
-    ylim([0 y_max_unb]);
+    ylim([0 y_max{1}]);
     set(h3,'FaceColor','b');
-    str_unb = num2str(sum(n_unb)); 
-    text(toleranz_max,y_max_unb,str_unb,'horizontalalignment','center','verticalalignment','bottom','FontSize',20);
+    str_unb = num2str(sum(n{1})); 
+    text(toleranz_max,y_max{1},str_unb,'horizontalalignment','center','verticalalignment','bottom','FontSize',20);
 
     subplot(2,2,4)
     h4 = bar(proz_ueberein);
