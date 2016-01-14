@@ -22,7 +22,7 @@ function [ ausgabe ] = transition_detective( vector, radius )
     x2=3;
     y=0.5;
 
-    %anzahl stellen f?r oldmean, oldstd
+    %number of frames to look back for mean and std
     back=200;
 
     %state: 2=unbound, 1=bound
