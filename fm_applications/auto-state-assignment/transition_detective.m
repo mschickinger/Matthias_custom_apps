@@ -28,7 +28,19 @@ function [ ausgabe ] = transition_detective( vector, radius )
     %state: 2=unbound, 1=bound
     state=1;
 
-    ausgabe(length(vector)-22)=0;
+    %needed variables
+    newmean=0;
+    oldmean=0;
+    ausgabe(length(vector))=0;
+    changes(length(vector))=0;
+    advance=4;
+    
+    
+    %preparation
+%     too_high=find(vector>1.5);
+%     for i=1:length(too_high)
+%         vector(too_high(i))=vector(too_high(i-1));
+%     end
 
 
     %Anfangsstate
