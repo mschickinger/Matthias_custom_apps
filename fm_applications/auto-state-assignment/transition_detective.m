@@ -14,8 +14,13 @@ function [ ausgabe ] = transition_detective( vector, radius )
     a1=4.8; %  >2.6
     a2=2; %  >2  kleiner als a1  <2.8
     %*sigmas entfernung zu neuem
-    b1=1.3;  %   <1.6  kleiner als b2
-    b2=2;   %   <3
+    b1=2;  %   
+    b2=4;   %   
+    
+    %values for post_transition_detective
+    x1=5;
+    x2=3;
+    y=0.5;
 
     %anzahl stellen f?r oldmean, oldstd
     back=200;
@@ -105,16 +110,48 @@ function [ ausgabe ] = transition_detective( vector, radius )
          
     end
 
+    
+    
+     %post_transition_detective
+     
+     %new mode: unbound  REIHENFOLGE DER LOG. ABFRAGEN WICHTIG? ZEIT
+    if state==1 && vector(i)>oldmean+x1*oldstandard && newmean>savedhighmean-b1*savedhighstd
+        for k=i-4:i+4
+             if radius(k)>y
+                 changes(k)=2;
+             end
         end
-
+        
+     %new mode: bound   
+    elseif state==2 && vector(i)<oldmean-x2*oldstandard && newmean<savedlowmean+b2*savedlowstd
+        for k=i-4:i+4
+             if radius(k)<y
+                 changes(k)=1;
+             end
+        end
+    end
     ausgabe(i)=state;
     i=i+1;
     counter=counter+1;
      end
 
-    %ausgabe  vector
-    plot(ausgabe,'g');
-    hold on;
-    plot(vector,'o', 'MarkerSize', 4);
+%get states of last advance
+if mean(vector(end-advance:end))-savedlowmean<savedlowstd*a1
+    ausgabe(end-advance:end)=1;
+else
+    ausgabe(end-advance:end)=2;
+end
+
+ausgabe(find(changes==1))=1;
+ausgabe(find(changes==2))=2;
+    
+ausgabe=ausgabe';
+
+%ausgabe  vector
+plot(ausgabe,'g');
+hold on;
+plot(vector,'o', 'MarkerSize', 4);
+ylim([0 2]);
+
 
 end
