@@ -1,19 +1,18 @@
-function [ ausgabe ] = transition_detective( vector )
+function [ ausgabe ] = transition_detective( vector, radius )
 
 
-    %z?hlvariablen
+    %counting variables
     i=1;
     counter=0;
-    %Erfahrungswerte
+    %variables to be set
     savedlowmean=0.3;
-    savedhighmean=1;
+    savedhighmean=0.85;
 
     savedlowstd=0.04;
     savedhighstd=0.1;
-
     %*sigmas entfernung von altem mean  1-->wird zu unbound
-    a1=3.6; %  >2.6
-    a2=2.6; %  >2  kleiner als a1  <2.8
+    a1=4.8; %  >2.6
+    a2=2; %  >2  kleiner als a1  <2.8
     %*sigmas entfernung zu neuem
     b1=1.3;  %   <1.6  kleiner als b2
     b2=2;   %   <3
@@ -21,16 +20,8 @@ function [ ausgabe ] = transition_detective( vector )
     %anzahl stellen f?r oldmean, oldstd
     back=200;
 
-    newmean=0;
-    oldmean=0;
-
-
     %state: 2=unbound, 1=bound
     state=1;
-    unbound=0;
-    bound=0;
-
-    %data
 
     ausgabe(length(vector)-22)=0;
 
@@ -41,30 +32,29 @@ function [ ausgabe ] = transition_detective( vector )
     else
         state=2;
     end
+    
+    %values too high for everything to be mean of values around it
 
-     while i<length(vector)-22
+     while i<length(vector)-advance
 
              %DEBUGGING
-    %              if 35935<i
-    %             disp(i);
-    %             disp(state);
-    %             disp(oldmean);
-    %             disp(savedlowmean+2*savedlowstd);
-    %             pause;
-    %              end
+%                    if 27700<i
+%                   disp(i);
+%                   disp(state);
+%                   disp(newmean);
+%                   disp(oldmean+a1*oldstandard);
+%                   pause;
+%                    end
 
-        %vergleich mit 18-28 vor jetzigem i  <<18
-        newmean=mean(vector(i+18:i+22));
+        %compare with mean of 4 in starting in advance frames
+        newmean=mean(vector(i+advance-4:i+advance));
 
-                 %standard und mean berechnung
-
-        %wenn lange genug im zustand, oldmean ?ber "back"werte
+        %standard and mean
+        %calculation depending on if longer than "back" frames in new state
         if  counter>back
              oldmean=mean(vector(i-back:i));
              oldstandard=std(vector(i-back:i));
-        else
-            %nicht lange genug, mittelwert zwischen so vielen werten jetzt wie
-            %m?glich und gespeichertem mittelwert
+        else       
             if state==2
                 oldmean=(mean(vector(i-counter:i))*counter+(back-counter)*savedhighmean)/back;
                 oldstandard=(std(vector(i-counter:i))*counter+(back-counter)*savedhighstd)/back;
@@ -73,13 +63,10 @@ function [ ausgabe ] = transition_detective( vector )
                 oldstandard=(std(vector(i-counter:i))*counter+(back-counter)*savedlowstd)/back;
             end
         end
-
-
-
-    %jetzt gehts los  
-
-    %neuer Modus: unbound                                    
-    if newmean>oldmean+a1*oldstandard && abs(newmean-savedhighmean)<b1*savedhighstd
+        
+    %check for new mode
+    %new mode: unbound                                    
+    if state==1 &&newmean>oldmean+a1*oldstandard && newmean>savedhighmean-b1*savedhighstd
          distance=newmean-oldmean;
 
          %wenn bl?d geswitcht nicht speichern
@@ -94,9 +81,7 @@ function [ ausgabe ] = transition_detective( vector )
             bound=bound+1;
             ausgabe(i)=state;
             i=i+1;
-
         end
-
          state=2;
          counter=0;
 
@@ -114,25 +99,17 @@ function [ ausgabe ] = transition_detective( vector )
             unbound=unbound+1;
             ausgabe(i)=state;
             i=i+1;
-
-            end
-
+        end
          state=1;
          counter=0;
-
+         
     end
-    %jenachdem hochz?hlen
-        if state==2
-       unbound=unbound+1; 
-        else
-        bound=bound+1;
 
         end
 
     ausgabe(i)=state;
     i=i+1;
     counter=counter+1;
-
      end
 
     %ausgabe  vector
