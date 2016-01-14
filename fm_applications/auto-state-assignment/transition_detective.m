@@ -100,18 +100,15 @@ function [ ausgabe ] = transition_detective( vector, radius )
          state=2;
          counter=0;
 
-    %neuer Modus: bound 
-    elseif newmean<oldmean-a2*oldstandard && abs(newmean-savedlowmean)<b2*savedlowstd
-
-          distance=oldmean-newmean;
-
-           if abs(oldmean-savedhighmean)<0.3
-           savedhighmean=oldmean;
-           savedhighstd=oldstandard;
-           end
-
-            while mean(vector(i:i+2))>(oldmean-distance*0.7)
-            unbound=unbound+1;
+    %new mode: bound 
+    elseif state==2 && newmean<oldmean-a2*oldstandard && newmean<savedlowmean+b2*savedlowstd
+            distance=oldmean-newmean;
+            
+         if oldmean-savedhighmean<0.2
+            savedhighmean=oldmean;
+            savedhighstd=oldstandard;
+         end
+        while vector(i)>(oldmean-distance*0.7)
             ausgabe(i)=state;
             i=i+1;
         end
