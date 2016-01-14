@@ -85,17 +85,15 @@ function [ ausgabe ] = transition_detective( vector, radius )
     %new mode: unbound                                    
     if state==1 &&newmean>oldmean+a1*oldstandard && newmean>savedhighmean-b1*savedhighstd
          distance=newmean-oldmean;
-
-         %wenn bl?d geswitcht nicht speichern
-          if abs(oldmean-savedlowmean)<0.3
-              savedlowmean=oldmean;
-              savedlowstd=oldstandard;
-          end
-
-        %wenn in neuen Modus geprungen wird, bleibe in altem bis mean von 3 Werten 0.7 der Diff.
-        %erreicht haben
-        while mean(vector(i:i+2))<(oldmean+distance*0.7)
-            bound=bound+1;
+         
+         %only save data if in range of old
+         if oldmean-savedlowmean>-0.2
+            savedlowmean=oldmean;
+            savedlowstd=oldstandard;
+         end
+         
+        %only switch into new mode when i state is close to new mean
+        while vector(i)<(oldmean+distance*0.7)
             ausgabe(i)=state;
             i=i+1;
         end
