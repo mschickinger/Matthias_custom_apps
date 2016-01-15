@@ -2,7 +2,7 @@
 close all, clear all, clc
 run('my_prefs.m')
 
-n_images = str2double(inputdlg('How many scans would you like to compare?', 'Enter n_images', 1, {'4'}));
+n_images = str2double(inputdlg('How many scans would you like to compare?', 'Enter n_images', 1, {'2'}));
 
 %{
 %% Check for imageData and load, if necessary
