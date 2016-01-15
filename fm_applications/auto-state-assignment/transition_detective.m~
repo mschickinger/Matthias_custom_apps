@@ -122,16 +122,15 @@ function [ ausgabe ] = transition_detective( vector, radius )
      %post_transition_detective
      
      %new mode: unbound  REIHENFOLGE DER LOG. ABFRAGEN WICHTIG? ZEIT
-    if state==1 && vector(i)>oldmean+x1*oldstandard && newmean>savedhighmean-b1*savedhighstd
+    if state==1 && vector(i)>oldmean+x1*oldstandard && vector(i)>savedhighmean-b1*savedhighstd
         for k=i-4:i+4
              if radius(k)>y
                  changes(k)=2;
              end
         end
-        ausgabe(i)=2;
         
      %new mode: bound   
-    elseif state==2 && vector(i)<oldmean-x2*oldstandard && newmean<savedlowmean+b2*savedlowstd
+    elseif state==2 && vector(i)<oldmean-x2*oldstandard && vector(i)<savedlowmean+b2*savedlowstd
         for k=i-4:i+4
              if radius(k)<y
                  changes(k)=1;
