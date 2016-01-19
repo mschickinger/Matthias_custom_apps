@@ -23,7 +23,7 @@ default_times = default_times(1:n_data);
 times = inputdlg(times, 'Enter gel run times', 1, default_times);
 
 for i = 1:n_data
-    times{i} = [times{i} 'h'];
+    times{i} = [times{i} ' h'];
 end
 
 %% get band maxima for lanes with double bands
@@ -152,7 +152,7 @@ for i = 1:n_data
     xlabel('lane number')
     ylabel('ratios of maxima')
     title(['Ratios comparison for ' prefix_out ', ' times{i} ':'])
-    xlim([0 length(maxima.ratios(:,i))+1]) 
+    xlim([0 length(maxima.ratios(:,i))+1])
     ylim([0 1])
     set(gca, 'XTick', 1:length(maxima.ratios(:,i)))
     if ctl
