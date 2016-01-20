@@ -122,6 +122,7 @@ function [ ausgabe ] = transition_detective( vector, radius )
      %post_transition_detective
      
      %new mode: unbound  REIHENFOLGE DER LOG. ABFRAGEN WICHTIG? ZEIT
+<<<<<<< Updated upstream
     if state==1 && vector(i)>oldmean+x1*oldstandard && vector(i)>savedhighmean-b1*savedhighstd
         for k=i-4:i+4
              if radius(k)>y
@@ -136,6 +137,18 @@ function [ ausgabe ] = transition_detective( vector, radius )
                  changes(k)=1;
              end
         end
+=======
+    if state==1 && vector(i)>oldmean+x1*oldstandard && newmean>savedhighmean-b1*savedhighstd
+        first=find(radius(i-4:i+4)>y,1);
+        last=find(radius(i-4:i+4)>y,1,'last');
+        changes(i-4+first:i-4+last)=2;
+        
+     %new mode: bound   
+    elseif state==2 && vector(i)<oldmean-x2*oldstandard && newmean<savedlowmean+b2*savedlowstd
+        first=find(radius(i-4:i+4)<y,1);
+        last=find(radius(i-4:i+4)<y,1,'last');
+        changes(i-4+first:i-4+last)=1;
+>>>>>>> Stashed changes
     end
     ausgabe(i)=state;
     i=i+1;
@@ -149,8 +162,8 @@ else
     ausgabe(end-advance:end)=2;
 end
 
-ausgabe(find(changes==1))=1;
-ausgabe(find(changes==2))=2;
+%ausgabe(find(changes==1))=1;
+%ausgabe(find(changes==2))=2;
     
 ausgabe=ausgabe';
 
@@ -158,6 +171,8 @@ ausgabe=ausgabe';
 plot(ausgabe,'g');
 hold on;
 plot(vector,'o', 'MarkerSize', 4);
+hold on;
+plot(changes,'r');
 ylim([0 2]);
 
 
