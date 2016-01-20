@@ -1,4 +1,4 @@
-function [ ausgabe ] = transition_detective( vector, radius )
+function [ coarse ] = transition_detective( vector, radius )
 
 
     %counting variables
@@ -31,7 +31,7 @@ function [ ausgabe ] = transition_detective( vector, radius )
     %needed variables
     newmean=0;
     oldmean=0;
-    ausgabe(length(vector))=0;
+    coarse(length(vector))=0;
     changes(length(vector))=0;
     advance=4;
     
@@ -94,7 +94,7 @@ function [ ausgabe ] = transition_detective( vector, radius )
          
         %only switch into new mode when i state is close to new mean
         while vector(i)<(oldmean+distance*0.7)
-            ausgabe(i)=state;
+            coarse(i)=state;
             i=i+1;
         end
          state=2;
@@ -109,7 +109,7 @@ function [ ausgabe ] = transition_detective( vector, radius )
             savedhighstd=oldstandard;
          end
         while vector(i)>(oldmean-distance*0.7)
-            ausgabe(i)=state;
+            coarse(i)=state;
             i=i+1;
         end
          state=1;
@@ -150,25 +150,25 @@ function [ ausgabe ] = transition_detective( vector, radius )
         changes(i-4+first:i-4+last)=1;
 >>>>>>> Stashed changes
     end
-    ausgabe(i)=state;
+    coarse(i)=state;
     i=i+1;
     counter=counter+1;
      end
 
 %get states of last advance
 if mean(vector(end-advance:end))-savedlowmean<savedlowstd*a1
-    ausgabe(end-advance:end)=1;
+    coarse(end-advance:end)=1;
 else
-    ausgabe(end-advance:end)=2;
+    coarse(end-advance:end)=2;
 end
 
-%ausgabe(find(changes==1))=1;
-%ausgabe(find(changes==2))=2;
+%coarse(find(changes==1))=1;
+%coarse(find(changes==2))=2;
     
-ausgabe=ausgabe';
+coarse=coarse';
 
 %ausgabe  vector
-plot(ausgabe,'g');
+plot(coarse,'g');
 hold on;
 plot(vector,'o', 'MarkerSize', 4);
 hold on;
