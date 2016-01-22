@@ -1,4 +1,4 @@
-function [ coarse ] = transition_detective( vector, radius )
+function [ coarse, fine_single , fine_distribution ] = transition_detective( vector, radius )
 
 
     %counting variables
@@ -34,6 +34,8 @@ function [ coarse ] = transition_detective( vector, radius )
     coarse(length(vector))=0;
     changes(length(vector))=0;
     advance=4;
+    rms_max = 1.5;
+    r_max = 3;
     
     
     %preparation
@@ -64,12 +66,15 @@ function [ coarse ] = transition_detective( vector, radius )
 %                    end
 
         %compare with mean of 4 in starting in advance frames
-        newmean=mean(vector(i+advance-4:i+advance));
+        tmp_vector = vector(i:end);
+        newmean=mean(tmp_vector(find(tmp_vector < rms_max,5)));
 
         %standard and mean
         %calculation depending on if longer than "back" frames in new state
+        
+        tmp_vector = vector(1:i);
         if  counter>back
-             oldmean=mean(vector(i-back:i));
+             oldmean = mean(tmp_vector(find(tmp_vector < rms_max,back,'last')));
              oldstandard=std(vector(i-back:i));
         else       
             if state==2
@@ -86,94 +91,78 @@ function [ coarse ] = transition_detective( vector, radius )
     if state==1 &&newmean>oldmean+a1*oldstandard && newmean>savedhighmean-b1*savedhighstd
          distance=newmean-oldmean;
          
-         %only save data if in range of old
-         if oldmean-savedlowmean>-0.2
+        %only save data if in range of old
+        if oldmean-savedlowmean>-0.2
             savedlowmean=oldmean;
             savedlowstd=oldstandard;
-         end
+        end
          
         %only switch into new mode when i state is close to new mean
-        while vector(i)<(oldmean+distance*0.7)
-            coarse(i)=state;
+        while vector(i)<(oldmean+distance*0.7) && vector(i)<rms_max
+            coarse(i) = state;
             i=i+1;
         end
-         state=2;
-         counter=0;
+        state=2;
+        counter=0;
 
     %new mode: bound 
     elseif state==2 && newmean<oldmean-a2*oldstandard && newmean<savedlowmean+b2*savedlowstd
-            distance=oldmean-newmean;
-            
-         if oldmean-savedhighmean<0.2
+        distance=oldmean-newmean;
+
+        if oldmean-savedhighmean<0.2
             savedhighmean=oldmean;
             savedhighstd=oldstandard;
-         end
+        end
         while vector(i)>(oldmean-distance*0.7)
             coarse(i)=state;
             i=i+1;
         end
-         state=1;
-         counter=0;
-         
+        state=1;
+        counter=0;     
     end
 
-    
-    
-     %post_transition_detective
+    %post_transition_detective
      
-     %new mode: unbound  REIHENFOLGE DER LOG. ABFRAGEN WICHTIG? ZEIT
-<<<<<<< Updated upstream
-    if state==1 && vector(i)>oldmean+x1*oldstandard && vector(i)>savedhighmean-b1*savedhighstd
-        for k=i-4:i+4
-             if radius(k)>y
-                 changes(k)=2;
-             end
+    %new mode: unbound  REIHENFOLGE DER LOG. ABFRAGEN WICHTIG? ZEIT 
+    if state==1 && vector(i)>oldmean+x1*oldstandard && vector(i) < rms_max && newmean>savedhighmean-b1*savedhighstd
+        first = find(radius(i-4:i+4)>y & radius<r_max,1);
+        last = find(radius(i-4:i+4)>y & radius<r_max,1,'last');
+        if ~isempty(first) && ~isempty(last)
+            changes(i-5+first:i-5+last)=2;
+        end    
+    %new mode: bound   
+    elseif state==2 && vector(i)<oldmean-x2*oldstandard && newmean<savedlowmean+b2*savedlowstd && radius(i) < y
+        first = find(radius(i-10:i-1)>y & radius<r_max,1, 'last') +1;
+        last = find(radius(i+1:i+10)>y & radius<r_max,1) -1;
+        if ~isempty(first) && ~isempty(last)
+            changes(i-5+first:i-5+last)=1;
         end
-        
-     %new mode: bound   
-    elseif state==2 && vector(i)<oldmean-x2*oldstandard && vector(i)<savedlowmean+b2*savedlowstd
-        for k=i-4:i+4
-             if radius(k)<y
-                 changes(k)=1;
-             end
-        end
-=======
-    if state==1 && vector(i)>oldmean+x1*oldstandard && newmean>savedhighmean-b1*savedhighstd
-        first=find(radius(i-4:i+4)>y,1);
-        last=find(radius(i-4:i+4)>y,1,'last');
-        changes(i-4+first:i-4+last)=2;
-        
-     %new mode: bound   
-    elseif state==2 && vector(i)<oldmean-x2*oldstandard && newmean<savedlowmean+b2*savedlowstd
-        first=find(radius(i-4:i+4)<y,1);
-        last=find(radius(i-4:i+4)<y,1,'last');
-        changes(i-4+first:i-4+last)=1;
->>>>>>> Stashed changes
     end
     coarse(i)=state;
     i=i+1;
     counter=counter+1;
-     end
+    end
 
-%get states of last advance
-if mean(vector(end-advance:end))-savedlowmean<savedlowstd*a1
-    coarse(end-advance:end)=1;
-else
-    coarse(end-advance:end)=2;
-end
-
-%coarse(find(changes==1))=1;
-%coarse(find(changes==2))=2;
+    %get states of last advance
+    if mean(vector(end-advance:end))-savedlowmean<savedlowstd*a1
+        coarse(end-advance:end)=1;
+    else
+        coarse(end-advance:end)=2;
+    end
     
-coarse=coarse';
+    fine_single = coarse;
+    fine_single(changes==1) = 1;
+    fine_single(changes==2) = 2;
+    
+    fine_distribution = coarse;
 
-%ausgabe  vector
-plot(coarse,'g');
-hold on;
-plot(vector,'o', 'MarkerSize', 4);
-hold on;
-plot(changes,'r');
-ylim([0 2]);
+    %ausgabe  vector
+    plot(coarse,'g');
+    hold on;
+    plot(vector,'o', 'MarkerSize', 4);
+    hold on;
+    plot(changes,'r');
+    ylim([0 2]);
 
 
 end
