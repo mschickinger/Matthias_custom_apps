@@ -210,7 +210,8 @@ function [ output ] = transition_detective( vector, radius )
     t_bind_fine_single = find((fine_single(2:end)-fine_single(1:end-1))==1)+1;
     t_unbind_fine_single = find((fine_single(2:end)-fine_single(1:end-1))==-1)+1;
     
-    
+    % !!!  zugeh?rige namen f?r die variablen zu a,b,c habe ich nicht im review
+    % gefunden
     output=struct('a', coarse, 'b', fine_single, 'c', fine_distribution, 't_bind_coarse', t_bind_coarse, 't_unbind_coarse', t_unbind_coarse, 't_bind_fine_distribution', t_bind_fine_distribution, 't_unbind_fine_distribution', t_unbind_fine_distribution, 't_bind_fine_single', t_bind_fine_single, 't_unbind_fine_single', t_unbind_fine_single);
 
 end
