@@ -1,4 +1,4 @@
-function [ coarse, fine_single , fine_distribution ] = transition_detective( vector, radius )
+function [ output ] = transition_detective( vector, radius )
 
 
     %counting variables
