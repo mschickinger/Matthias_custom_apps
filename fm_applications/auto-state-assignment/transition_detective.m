@@ -2,40 +2,48 @@ function [ coarse, fine_single , fine_distribution ] = transition_detective( vec
 
 
     %counting variables
-    i=1;
-    counter=0;
+    i = 1;
+    counter = 0;
+    anzahl = 0;
     %variables to be set
-    savedlowmean=0.3;
-    savedhighmean=0.85;
+    savedlowmean = 0.3;
+    savedhighmean = 0.85;
 
-    savedlowstd=0.04;
-    savedhighstd=0.1;
+    savedlowstd = 0.04;
+    savedhighstd = 0.1;
     %*sigmas entfernung von altem mean  1-->wird zu unbound
-    a1=4.8; %  >2.6
-    a2=2; %  >2  kleiner als a1  <2.8
+    a1 = 4.8; %  >2.6
+    a2 = 2; %  >2  kleiner als a1  <2.8
     %*sigmas entfernung zu neuem
-    b1=2;  %   
-    b2=4;   %   
+    b1 = 2;  %   
+    b2 = 4;   %   
     
     %values for post_transition_detective
-    x1=5;
-    x2=3;
-    y=0.5;
+    x1 = 5;
+    x2 = 3;
+    y = 0.5;
+    x = 3;
 
     %number of frames to look back for mean and std
-    back=200;
+    back = 200;
 
     %state: 2=unbound, 1=bound
-    state=1;
+    state = 1;
 
     %needed variables
-    newmean=0;
-    oldmean=0;
-    coarse(length(vector))=0;
-    changes(length(vector))=0;
-    advance=4;
+    newmean = 0;
+    oldmean = 0;
+    coarse(length(vector)) =0;
+    changes = coarse;
+    different = coarse;
+    fine_single = coarse;
+    fine_distribution = coarse;
+    
+    advance = 4;
     rms_max = 1.5;
     r_max = 3;
+    
+    old_r(20) = 0;
     
     
     %preparation
@@ -123,13 +131,14 @@ function [ coarse, fine_single , fine_distribution ] = transition_detective( vec
 
     %post_transition_detective
      
-    %new mode: unbound  REIHENFOLGE DER LOG. ABFRAGEN WICHTIG? ZEIT 
+    %new mode: unbound
     if state==1 && vector(i)>oldmean+x1*oldstandard && vector(i) < rms_max && newmean>savedhighmean-b1*savedhighstd
-        first = find(radius(i-4:i+4)>y & radius<r_max,1);
-        last = find(radius(i-4:i+4)>y & radius<r_max,1,'last');
-        if ~isempty(first) && ~isempty(last)
-            changes(i-5+first:i-5+last)=2;
-        end    
+         first = find(radius(i-4:i+4)>y & radius<r_max,1);
+         last = find(radius(i-4:i+4)>y & radius<r_max,1,'last');
+         if ~isempty(first) && ~isempty(last)
+             changes(i-5+first:i-5+last)=2;
+         end
+    
     %new mode: bound   
     elseif state==2 && vector(i)<oldmean-x2*oldstandard && newmean<savedlowmean+b2*savedlowstd && radius(i) < y
         first = find(radius(i-10:i-1)>y & radius<r_max,1, 'last') +1;
@@ -138,6 +147,7 @@ function [ coarse, fine_single , fine_distribution ] = transition_detective( vec
             changes(i-5+first:i-5+last)=1;
         end
     end
+    
     coarse(i)=state;
     i=i+1;
     counter=counter+1;
@@ -150,6 +160,7 @@ function [ coarse, fine_single , fine_distribution ] = transition_detective( vec
         coarse(end-advance:end)=2;
     end
     
+    %complement free_single and free_distribution with coarse vector
     fine_single = coarse;
     fine_single(changes==1) = 1;
     fine_single(changes==2) = 2;
@@ -162,6 +173,7 @@ function [ coarse, fine_single , fine_distribution ] = transition_detective( vec
     plot(vector,'o', 'MarkerSize', 4);
     hold on;
     plot(changes,'r');
+    plot(fine_distribution,'b');
     ylim([0 2]);
 
 
