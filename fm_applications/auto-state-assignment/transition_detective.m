@@ -172,8 +172,8 @@ function [ coarse, fine_single , fine_distribution ] = transition_detective( vec
     end
 
     %get states of last advance
-    if mean(vector(end-advance:end))-savedlowmean<savedlowstd*a1
-        coarse(end-advance:end)=1;
+    if mean(vector(end-3:end))-savedlowmean<savedlowstd*a1
+        coarse(end-3:end)=1;
     else
         coarse(end-advance:end)=2;
     end
