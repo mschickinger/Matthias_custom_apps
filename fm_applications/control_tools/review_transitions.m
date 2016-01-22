@@ -1,13 +1,13 @@
 function review_transitions(plot_data, spot_data)
 
     w_plot = 2000; %Plot window size
-    YLIM = [0 2];
+    YLIM = [0 3];
 
     first_frame = str2double(inputdlg('Enter start frame number'));
 
     %% Prepare graph
     close all
-    fg_traces = figure('OuterPosition', [scrsz(1) scrsz(2) scrsz(3) scrsz(4)*.6]);
+    fg_traces = figure('Units', 'normalized', 'OuterPosition', [0 0 1 1]);
     hold off
     plot(plot_data.r, 'r.', 'MarkerSize', 8)
     hold on
