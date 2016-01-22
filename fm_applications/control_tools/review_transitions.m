@@ -62,7 +62,7 @@ function review_transitions(plot_data, spot_data)
     go_on = 1;
     while go_on == 1
         % Take action
-        next_action = questdlg('What now?', 'Next step', 'Move on', 'Stop reviewing', 'Move on');
+        next_action = questdlg('What now?', 'Next step', 'Move on', 'Pause', 'Stop reviewing', 'Move on');
         switch next_action
         case 'Move on'
             for i = 1:100
@@ -70,11 +70,13 @@ function review_transitions(plot_data, spot_data)
                 pause(.02)
             end
             first_frame = first_frame + 1500;
+        case 'Pause'
+            pause
+                
         case 'Stop reviewing'
             go_on = 0;
         end
     end
-    close all
 
     %% End of function
     display('Done')
