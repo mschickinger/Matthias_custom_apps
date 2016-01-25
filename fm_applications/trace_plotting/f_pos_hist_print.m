@@ -17,7 +17,7 @@ YLIM = p.Results.YLIM;
 clear avg_img r_integrate channel chb cut fit_cutoff data
 
 cd(path_out)
-mkdir([path_out filesep p.Results.method '_traces_new']);
+mkdir([path_out filesep p.Results.method '_traces']);
 
 load('data_proc.mat');
 load('data_archive.mat', 'avg_img', 'r_integrate');
@@ -247,7 +247,7 @@ for m=1:N_movie
         %%
         % Save as image
         %set(gcf, 'PaperPositionMode', 'auto')
-        print('-dpng', '-r96', [path_out filesep p.Results.method '_traces_new' filesep 'traces_RMS_hist_m' num2str(m) '_s' num2str(s) '.png']);
+        print('-dpng', '-r96', [path_out filesep p.Results.method '_traces' filesep 'traces_RMS_hist_m' num2str(m) '_s' num2str(s) '.png']);
         close(gcf)
     end
     display(['Done printing figures for movie #' num2str(m)]) 
