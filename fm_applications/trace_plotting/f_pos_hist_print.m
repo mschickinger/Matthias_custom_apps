@@ -130,7 +130,7 @@ for m=1:N_movie
                     case 'RMS'
                         plot(tmp_plot(:,1),plot_data.rms10(plot_data.pos(:,1)>0),'-k', 'LineWidth', 0.1);
                     case 'median'
-                        plot(tmp_plot(:,1),medfilt1(plot_data.r(plot_data.pos(:,1)>0),11),'-c', 'LineWidth', 0.1);
+                        plot(tmp_plot(:,1),medfilt1_trunc(plot_data.r(plot_data.pos(:,1)>0),11),'-c', 'LineWidth', 0.1);
                 end
                 xlim([0 size(plot_data.pos,1)]) %DO PROPERLY IN THE LONG RUN!!!!
                 ylim(YLIM) %WATCH OUT - NEED TO ADJUST FOR OTHER PLOTS !!!!!
