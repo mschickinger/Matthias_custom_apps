@@ -180,9 +180,9 @@ for m=1:N_movie
                 subplot('Position', [0.83 ((2-c)*0.5+0.3) 0.165 0.165])
                 hold off
                 plot(0, 0, [channel{c}(1) 'x'])
-                plot(plot_data.disp100(plot_data.r>5,1),plot_data.disp100(plot_data.r>5,2), 'o', 'Color', [1 1 1]*.7, 'MarkerSize', 3);
+                plot(plot_data.dispmed101(plot_data.r>5,1),plot_data.dispmed101(plot_data.r>5,2), 'o', 'Color', [1 1 1]*.7, 'MarkerSize', 3);
                 hold on
-                plot(plot_data.disp100(plot_data.r<=5,1),plot_data.disp100(plot_data.r<=5,2), [channel{c}(1) '+'], 'MarkerSize', 3);
+                plot(plot_data.dispmed101(plot_data.r<=5,1),plot_data.dispmed101(plot_data.r<=5,2), [channel{c}(1) '+'], 'MarkerSize', 3);
                 xlim([-5 5])
                 ylim([-5 5])
                 TC = cell(1,11); TC{1} = -5; TC{6} = 0; TC{11} = 5;
