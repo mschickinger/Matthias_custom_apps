@@ -10,7 +10,7 @@ p = inputParser;
 addRequired(p, 'path_out', @isdir);
 %addParameter(p, 'filter', 'RMS', @ischar);
 %addParameter(p, 'method', 'vwcm', @ischar);
-addParameter(p, 'YLIM', [0 2], @isvector);
+addParameter(p, 'YLIM', [0 3], @isvector);
 %addParameter(p, 'horzAx', 'frames', @ischar);
 
 parse(p, path_out, varargin{:});
