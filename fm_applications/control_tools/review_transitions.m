@@ -79,5 +79,6 @@ function review_transitions(plot_data, spot_data)
     end
 
     %% End of function
+    close all
     display('Done')
 end
