@@ -133,16 +133,16 @@ function [ output ] = transition_detective( vector, radius )
      
     %new mode: unbound
     if state==1 && vector(i)>oldmean+x1*oldstandard && vector(i) < rms_max && newmean>savedhighmean-b1*savedhighstd
-         first = find(radius(i-4:i+4)>y & radius<r_max,1);
-         last = find(radius(i-4:i+4)>y & radius<r_max,1,'last');
+         first = find(radius(i-4:i+4)>y & radius(i-4:i+4)<r_max,1);
+         last = find(radius(i-4:i+4)>y & radius(i-4:i+4)<r_max,1,'last');
          if ~isempty(first) && ~isempty(last)
              changes(i-5+first:i-5+last)=2;
          end
     
     %new mode: bound   
     elseif state==2 && vector(i)<oldmean-x2*oldstandard && newmean<savedlowmean+b2*savedlowstd && radius(i) < y
-         first = find(radius(i-10:i-1)>y & radius<r_max,1, 'last') +1;
-         last = find(radius(i+1:i+10)>y & radius<r_max,1) -1;
+         first = find(radius(i-10:i-1)>y & radius(i-10:i-1)<r_max,1, 'last') +1;
+         last = find(radius(i+1:i+10)>y & radius(i-10:i-1)<r_max,1) -1;
          if ~isempty(first) && ~isempty(last)
              changes(i-5+first:i-5+last)=1;
          end
