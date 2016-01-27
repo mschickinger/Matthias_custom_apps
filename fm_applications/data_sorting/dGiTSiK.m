@@ -40,7 +40,7 @@ end
 
 %% set display settings
 scrsz = get(groot,'ScreenSize');
-vert = [17 180 225 385 428 577 622 770 5 166 198 348];
+vert = [10 165 218 380 420 560 615 760 5 166 190 360];
 %figure('OuterPosition', [0 scrsz(4)./10 scrsz(3).*.65 scrsz(4).*9/10])
 %figure('OuterPosition', [scrsz(3).*.6 scrsz(2) scrsz(3).*.4 scrsz(3)./3])
 %% Show images and assign spot (pair) category
@@ -58,8 +58,8 @@ while m <= N_movie
         end
     end
     while s <= size(data{m},1)
-        tmp_vwcm = imread([data_path filesep 'vwcm_traces_v6' filesep 'traces_RMS_hist_m' num2str(m) '_s' num2str(s) '.png']);
-        tmp_disp = imread([data_path filesep 'disp_from_map_traces_v1' filesep 'disp_from_map_m' num2str(m) '_s' num2str(s) '.png']);
+        tmp_vwcm = imread([data_path filesep 'vwcm_traces' filesep 'traces_RMS_hist_m' num2str(m) '_s' num2str(s) '.png']);
+        tmp_disp = imread([data_path filesep 'disp_from_map_traces' filesep 'disp_from_map_m' num2str(m) '_s' num2str(s) '.png']);
         tmp_traces = [tmp_vwcm([vert(1):vert(2) vert(3):vert(4) vert(5):vert(6) vert(7):vert(8)],:,:) ;...
             tmp_disp([vert(9):vert(10) vert(11):vert(12)],:,:)];
         tmp_pos = imread([data_path filesep 'positions' filesep 'positions_m' num2str(m) '_s' num2str(s) '.png']);
@@ -94,7 +94,7 @@ while m <= N_movie
         
         e1 = uicontrol(bg, 'Style', 'Pushbutton', 'Position', [80 30 150 30],...
             'String', 'Abort sorting', 'Callback', ['m = N_movie; s = size(data{N_movie},1)+1; ' ...
-            'uiresume(gcbf); h = errordlg(''Sorting aborted'', ''Abort''); close all']);
+            'uiresume(gcbf); close all']);
         
         set(bg, 'Visible', 'on')
         uiwait(gcf)
@@ -139,8 +139,8 @@ while m <= N_movie
     end
     while i <= length(find(GiTSiK.categorized{m} == 1))
         s = keeps(i);
-        tmp_vwcm = imread([data_path filesep 'vwcm_traces_v6' filesep 'traces_RMS_hist_m' num2str(m) '_s' num2str(s) '.png']);
-        tmp_disp = imread([data_path filesep 'disp_from_map_traces_v1' filesep 'disp_from_map_m' num2str(m) '_s' num2str(s) '.png']);
+        tmp_vwcm = imread([data_path filesep 'vwcm_traces' filesep 'traces_RMS_hist_m' num2str(m) '_s' num2str(s) '.png']);
+        tmp_disp = imread([data_path filesep 'disp_from_map_traces' filesep 'disp_from_map_m' num2str(m) '_s' num2str(s) '.png']);
         tmp_traces = [tmp_vwcm([vert(1):vert(2) vert(3):vert(4) vert(5):vert(6) vert(7):vert(8)],:,:) ;...
             tmp_disp([vert(9):vert(10) vert(11):vert(12)],:,:)];
         tmp_pos = imread([data_path filesep 'positions' filesep 'positions_m' num2str(m) '_s' num2str(s) '.png']);
@@ -175,7 +175,7 @@ while m <= N_movie
         
         e1 = uicontrol(bg, 'Style', 'Pushbutton', 'Position', [80 30 150 30],...
             'String', 'Abort sorting', 'Callback', ['m = N_movie; s = size(data{N_movie},1)+1; ' ...
-            'uiresume(gcbf); h = errordlg(''Sorting aborted'', ''Abort''); close all']);
+            'uiresume(gcbf); close all']);
         
         set(bg, 'Visible', 'on')
         uiwait(gcf)
@@ -221,7 +221,7 @@ while m <= N_movie
         tmp_vwcm = imread([data_path filesep 'vwcm_traces' filesep 'traces_RMS_hist_m' num2str(m) '_s' num2str(s) '.png']);
         tmp_pos = imread([data_path filesep 'positions' filesep 'positions_m' num2str(m) '_s' num2str(s) '.png']);
         subplot('Position',[0 0 .61 1])
-        imshow(tmp_vwcm([vert(1):vert(2) vert(3):vert(4) vert(5):vert(6) vert(7):vert(8)],:,:), 'Border', 'tight')
+        imshow(tmp_vwcm, 'Border', 'tight')
         subplot('Position',[.63 .42 .44 .58])
         imshow(tmp_pos, 'Border', 'tight')
         set(f, 'Visible','on');
@@ -232,8 +232,12 @@ while m <= N_movie
         p1 = uicontrol(bg, 'Style', 'Pushbutton', 'Position', [20 150 150 30],...
             'String', viewlist{1}, 'Callback', 'ok=1; uiresume(gcbf)');
         
-        p2 = uicontrol(bg, 'Style', 'Pushbutton', 'Position', [180 150 130 30],...
-            'String', viewlist{2}, 'Callback', 'ok=0; uiresume(gcbf)');
+        p2 = uicontrol(bg, 'Style', 'Pushbutton', 'Position', [80 70 150 30],...
+            'String', categorylist{6}, 'Callback', 'ok=0; uiresume(gcbf)');
+        
+        e1 = uicontrol(bg, 'Style', 'Pushbutton', 'Position', [80 30 150 30],...
+            'String', 'Abort sorting', 'Callback', ['m = N_movie; s = size(data{N_movie},1)+1; ' ...
+            'uiresume(gcbf); close all']);
         
         set(bg, 'Visible', 'on')
         uiwait(gcf)
