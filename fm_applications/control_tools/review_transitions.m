@@ -3,7 +3,7 @@ function review_transitions(plot_data, spot_data)
     w_plot = 2000; %Plot window size
     YLIM = [0 3];
 
-    first_frame = str2double(inputdlg('Enter start frame number'));
+    first_frame = str2double(inputdlg('Enter start frame number','Start',1,{'1'}));
 
     %% Prepare graph
     close all
