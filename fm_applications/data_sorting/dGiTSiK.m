@@ -259,7 +259,7 @@ while m <= N_movie
     end
     m = m+1;
 end
-
+close(gcf),
 %% Appendix B: Output bar graphs of category / behaviour counts + summary pie chart:
 close all
 figure(1)
