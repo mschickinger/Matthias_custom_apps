@@ -173,7 +173,8 @@ if ctl
    use_default = questdlg('Use default values?','','Excess', 'Length', 'None', 'None');
    switch use_default
        case 'Excess'
-           xtlabels = {'linked', '0,25x', '0,5x', 'linked', '0,75x', '1,0x', '1,25x', '1,5x', 'linked', '2,0x', '2,5x', '5,0x', '10x', 'linked', '20x', 'linked'};
+           xtlabels = {'R5sL7 100 pM', 'R5sL7 500 pM', 'R5sL7 1 nM', 'R5sL7 2 nM', 'R5sL7 4 nM', 'R5sL7 20 nM', ...
+               'R8sL4 100 pM', 'R8sL4 500 pM', 'R8sL4 1 nM', 'R8sL4 2 nM', 'R8sL4 4 nM', 'R8sL4 20 nM'};
        case 'Length'
            xtlabels = {'linked', 'linked', 'linked', 'i9', 'linked', 'linked', 'i10', 'linked'};
        case 'None'  

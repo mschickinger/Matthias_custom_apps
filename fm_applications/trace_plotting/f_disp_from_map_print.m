@@ -10,7 +10,7 @@ p = inputParser;
 addRequired(p, 'path_out', @isdir);
 %addParameter(p, 'filter', 'RMS', @ischar);
 %addParameter(p, 'method', 'vwcm', @ischar);
-addParameter(p, 'YLIM', [0 2], @isvector);
+addParameter(p, 'YLIM', [0 3], @isvector);
 %addParameter(p, 'horzAx', 'frames', @ischar);
 
 parse(p, path_out, varargin{:});
@@ -52,14 +52,15 @@ for m=1:size(data,1)
     for i = 1:floor(size(data{m}{1,1}.pos0,1)/(5*XTickDiv)) %DO PROPERLY IN THE LONG RUN!!!!
         XTC{5*i+1} = i*5*XTickDiv;
     end
+    
     for s=1:size(data{m},1)
         L = min([length(data{m}{s,chm}.vwcm.pos) length(data{m}{s,chb}.vwcm.pos_map)]);
         % determine displacements
         disp_from_map = data{m}{s,chm}.vwcm.pos(1:L,:)-data{m}{s,chb}.vwcm.pos_map(1:L,:);
-        disp_mean_from_map = data{m}{s,chm}.vwcm.means100-data{m}{s,chb}.vwcm.pos_map;
+        disp_median_from_map = data{m}{s,chm}.vwcm.medians101(1:L,:)-data{m}{s,chb}.vwcm.pos_map(1:L,:);
 
         abs_disp_from_map = sqrt(disp_from_map(:,1).^2+disp_from_map(:,2).^2);
-        abs_disp_mean_from_map = sqrt(disp_mean_from_map(:,1).^2+disp_mean_from_map(:,2).^2);
+        abs_disp_mean_from_map = sqrt(disp_median_from_map(:,1).^2+disp_median_from_map(:,2).^2);
         
         med_abs_disp_from_map = medfilt1(abs_disp_from_map,20);
         med_abs_disp_mean_from_map = medfilt1(abs_disp_mean_from_map,20);
@@ -93,7 +94,7 @@ for m=1:size(data,1)
                 'TickDir', 'in', 'Layer', 'top');
         ylabel('Delta'), xlabel('Frame #')
         grid on
-        title('Mean100 displacements of mobile spot from mapped fixed spot position')
+        title('Median101 displacements of mobile spot from mapped fixed spot position')
         
         % displacement scatter plot
         subplot('Position',[0.8, lower - 0.05, 0.19, 0.57])   

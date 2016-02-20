@@ -130,7 +130,7 @@ for m=1:N_movie
                     case 'RMS'
                         plot(tmp_plot(:,1),plot_data.rms10(plot_data.pos(:,1)>0),'-k', 'LineWidth', 0.1);
                     case 'median'
-                        plot(tmp_plot(:,1),medfilt1(plot_data.r(plot_data.pos(:,1)>0),11),'-c', 'LineWidth', 0.1);
+                        plot(tmp_plot(:,1),medfilt1_trunc(plot_data.r(plot_data.pos(:,1)>0),11),'-c', 'LineWidth', 0.1);
                 end
                 xlim([0 size(plot_data.pos,1)]) %DO PROPERLY IN THE LONG RUN!!!!
                 ylim(YLIM) %WATCH OUT - NEED TO ADJUST FOR OTHER PLOTS !!!!!
@@ -180,9 +180,9 @@ for m=1:N_movie
                 subplot('Position', [0.83 ((2-c)*0.5+0.3) 0.165 0.165])
                 hold off
                 plot(0, 0, [channel{c}(1) 'x'])
-                plot(plot_data.disp100(plot_data.r>5,1),plot_data.disp100(plot_data.r>5,2), 'o', 'Color', [1 1 1]*.7, 'MarkerSize', 3);
+                plot(plot_data.dispmed101(plot_data.r>5,1),plot_data.dispmed101(plot_data.r>5,2), 'o', 'Color', [1 1 1]*.7, 'MarkerSize', 3);
                 hold on
-                plot(plot_data.disp100(plot_data.r<=5,1),plot_data.disp100(plot_data.r<=5,2), [channel{c}(1) '+'], 'MarkerSize', 3);
+                plot(plot_data.dispmed101(plot_data.r<=5,1),plot_data.dispmed101(plot_data.r<=5,2), [channel{c}(1) '+'], 'MarkerSize', 3);
                 xlim([-5 5])
                 ylim([-5 5])
                 TC = cell(1,11); TC{1} = -5; TC{6} = 0; TC{11} = 5;
@@ -247,7 +247,11 @@ for m=1:N_movie
         %%
         % Save as image
         %set(gcf, 'PaperPositionMode', 'auto')
+<<<<<<< HEAD
         print('-dpng', '-r96', [path_out filesep p.Results.method '_traces' filesep 'traces_ ' p.Results.filter '_hist_m' num2str(m) '_s' num2str(s) '.png']);
+=======
+        print('-dpng', '-r96', [path_out filesep p.Results.method '_traces' filesep 'traces_RMS_hist_m' num2str(m) '_s' num2str(s) '.png']);
+>>>>>>> master
         close(gcf)
     end
     display(['Done printing figures for movie #' num2str(m)]) 
