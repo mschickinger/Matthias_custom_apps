@@ -31,13 +31,13 @@ function review_transitions(plot_data, spot_data)
     if isfield(spot_data, 't_bind_fine_single')
         for j = spot_data.t_bind_fine_single'
             plot([j,j],YLIM,'g-', 'LineWidth', .5);
-            plot(j,.1*YLIM(2),'gv', 'MarkerFaceColor', 'b')
+            plot(j,.1*YLIM(2),'gv', 'MarkerFaceColor', 'g')
         end
     end
     if isfield(spot_data, 't_unbind_fine_single')
         for j = spot_data.t_unbind_fine_single'
             plot([j,j],YLIM,'g-', 'LineWidth', .5);
-            plot(j,.9*YLIM(2),'g^', 'MarkerFaceColor', 'b')
+            plot(j,.9*YLIM(2),'g^', 'MarkerFaceColor', 'g')
         end
     end
 
@@ -45,13 +45,13 @@ function review_transitions(plot_data, spot_data)
     if isfield(spot_data, 't_bind_fine_distribution')
         for j = spot_data.t_bind_fine_distribution'
             plot([j,j],YLIM,'c-', 'LineWidth', .5);
-            plot(j,.1*YLIM(2),'cv', 'MarkerFaceColor', 'b')
+            plot(j,.1*YLIM(2),'cv', 'MarkerFaceColor', 'c')
         end
     end
     if isfield(spot_data, 't_unbind_fine_distribution')
         for j = spot_data.t_unbind_fine_distribution'
             plot([j,j],YLIM,'c-', 'LineWidth', .5);
-            plot(j,.9*YLIM(2),'c^', 'MarkerFaceColor', 'b')
+            plot(j,.9*YLIM(2),'c^', 'MarkerFaceColor', 'c')
         end
     end
 
