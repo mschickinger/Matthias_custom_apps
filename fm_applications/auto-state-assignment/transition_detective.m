@@ -148,7 +148,7 @@ function [ output ] = transition_detective( vector, radius )
          end
     end
 
-        %radius with mean
+    %radius with mean
     %new mode: unbound
     if state==1 && vector(i)>oldmean+x1*oldstandard && vector(i) < rms_max && newmean>savedhighmean-b1*savedhighstd
         for j=i-4:i+4
