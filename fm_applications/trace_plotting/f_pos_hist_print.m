@@ -247,7 +247,11 @@ for m=1:N_movie
         %%
         % Save as image
         %set(gcf, 'PaperPositionMode', 'auto')
+<<<<<<< HEAD
+        print('-dpng', '-r96', [path_out filesep p.Results.method '_traces' filesep 'traces_ ' p.Results.filter '_hist_m' num2str(m) '_s' num2str(s) '.png']);
+=======
         print('-dpng', '-r96', [path_out filesep p.Results.method '_traces' filesep 'traces_RMS_hist_m' num2str(m) '_s' num2str(s) '.png']);
+>>>>>>> master
         close(gcf)
     end
     display(['Done printing figures for movie #' num2str(m)]) 

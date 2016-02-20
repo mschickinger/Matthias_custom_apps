@@ -236,8 +236,8 @@ while m <= N_movie
             'String', categorylist{6}, 'Callback', 'ok=0; uiresume(gcbf)');
         
         e1 = uicontrol(bg, 'Style', 'Pushbutton', 'Position', [80 30 150 30],...
-            'String', 'Abort review', 'Callback', ['i=length(GiTSiK.behaviour{m})+1; m = N_movie;' ...
-            'ok = 1; uiresume(gcbf); close all;']);
+            'String', 'Abort sorting', 'Callback', ['m = N_movie; s = size(data{N_movie},1)+1; ' ...
+            'uiresume(gcbf); close all']);
         
         set(bg, 'Visible', 'on')
         uiwait(gcf)
