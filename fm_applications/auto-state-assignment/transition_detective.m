@@ -199,12 +199,12 @@ function [ output ] = transition_detective( vector, radius )
     %output vector prep
     
     %coarse
-    t_bind_coarse = find((coarse(2:end)-coarse(1:end-1))==1)+1;
-    t_unbind_coarse = find((coarse(2:end)-coarse(1:end-1))==-1)+1;
+    t_bind_coarse = find((coarse(2:end)-coarse(1:end-1))==-1)+1;
+    t_unbind_coarse = find((coarse(2:end)-coarse(1:end-1))==1)+1;
     
     %fine_dustribution
-    t_bind_fine_distribution = find((fine_distribution(2:end)-fine_distribution(1:end-1))==1)+1;
-    t_unbind_fine_distribution = find((fine_distribution(2:end)-fine_distribution(1:end-1))==-1)+1;
+    t_bind_fine_distribution = find((fine_distribution(2:end)-fine_distribution(1:end-1))==-1)+1;
+    t_unbind_fine_distribution = find((fine_distribution(2:end)-fine_distribution(1:end-1))==1)+1;
     
     %fine_single
     t_bind_fine_single = find((fine_single(2:end)-fine_single(1:end-1))==1)+1;
