@@ -366,101 +366,101 @@ if ex
     close(gcf)
 end
 %% Corrected transition times
-spot_result.t_bind_corr = spot_result.t_bind;
-spot_result.t_unbind_corr = spot_result.t_unbind;
-
-means_r = zeros(size(spot_result.t_bind));
-stds_r = zeros(size(means_r));
-means_state_fine = zeros(size(means_r));
-stds_state_fine = zeros(size(means_r));
-
-trans_counter = 1;
-for j = spot_result.t_bind'
-    i1 = max([1 j-w_med]); i2 = j+w_med;     
-    tmp_interval = i1:i2;
-    if j < spot_result.t_unbind(end)
-        next_unbind = spot_result.t_unbind(find(spot_result.t_unbind>j,1));
-        corr_unbind = 1;
-    else
-        next_unbind = min([j+100 length(state_trace_fine)]);
-        corr_unbind = 0;
-    end
-    indices = j:next_unbind;
-    loop_breaker = 1;
-    while length(indices)<500 && loop_breaker<=10
-        loop_breaker = loop_breaker + 1;
-        indices = [spot_result.t_bind(find(spot_result.t_bind<indices(1),1,'last')):spot_result.t_unbind(find(spot_result.t_unbind<indices(1),1,'last')) ...
-            indices spot_result.t_bind(find(spot_result.t_bind>indices(end),1)):spot_result.t_unbind(find(spot_result.t_unbind>indices(end),1))];
-    end
-    means_r(trans_counter) = mean(plot_data.r(indices));
-    stds_r(trans_counter) = std(plot_data.r(indices));
-    %means_state_fine(trans_counter) = mean(state_trace_fine(j:next_unbind));
-    means_state_fine(trans_counter) = mean(state_trace_fine(indices));
-    stds_state_fine(trans_counter) = std(state_trace_fine(indices));
-    %disp(j)
-    %disp(next_unbind-j)
-    %disp(trans_counter)
-    %disp(means_r(trans_counter)+3*stds_r(trans_counter))
-    %disp(means_state_fine(trans_counter)+3*stds_state_fine(trans_counter))
-    if j>1
-        tmp_states = (plot_data.r(i1:i2) < (means_r(trans_counter)+3*stds_r(trans_counter)))'.*...
-            (state_trace_fine(i1:i2) < (means_state_fine(trans_counter)+3*stds_state_fine(trans_counter)))';
-        tmp_states = [2*tmp_states(1) tmp_states(2:end)+tmp_states(1:end-1)];
-        use_previous = 1;
-        while isempty(find(tmp_states == 0,1))
-            if trans_counter-use_previous > 0
-                tmp_states = (plot_data.r(i1:i2) < (means_r(trans_counter-use_previous)+3*stds_r(trans_counter-use_previous)))'.*...
-                (state_trace_fine(i1-1:i2-1) < (means_state_fine(trans_counter-use_previous)+3*stds_state_fine(trans_counter-use_previous)))';
-                tmp_states = [tmp_states(1:end-1)+tmp_states(2:end) 2*tmp_states(end)];
-                display(['WARNING: Using mean and std from index ' num2str(trans_counter-use_previous)...
-                    ' instead of index ' num2str(trans_counter) ' for binding event correction.']);
-                use_previous = use_previous + 1;
-            else
-                tmp_states = [zeros(1,w_med) ones(1,w_med+1)];
-                display(['WARNING: No binding event correction at index ' num2str(trans_counter)]);
-            end
-        end
-        spot_result.t_bind_corr(trans_counter) = tmp_interval(find(tmp_states == 0,1,'last'))+1;
-        if ~ismember(spot_result.t_bind_corr(trans_counter), ...
-                spot_result.t_unbind_corr((spot_result.t_unbind(1)==1)+trans_counter-1):next_unbind)
-            spot_result.t_bind_corr(trans_counter) = j;
-            display(['Forcing correct transition order: No binding event correction at index ' num2str(trans_counter)]);
-        end
-    end
-    if corr_unbind
-        i1 = next_unbind-w_med; i2 = next_unbind+w_med;
-        tmp_interval = i1:i2;
-        tmp_states = (plot_data.r(i1:i2) < (means_r(trans_counter)+3*stds_r(trans_counter)))'.*...
-        (state_trace_fine(i1-1:i2-1) < (means_state_fine(trans_counter)+3*stds_state_fine(trans_counter)))';
-        tmp_states = [tmp_states(1:end-1)+tmp_states(2:end) 2*tmp_states(end)];
-        use_previous = 1;
-        while isempty(find(tmp_states == 0,1))
-            if trans_counter-use_previous > 0
-            tmp_states = (plot_data.r(i1:i2) < (means_r(trans_counter-use_previous)+3*stds_r(trans_counter-use_previous)))'.*...
-            (state_trace_fine(i1-1:i2-1) < (means_state_fine(trans_counter-use_previous)+3*stds_state_fine(trans_counter-use_previous)))';
-            tmp_states = [tmp_states(1:end-1)+tmp_states(2:end) 2*tmp_states(end)];
-            display(['WARNING: Using mean and std from index ' num2str(trans_counter-use_previous)...
-                ' instead of index ' num2str(trans_counter) ' for unbinding event correction.']);
-            use_previous = use_previous + 1;
-            else
-                tmp_states = [ones(1,w_med) zeros(1,w_med+1)];
-                display(['WARNING: No unbinding event correction at index ' num2str(trans_counter)]);
-            end
-        end
-        spot_result.t_unbind_corr((spot_result.t_unbind(1)==1)+trans_counter) = tmp_interval(find(tmp_states == 0,1));
-        if j == spot_result.t_bind(end)
-            next_bind = min([next_unbind+100 length(state_trace_fine)]);
-        else
-            next_bind = spot_result.t_bind(trans_counter+1);
-        end
-        if ~ismember(spot_result.t_unbind_corr((spot_result.t_unbind(1)==1)+trans_counter), ...
-                spot_result.t_bind_corr(trans_counter):next_bind)
-            spot_result.t_unbind_corr((spot_result.t_unbind(1)==1)+trans_counter) = next_unbind;
-            display(['Forcing correct transition order: No unbinding event correction at index ' num2str(trans_counter)]);
-        end
-    end
-    trans_counter = trans_counter+1;
-end
+% spot_result.t_bind_corr = spot_result.t_bind;
+% spot_result.t_unbind_corr = spot_result.t_unbind;
+% 
+% means_r = zeros(size(spot_result.t_bind));
+% stds_r = zeros(size(means_r));
+% means_state_fine = zeros(size(means_r));
+% stds_state_fine = zeros(size(means_r));
+% 
+% trans_counter = 1;
+% for j = spot_result.t_bind'
+%     i1 = max([1 j-w_med]); i2 = j+w_med;     
+%     tmp_interval = i1:i2;
+%     if j < spot_result.t_unbind(end)
+%         next_unbind = spot_result.t_unbind(find(spot_result.t_unbind>j,1));
+%         corr_unbind = 1;
+%     else
+%         next_unbind = min([j+100 length(state_trace_fine)]);
+%         corr_unbind = 0;
+%     end
+%     indices = j:next_unbind;
+%     loop_breaker = 1;
+%     while length(indices)<500 && loop_breaker<=10
+%         loop_breaker = loop_breaker + 1;
+%         indices = [spot_result.t_bind(find(spot_result.t_bind<indices(1),1,'last')):spot_result.t_unbind(find(spot_result.t_unbind<indices(1),1,'last')) ...
+%             indices spot_result.t_bind(find(spot_result.t_bind>indices(end),1)):spot_result.t_unbind(find(spot_result.t_unbind>indices(end),1))];
+%     end
+%     means_r(trans_counter) = mean(plot_data.r(indices));
+%     stds_r(trans_counter) = std(plot_data.r(indices));
+%     %means_state_fine(trans_counter) = mean(state_trace_fine(j:next_unbind));
+%     means_state_fine(trans_counter) = mean(state_trace_fine(indices));
+%     stds_state_fine(trans_counter) = std(state_trace_fine(indices));
+%     %disp(j)
+%     %disp(next_unbind-j)
+%     %disp(trans_counter)
+%     %disp(means_r(trans_counter)+3*stds_r(trans_counter))
+%     %disp(means_state_fine(trans_counter)+3*stds_state_fine(trans_counter))
+%     if j>1
+%         tmp_states = (plot_data.r(i1:i2) < (means_r(trans_counter)+3*stds_r(trans_counter)))'.*...
+%             (state_trace_fine(i1:i2) < (means_state_fine(trans_counter)+3*stds_state_fine(trans_counter)))';
+%         tmp_states = [2*tmp_states(1) tmp_states(2:end)+tmp_states(1:end-1)];
+%         use_previous = 1;
+%         while isempty(find(tmp_states == 0,1))
+%             if trans_counter-use_previous > 0
+%                 tmp_states = (plot_data.r(i1:i2) < (means_r(trans_counter-use_previous)+3*stds_r(trans_counter-use_previous)))'.*...
+%                 (state_trace_fine(i1-1:i2-1) < (means_state_fine(trans_counter-use_previous)+3*stds_state_fine(trans_counter-use_previous)))';
+%                 tmp_states = [tmp_states(1:end-1)+tmp_states(2:end) 2*tmp_states(end)];
+%                 display(['WARNING: Using mean and std from index ' num2str(trans_counter-use_previous)...
+%                     ' instead of index ' num2str(trans_counter) ' for binding event correction.']);
+%                 use_previous = use_previous + 1;
+%             else
+%                 tmp_states = [zeros(1,w_med) ones(1,w_med+1)];
+%                 display(['WARNING: No binding event correction at index ' num2str(trans_counter)]);
+%             end
+%         end
+%         spot_result.t_bind_corr(trans_counter) = tmp_interval(find(tmp_states == 0,1,'last'))+1;
+%         if ~ismember(spot_result.t_bind_corr(trans_counter), ...
+%                 spot_result.t_unbind_corr((spot_result.t_unbind(1)==1)+trans_counter-1):next_unbind)
+%             spot_result.t_bind_corr(trans_counter) = j;
+%             display(['Forcing correct transition order: No binding event correction at index ' num2str(trans_counter)]);
+%         end
+%     end
+%     if corr_unbind
+%         i1 = next_unbind-w_med; i2 = next_unbind+w_med;
+%         tmp_interval = i1:i2;
+%         tmp_states = (plot_data.r(i1:i2) < (means_r(trans_counter)+3*stds_r(trans_counter)))'.*...
+%         (state_trace_fine(i1-1:i2-1) < (means_state_fine(trans_counter)+3*stds_state_fine(trans_counter)))';
+%         tmp_states = [tmp_states(1:end-1)+tmp_states(2:end) 2*tmp_states(end)];
+%         use_previous = 1;
+%         while isempty(find(tmp_states == 0,1))
+%             if trans_counter-use_previous > 0
+%             tmp_states = (plot_data.r(i1:i2) < (means_r(trans_counter-use_previous)+3*stds_r(trans_counter-use_previous)))'.*...
+%             (state_trace_fine(i1-1:i2-1) < (means_state_fine(trans_counter-use_previous)+3*stds_state_fine(trans_counter-use_previous)))';
+%             tmp_states = [tmp_states(1:end-1)+tmp_states(2:end) 2*tmp_states(end)];
+%             display(['WARNING: Using mean and std from index ' num2str(trans_counter-use_previous)...
+%                 ' instead of index ' num2str(trans_counter) ' for unbinding event correction.']);
+%             use_previous = use_previous + 1;
+%             else
+%                 tmp_states = [ones(1,w_med) zeros(1,w_med+1)];
+%                 display(['WARNING: No unbinding event correction at index ' num2str(trans_counter)]);
+%             end
+%         end
+%         spot_result.t_unbind_corr((spot_result.t_unbind(1)==1)+trans_counter) = tmp_interval(find(tmp_states == 0,1));
+%         if j == spot_result.t_bind(end)
+%             next_bind = min([next_unbind+100 length(state_trace_fine)]);
+%         else
+%             next_bind = spot_result.t_bind(trans_counter+1);
+%         end
+%         if ~ismember(spot_result.t_unbind_corr((spot_result.t_unbind(1)==1)+trans_counter), ...
+%                 spot_result.t_bind_corr(trans_counter):next_bind)
+%             spot_result.t_unbind_corr((spot_result.t_unbind(1)==1)+trans_counter) = next_unbind;
+%             display(['Forcing correct transition order: No unbinding event correction at index ' num2str(trans_counter)]);
+%         end
+%     end
+%     trans_counter = trans_counter+1;
+% end
 %% Run state calculator and append to data cell
 append_result = 0;
 evaluate = questdlg('Proceed to state evaluation?', 'Evaluate?', 'Yes');
