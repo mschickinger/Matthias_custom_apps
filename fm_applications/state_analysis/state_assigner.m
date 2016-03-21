@@ -120,131 +120,131 @@ if isempty(spot_result.t_bind) && isempty(spot_result.t_unbind)
 end
 
 %% Threshold determination        
-go_on = 1;
-pointwise = strcmp(questdlg('Threshold by point-and-click?', 'Pointwise', 'Yes'),'Yes');
-while go_on
-    close all
-    assign = 1;
-    assign_counter = 1;
-    threshold_vals = []; % container for threshold sample values
-    threshold_pos = []; % container for threshold sample positions
-    st_hist = figure('OuterPosition', [scrsz(1) scrsz(2) scrsz(3)./3 scrsz(4)/2], 'Visible', 'off');
-    fg_traces = figure('OuterPosition', [scrsz(1) scrsz(4)*.4 scrsz(3) scrsz(4)*.6]);
-    while assign
-        figure(fg_traces)
-        hold off
-        plot(plot_data.r, 'r.', 'MarkerSize', 8)
-        hold on
-        plot(plot_data.rms10, 'k-', 'LineWidth', 1.5)
-        plot(state_trace_fine, '-', 'LineWidth', .5)
-        set(gca, 'ColorOrderIndex', 3);
-        plot(state_trace_coarse, 'LineWidth', 1.5)
-        plot(threshold, 'b-', 'Linewidth', 1.5)
-        ylim(YLIM)
-        xlim([1 max_frame])
-        if pointwise
-            h1 = impoint(gca);
-            h1pos = getPosition(h1);
-            threshold_pos = [threshold_pos round(h1pos(1))];
-            threshold_vals = [threshold_vals h1pos(2)];
-        else
-            h1 = imrect(gca);
-            h1pos = round(getPosition(h1));
-            h1pos(3) = min([h1pos(3) length(state_trace_coarse)-h1pos(1)]);
-            for i = 1:length(counts)
-                counts(i) = sum(state_trace_coarse(h1pos(1):h1pos(1)+h1pos(3))>=centers(i)-binsize/2 ...
-                    & state_trace_coarse(h1pos(1):h1pos(1)+h1pos(3))<centers(i)+binsize/2);
-            end
-            figure(st_hist)
-            hold off
-            plot(centers,counts)
-            set(gcf, 'Visible', 'on')
-            threshold_method = questdlg('Which method for thresholding?', 'threshold_method', 'Line', 'Minimum', 'Mean-Maxima', 'Line');
-            h2 = imrect(gca);
-            h2pos = getPosition(h2);
-            delete(h2)
-            clear h2
-            centers_box = centers((centers>=h2pos(1)).*(centers<=(h2pos(1)+h2pos(3)))==1);
-            counts_box = counts((centers>=h2pos(1)).*(centers<=(h2pos(1)+h2pos(3)))==1);
-            if strcmp(threshold_method, 'Line')
-                threshold_tmp = h2pos(1)+h2pos(3)/2;
-            elseif strcmp(threshold_method, 'Minimum')      
-                min_count = min(counts((centers>=h2pos(1)).*(centers<=(h2pos(1)+h2pos(3)))==1));
-                tmp = find(counts_box==min_count);
-                threshold_tmp = centers_box(tmp);
-            elseif strcmp(threshold_method, 'Mean-Maxima')
-                tmp = counts_box>h2pos(2);
-                tmp = [0 tmp(2:end)-tmp(1:end-1)];
-                lower = find(tmp==1);
-                if length(lower)<2
-                    lower = [1 lower];
-                end
-                upper = find(tmp==-1);
-                if length(upper)<2;
-                    upper = [upper length(centers_box)];
-                end
-                centers_max = [0 0];
-                for i = 1:2
-                    tmp = find(counts_box==max(counts_box(lower(i):upper(i))));
-                    tmp = round(mean(tmp));
-                    centers_max(i) = centers_box(tmp);
-                end
-                threshold_tmp = mean(centers_max);
-            end
-            if length(threshold_tmp)>1
-                threshold_tmp = [threshold_tmp mean(threshold_tmp)];
-                threshold_options = cell(length(threshold_tmp),1);
-                figure(fg_traces)
-                hold on
-                xlim([h1pos(1)-1 h1pos(1)+h1pos(3)+1])
-                for i = 1:length(threshold_options)
-                    threshold_options{i} = num2str(threshold_tmp(i));
-                    plot([h1pos(1)-1 h1pos(1)+h1pos(3)+1], [1 1].*threshold_tmp(i), '-', 'LineWidth', .5)
-                end
-                [threshold_select, ok] = listdlg('ListString', threshold_options,...
-                    'PromptString', 'Pick threshold', 'SelectionMode', 'single');
-                threshold_tmp = threshold_tmp(threshold_select(1));
-            end
-        threshold_vals = [threshold_vals threshold_tmp];
-        threshold_pos = [threshold_pos h1pos(1)+round(h1pos(3)/2)];
-        set(st_hist, 'Visible', 'off')
-        end
-        if assign_counter > 1
-            assign = questdlg('Keep assigning?', 'Keep assigning', 'Yes');
-            assign = strcmp(assign, 'Yes');
-        end
-        assign_counter = assign_counter+1;
-    end
-    threshold_vals = [threshold_vals(1) threshold_vals threshold_vals(end)];
-    threshold_pos = [1 threshold_pos max_frame];
-    threshold = interp1(threshold_pos, threshold_vals, 1:max_frame,...
-        'linear', 'extrap');
-
-    % Check threshold
-    figure(fg_traces)
-    plot(threshold, 'b-', 'LineWidth', 1.5)
-    xlim([1 max_frame])
-    check_threshold = questdlg('Threshold OK?', 'Threshold check', 'Yes');
-    if strcmp(check_threshold, 'Yes')
-        figure(fg_traces)
-        plot(threshold, 'b-', 'LineWidth', 1.5)
-        glob = questdlg('Assign coarse transitions?', 'Coarse assignment?', 'Yes');
-        if strcmp(glob,'Yes')
-            states = state_trace_coarse>threshold'; %change >/< according to type of state_trace
-            t_trans = [states(1) (states(2:end)-states(1:end-1))'];
-            spot_result.t_bind = (find(t_trans==-1))'; %change -1/1 according to type of state_trace
-            spot_result.t_unbind = (find(t_trans==1))'; %change 1/-1 according to type of state_trace
-            go_on = 0;
-            close all
-        elseif strcmp(glob, 'No')
-            uiwait(msgbox('Restart threshold assignment', 'Restart', 'modal'))
-            threshold = zeros(1,max_frame);
-        end
-    elseif strcmp(check_threshold, 'No')
-        uiwait(msgbox('Restart threshold assignment', 'Restart', 'modal'))
-        threshold = zeros(1,max_frame);
-    end
-end
+% go_on = 1;
+% pointwise = strcmp(questdlg('Threshold by point-and-click?', 'Pointwise', 'Yes'),'Yes');
+% while go_on
+%     close all
+%     assign = 1;
+%     assign_counter = 1;
+%     threshold_vals = []; % container for threshold sample values
+%     threshold_pos = []; % container for threshold sample positions
+%     st_hist = figure('OuterPosition', [scrsz(1) scrsz(2) scrsz(3)./3 scrsz(4)/2], 'Visible', 'off');
+%     fg_traces = figure('OuterPosition', [scrsz(1) scrsz(4)*.4 scrsz(3) scrsz(4)*.6]);
+%     while assign
+%         figure(fg_traces)
+%         hold off
+%         plot(plot_data.r, 'r.', 'MarkerSize', 8)
+%         hold on
+%         plot(plot_data.rms10, 'k-', 'LineWidth', 1.5)
+%         plot(state_trace_fine, '-', 'LineWidth', .5)
+%         set(gca, 'ColorOrderIndex', 3);
+%         plot(state_trace_coarse, 'LineWidth', 1.5)
+%         plot(threshold, 'b-', 'Linewidth', 1.5)
+%         ylim(YLIM)
+%         xlim([1 max_frame])
+%         if pointwise
+%             h1 = impoint(gca);
+%             h1pos = getPosition(h1);
+%             threshold_pos = [threshold_pos round(h1pos(1))];
+%             threshold_vals = [threshold_vals h1pos(2)];
+%         else
+%             h1 = imrect(gca);
+%             h1pos = round(getPosition(h1));
+%             h1pos(3) = min([h1pos(3) length(state_trace_coarse)-h1pos(1)]);
+%             for i = 1:length(counts)
+%                 counts(i) = sum(state_trace_coarse(h1pos(1):h1pos(1)+h1pos(3))>=centers(i)-binsize/2 ...
+%                     & state_trace_coarse(h1pos(1):h1pos(1)+h1pos(3))<centers(i)+binsize/2);
+%             end
+%             figure(st_hist)
+%             hold off
+%             plot(centers,counts)
+%             set(gcf, 'Visible', 'on')
+%             threshold_method = questdlg('Which method for thresholding?', 'threshold_method', 'Line', 'Minimum', 'Mean-Maxima', 'Line');
+%             h2 = imrect(gca);
+%             h2pos = getPosition(h2);
+%             delete(h2)
+%             clear h2
+%             centers_box = centers((centers>=h2pos(1)).*(centers<=(h2pos(1)+h2pos(3)))==1);
+%             counts_box = counts((centers>=h2pos(1)).*(centers<=(h2pos(1)+h2pos(3)))==1);
+%             if strcmp(threshold_method, 'Line')
+%                 threshold_tmp = h2pos(1)+h2pos(3)/2;
+%             elseif strcmp(threshold_method, 'Minimum')      
+%                 min_count = min(counts((centers>=h2pos(1)).*(centers<=(h2pos(1)+h2pos(3)))==1));
+%                 tmp = find(counts_box==min_count);
+%                 threshold_tmp = centers_box(tmp);
+%             elseif strcmp(threshold_method, 'Mean-Maxima')
+%                 tmp = counts_box>h2pos(2);
+%                 tmp = [0 tmp(2:end)-tmp(1:end-1)];
+%                 lower = find(tmp==1);
+%                 if length(lower)<2
+%                     lower = [1 lower];
+%                 end
+%                 upper = find(tmp==-1);
+%                 if length(upper)<2;
+%                     upper = [upper length(centers_box)];
+%                 end
+%                 centers_max = [0 0];
+%                 for i = 1:2
+%                     tmp = find(counts_box==max(counts_box(lower(i):upper(i))));
+%                     tmp = round(mean(tmp));
+%                     centers_max(i) = centers_box(tmp);
+%                 end
+%                 threshold_tmp = mean(centers_max);
+%             end
+%             if length(threshold_tmp)>1
+%                 threshold_tmp = [threshold_tmp mean(threshold_tmp)];
+%                 threshold_options = cell(length(threshold_tmp),1);
+%                 figure(fg_traces)
+%                 hold on
+%                 xlim([h1pos(1)-1 h1pos(1)+h1pos(3)+1])
+%                 for i = 1:length(threshold_options)
+%                     threshold_options{i} = num2str(threshold_tmp(i));
+%                     plot([h1pos(1)-1 h1pos(1)+h1pos(3)+1], [1 1].*threshold_tmp(i), '-', 'LineWidth', .5)
+%                 end
+%                 [threshold_select, ok] = listdlg('ListString', threshold_options,...
+%                     'PromptString', 'Pick threshold', 'SelectionMode', 'single');
+%                 threshold_tmp = threshold_tmp(threshold_select(1));
+%             end
+%         threshold_vals = [threshold_vals threshold_tmp];
+%         threshold_pos = [threshold_pos h1pos(1)+round(h1pos(3)/2)];
+%         set(st_hist, 'Visible', 'off')
+%         end
+%         if assign_counter > 1
+%             assign = questdlg('Keep assigning?', 'Keep assigning', 'Yes');
+%             assign = strcmp(assign, 'Yes');
+%         end
+%         assign_counter = assign_counter+1;
+%     end
+%     threshold_vals = [threshold_vals(1) threshold_vals threshold_vals(end)];
+%     threshold_pos = [1 threshold_pos max_frame];
+%     threshold = interp1(threshold_pos, threshold_vals, 1:max_frame,...
+%         'linear', 'extrap');
+% 
+%     % Check threshold
+%     figure(fg_traces)
+%     plot(threshold, 'b-', 'LineWidth', 1.5)
+%     xlim([1 max_frame])
+%     check_threshold = questdlg('Threshold OK?', 'Threshold check', 'Yes');
+%     if strcmp(check_threshold, 'Yes')
+%         figure(fg_traces)
+%         plot(threshold, 'b-', 'LineWidth', 1.5)
+%         glob = questdlg('Assign coarse transitions?', 'Coarse assignment?', 'Yes');
+%         if strcmp(glob,'Yes')
+%             states = state_trace_coarse>threshold'; %change >/< according to type of state_trace
+%             t_trans = [states(1) (states(2:end)-states(1:end-1))'];
+%             spot_result.t_bind = (find(t_trans==-1))'; %change -1/1 according to type of state_trace
+%             spot_result.t_unbind = (find(t_trans==1))'; %change 1/-1 according to type of state_trace
+%             go_on = 0;
+%             close all
+%         elseif strcmp(glob, 'No')
+%             uiwait(msgbox('Restart threshold assignment', 'Restart', 'modal'))
+%             threshold = zeros(1,max_frame);
+%         end
+%     elseif strcmp(check_threshold, 'No')
+%         uiwait(msgbox('Restart threshold assignment', 'Restart', 'modal'))
+%         threshold = zeros(1,max_frame);
+%     end
+% end
 
 %% Check all transitions again
 check_transitions = 1;
