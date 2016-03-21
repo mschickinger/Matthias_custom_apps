@@ -20,7 +20,7 @@ hold off
 plot(plot_data.r, 'r.', 'MarkerSize', 8)
 hold on
 plot(plot_data.rms10, 'k-', 'LineWidth', 1.5)
-plot(state_trace_fine, '-', 'LineWidth', .5)
+%plot(state_trace_fine, '-', 'LineWidth', .5)
 set(gca, 'ColorOrderIndex', 3);
 plot(state_trace_coarse, 'LineWidth', 4.5)
 plot(threshold, 'b-', 'Linewidth', 1.5)
