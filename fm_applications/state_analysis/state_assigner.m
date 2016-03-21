@@ -1,12 +1,5 @@
-% What's new in v4?
-% - Default values for movie and spot
-% - Possibility to discard or postpone spots with comment
-% - Auto save mechanism for hop.mat
-% - Check mechanism for hop.mat concerning right spot with right data
-
-
-
-% LADEN: data_spot_pairs, hop, GiTSiK, correlations
+% Need to be loaded: 
+% data_spot_pairs, GiTSiK, hop (if it already exists)
 
 close all
 clear spot_result
