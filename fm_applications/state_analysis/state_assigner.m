@@ -74,41 +74,43 @@ plot(threshold, 'b-', 'Linewidth', 1.5)
 xlim([1 length(state_trace_coarse)])
 ylim(YLIM)
 %%% new
-check_spot = questdlg('Spot alright?', 'Continue?', 'Continue', 'Only one transition?', 'Something else?', 'Continue');
-if strcmp(check_spot,'Only one transition?') == 1
-    spot_result.comment = 'discarded: only one transition';
-    hop.results{hop_counter}.index = spot_result.index;
-    hop.results{hop_counter}.comment = spot_result.comment;
-    display(['Discarded spot #' num2str(s) ' from movie #' num2str(m)])
-    close all;
-    return;
-elseif strcmp(check_spot,'Something else?') == 1
-    prompt = {'Specify'};
-    defaultanswers = {'Sticky spot'};
-    check_spot_specify = inputdlg(prompt,'Specify',1,defaultanswers);
-    spot_result.comment = check_spot_specify{1}; 
-    hop.results{hop_counter}.index = spot_result.index;
-    hop.results{hop_counter}.comment = spot_result.comment;
-    display(['Postponed spot #' num2str(s) ' from movie #' num2str(m)])
-    close all;
-    return;
-elseif strcmp(check_spot,'Continue') == 1
-    if isfield(spot_result,'comment')
-        spot_result = rmfield(spot_result,'comment');
-    end
+check_spot = questdlg('Spot alright?', 'Continue?', 'Continue', 'Only one transition', 'Something else', 'Continue');
+switch check_spot
+    case 'Only one transition'
+        spot_result.comment = 'discarded: only one transition';
+        hop.results{hop_counter}.index = spot_result.index;
+        hop.results{hop_counter}.comment = spot_result.comment;
+        display(['Discarded spot #' num2str(s) ' from movie #' num2str(m)])
+        close all;
+        return;
+    case 'Something else'
+        prompt = {'Specify'};
+        defaultanswers = {'Promiscuous'};
+        check_spot_specify = inputdlg(prompt,'Specify',1,defaultanswers);
+        spot_result.comment = check_spot_specify{1}; 
+        hop.results{hop_counter}.index = spot_result.index;
+        hop.results{hop_counter}.comment = spot_result.comment;
+        display(['Postponed spot #' num2str(s) ' from movie #' num2str(m)])
+        close all;
+        return;
+    case 'Continue'
+        if isfield(spot_result,'comment')
+            spot_result = rmfield(spot_result,'comment');
+        end
 end
 %%%
 set_max_frame = questdlg('Set maximum frame?', 'Max frame?', 'No');
-if strcmp(set_max_frame,'Yes')
-    h0 = impoint(gca);
-    max_frame = getPosition(h0);
-    max_frame = round(max_frame(1));
-    clear h0
-    % re-define traces
-    state_trace_coarse = state_trace_coarse(1:max_frame);
-    state_trace_fine = state_trace_fine(1:max_frame);
-else
-    max_frame = length(plot_data.r);
+switch set_max_frame
+    case 'Yes'
+        h0 = impoint(gca);
+        max_frame = getPosition(h0);
+        max_frame = round(max_frame(1));
+        clear h0
+        % re-define traces
+        state_trace_coarse = state_trace_coarse(1:max_frame);
+        %state_trace_fine = state_trace_fine(1:max_frame);
+    case 'No'
+        max_frame = length(plot_data.r);
 end
 
 %% Define initital state
