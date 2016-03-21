@@ -265,6 +265,7 @@ while check_transitions
             plot([j,j],YLIM,'b-', 'LineWidth', .5);
             plot(j,.9*YLIM(2),'b^', 'MarkerFaceColor', 'b')
         end
+        ylim(YLIM)
     end
     subplot(2,1,2)
     xlim([1 length(plot_data.r)])
