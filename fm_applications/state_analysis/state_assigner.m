@@ -350,7 +350,8 @@ if ex
     end
     while ex
         h4 = imrect(gca);
-        h4pos = round(getPosition(h4));
+        setResizable(h4, true);
+        h4pos = round(wait(h4));
         ex_int = [ex_int [h4pos(1) h4pos(1)+h4pos(3)]];
         ex = strcmp(questdlg('Exclude more intervals from evaluation?', 'Exclude more?'),'Yes');
     end
