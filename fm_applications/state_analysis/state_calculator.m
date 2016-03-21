@@ -1,5 +1,12 @@
 function [states, T_bound, T_unbound, k_off, k_on] = state_calculator ( spot_data, mov_length, tpf )
 
+if spot_data.t_bind(1)>1 && spot_data.t_unbind(1)>1
+    if spot_data.t_bind(1)>spot_data.t_unbind(1)
+        spot_data.t_bind = [1 spot_data.t_bind];
+    else
+        spot_data.t_unbind = [1 spot_data.t_unbind];
+    end
+end
 % state assignment from beginning
 states = zeros(mov_length,1); %set length anew for every sample
 if spot_data.t_bind(1) == 1
