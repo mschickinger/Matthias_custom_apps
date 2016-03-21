@@ -58,11 +58,11 @@ while go_on == 1
             state_type = questdlg('Binding or UNbinding event?', 'Type of event', 'Binding', 'Unbinding', 'Discard', 'Unbinding');
             switch state_type
                 case 'Binding'
-                    spot_result.t_bind = sort([spot_result.t_bind; pos3(1)]);
+                    spot_result.t_bind = sort(horzcat(spot_result.t_bind, pos3(1)));
                     plot(pos3(1).*[1,1], YLIM, 'b-');
                     plot(pos3(1),.1*YLIM(2),'bv', 'MarkerFaceColor', 'b')
                 case 'Unbinding'
-                    spot_result.t_unbind = sort([spot_result.t_unbind; pos3(1)]);
+                    spot_result.t_unbind = sort(horzcat(spot_result.t_unbind, pos3(1)));
                     plot(pos3(1).*[1,1], YLIM, 'b-');
                     plot(pos3(1),.9*YLIM(2),'b^', 'MarkerFaceColor', 'b')
             end
