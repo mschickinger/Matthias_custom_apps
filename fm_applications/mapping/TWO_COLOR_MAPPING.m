@@ -89,6 +89,18 @@ for i=1:N_movie
     avg_img{i, 2} = ch2{i}.average_image(N_frames_for_average);
 end
 
+%% correction of average images and peak positions in case of automapping
+if strcmp(questdlg('Images generated with automapping?', 'Automapping?', 'Yes'), 'Yes')
+    for i = 1:N_movie
+        for ch = 1:2
+            avg_img{i,ch} = rot90(avg_img{i,ch},3);
+        end
+    end
+    tmp = [(-peaks_raw(:,2)+ch1{1}.sizeY+1) peaks_raw(:,1) (-peaks_raw(:,4)+ch1{1}.sizeY+1) peaks_raw(:,3)];
+    peaks_raw(:,1:4) = tmp;
+    display('Rotated average images and peak positions 90 degrees.')
+end
+
 %% Fit psf to spots_ s_x ~ s_y
 
 sigma_init = 1.5;

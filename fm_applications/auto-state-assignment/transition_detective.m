@@ -1,6 +1,14 @@
-function [ output ] = transition_detective( vector, radius )
+function [ output ] = transition_detective( vector, radius, varargin )
 
+    %% parse input
+    p = inputParser;
+    addRequired(p, 'vector', @isnumeric);
+    addRequired(p, 'radius', @isnumeric);
+    addParameter(p, 'plot', false, @islogical);
 
+    parse(p, vector, radius, varargin{:});
+
+    %% identify state transitions
     %counting variables
     i = 1;
     counter = 0;
@@ -40,8 +48,8 @@ function [ output ] = transition_detective( vector, radius )
     fine_distribution = coarse;
     
     advance = 4;
-    rms_max = 1.5;
-    r_max = 3;
+    vector_max = 1.5;
+    radius_max = 3;
     
     old_r(20) = 0;
     
@@ -75,14 +83,14 @@ function [ output ] = transition_detective( vector, radius )
 
         %compare with mean of 4 in starting in advance frames
         tmp_vector = vector(i:end);
-        newmean=mean(tmp_vector(find(tmp_vector < rms_max,5)));
+        newmean=mean(tmp_vector(find(tmp_vector < vector_max,5)));
 
         %standard and mean
         %calculation depending on if longer than "back" frames in new state
         
         tmp_vector = vector(1:i);
         if  counter>back
-             oldmean = mean(tmp_vector(find(tmp_vector < rms_max,back,'last')));
+             oldmean = mean(tmp_vector(find(tmp_vector < vector_max,back,'last')));
              oldstandard=std(vector(i-back:i));
         else       
             if state==2
@@ -106,7 +114,7 @@ function [ output ] = transition_detective( vector, radius )
         end
          
         %only switch into new mode when i state is close to new mean
-        while vector(i)<(oldmean+distance*0.7) && vector(i)<rms_max
+        while vector(i)<(oldmean+distance*0.7) && vector(i)<vector_max
             coarse(i) = state;
             i=i+1;
         end
@@ -132,17 +140,17 @@ function [ output ] = transition_detective( vector, radius )
     %post_transition_detective
      
     %new mode: unbound
-    if state==1 && vector(i)>oldmean+x1*oldstandard && vector(i) < rms_max && newmean>savedhighmean-b1*savedhighstd
-         first = find(radius(i-4:i+4)>y & radius(i-4:i+4)<r_max,1);
-         last = find(radius(i-4:i+4)>y & radius(i-4:i+4)<r_max,1,'last');
+    if state==1 && vector(i)>oldmean+x1*oldstandard && vector(i) < vector_max && newmean>savedhighmean-b1*savedhighstd
+         first = find(radius(i-4:i+4)>y & radius(i-4:i+4)<radius_max,1);
+         last = find(radius(i-4:i+4)>y & radius(i-4:i+4)<radius_max,1,'last');
          if ~isempty(first) && ~isempty(last)
              changes(i-5+first:i-5+last)=2;
          end
     
     %new mode: bound   
     elseif state==2 && vector(i)<oldmean-x2*oldstandard && newmean<savedlowmean+b2*savedlowstd && radius(i) < y
-         first = find(radius(i-10:i-1)>y & radius(i-10:i-1)<r_max,1, 'last') +1;
-         last = find(radius(i+1:i+10)>y & radius(i-10:i-1)<r_max,1) -1;
+         first = find(radius(i-10:i-1)>y & radius(i-10:i-1)<radius_max,1, 'last') +1;
+         last = find(radius(i+1:i+10)>y & radius(i-10:i-1)<radius_max,1) -1;
          if ~isempty(first) && ~isempty(last)
              changes(i-5+first:i-5+last)=1;
          end
@@ -150,7 +158,7 @@ function [ output ] = transition_detective( vector, radius )
 
     %radius with mean
     %new mode: unbound
-    if state==1 && vector(i)>oldmean+x1*oldstandard && vector(i) < rms_max && newmean>savedhighmean-b1*savedhighstd
+    if state==1 && vector(i)>oldmean+x1*oldstandard && vector(i) < vector_max && newmean>savedhighmean-b1*savedhighstd
         for j=i-4:i+4
                 if mean(radius(j-1:j+1))>x
                     different(j)=2;
@@ -188,30 +196,38 @@ function [ output ] = transition_detective( vector, radius )
     fine_distribution(different==2) = 2;
     
     %plot
-    plot(coarse,'g');
-    hold on;
-    plot(vector,'o', 'MarkerSize', 4);
-    hold on;
-    plot(changes,'r');
-    plot(fine_distribution,'b');
-    ylim([0 2]);
+    if p.Results.plot
+        plot(coarse,'g');
+        hold on;
+        plot(vector,'o', 'MarkerSize', 4);
+        hold on;
+        plot(changes,'r');
+        plot(fine_distribution,'b');
+        ylim([0 2]);
+    end
     
-    %output vector prep
+    %% output structure
     
     %coarse
-    t_bind_coarse = find((coarse(2:end)-coarse(1:end-1))==1)+1;
-    t_unbind_coarse = find((coarse(2:end)-coarse(1:end-1))==-1)+1;
+    t_bind_coarse = find((coarse(2:end)-coarse(1:end-1))==-1)+1;
+    t_unbind_coarse = find((coarse(2:end)-coarse(1:end-1))==1)+1;
     
     %fine_dustribution
-    t_bind_fine_distribution = find((fine_distribution(2:end)-fine_distribution(1:end-1))==1)+1;
-    t_unbind_fine_distribution = find((fine_distribution(2:end)-fine_distribution(1:end-1))==-1)+1;
+    t_bind_fine_distribution = find((fine_distribution(2:end)-fine_distribution(1:end-1))==-1)+1;
+    t_unbind_fine_distribution = find((fine_distribution(2:end)-fine_distribution(1:end-1))==1)+1;
     
     %fine_single
-    t_bind_fine_single = find((fine_single(2:end)-fine_single(1:end-1))==1)+1;
-    t_unbind_fine_single = find((fine_single(2:end)-fine_single(1:end-1))==-1)+1;
+    t_bind_fine_single = find((fine_single(2:end)-fine_single(1:end-1))==-1)+1;
+    t_unbind_fine_single = find((fine_single(2:end)-fine_single(1:end-1))==1)+1;
     
-    % !!!  zugeh?rige namen f?r die variablen zu a,b,c habe ich nicht im review
-    % gefunden
-    output=struct('a', coarse, 'b', fine_single, 'c', fine_distribution, 't_bind_coarse', t_bind_coarse, 't_unbind_coarse', t_unbind_coarse, 't_bind_fine_distribution', t_bind_fine_distribution, 't_unbind_fine_distribution', t_unbind_fine_distribution, 't_bind_fine_single', t_bind_fine_single, 't_unbind_fine_single', t_unbind_fine_single);
+    output=struct('states_coarse', coarse, ...
+        'states_fine_single', fine_single, ...
+        'states_fine_distribution', fine_distribution, ...
+        't_bind_coarse', t_bind_coarse, ...
+        't_unbind_coarse', t_unbind_coarse, ...
+        't_bind_fine_distribution', t_bind_fine_distribution, ...
+        't_unbind_fine_distribution', t_unbind_fine_distribution, ...
+        't_bind_fine_single', t_bind_fine_single, ...
+        't_unbind_fine_single', t_unbind_fine_single);
 
 end
