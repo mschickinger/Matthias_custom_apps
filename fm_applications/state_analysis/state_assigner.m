@@ -268,8 +268,9 @@ while check_transitions
     end
     subplot(2,1,2)
     xlim([1 length(plot_data.r)])
-    start_check_index = 1;
-    for i = sort([spot_result.t_bind(start_check_index:end)' spot_result.t_unbind(start_check_index:end)'])
+    start_frame = str2double(inputdlg('Enter start frame number', 'Start', 1, {'1'}));
+    start_check_index = min([find(spot_result.t_bind>=start_frame,1) find(spot_result.t_unbind>=start_frame,1)]);
+    for i = sort([spot_result.t_bind(start_check_index:end) spot_result.t_unbind(start_check_index:end)])
         for k = 1:2
             subplot(2,1,k)
             plot([i,i],YLIM,'g-');
