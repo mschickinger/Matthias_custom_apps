@@ -1,4 +1,4 @@
-function [states, T_bound, T_unbound, k_off, k_on] = state_calculator_v2 ( spot_data, mov_length, tpf )
+function [states, T_bound, T_unbound, k_off, k_on] = state_calculator ( spot_data, mov_length, tpf )
 
 % state assignment from beginning
 states = zeros(mov_length,1); %set length anew for every sample
