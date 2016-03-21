@@ -314,11 +314,11 @@ if strcmp(add, 'Yes')
     state_adder
 end
 %% Assign initial state
-if strcmp(start_state,'Bound') && isempty(find(spot_result.t_bind==1,1))
-    spot_result.t_bind = [1; spot_result.t_bind];
-elseif strcmp(start_state,'Unbound') && isempty(find(spot_result.t_unbind==1,1))
-    spot_result.t_unbind = [1; spot_result.t_unbind];
-end
+% if strcmp(start_state,'Bound') && isempty(find(spot_result.t_bind==1,1))
+%     spot_result.t_bind = [1; spot_result.t_bind];
+% elseif strcmp(start_state,'Unbound') && isempty(find(spot_result.t_unbind==1,1))
+%     spot_result.t_unbind = [1; spot_result.t_unbind];
+% end
 %% Exclude intervals from evaluation
 ex = questdlg('Exclude intervals from evaluation?', 'Exclude?','No');
 ex = strcmp(ex, 'Yes');
