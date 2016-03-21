@@ -111,10 +111,10 @@ spot_result.t_bind = tmp_output.t_bind_coarse;
 spot_result.t_unbind = tmp_output.t_unbind_coarse;
 
 %% Define initital state
-if isempty(spot_result.t_bind) && isempty(spot_result.t_unbind)
-    xlim([1 w_plot]), figure(fg_traces)
-    start_state = questdlg('Which is the initial state?', 'Initial state', 'Bound', 'Unbound', 'Bound');
-end
+% if isempty(spot_result.t_bind) && isempty(spot_result.t_unbind)
+%     xlim([1 w_plot]), figure(fg_traces)
+%     start_state = questdlg('Which is the initial state?', 'Initial state', 'Bound', 'Unbound', 'Bound');
+% end
 
 %% Threshold determination        
 % go_on = 1;
