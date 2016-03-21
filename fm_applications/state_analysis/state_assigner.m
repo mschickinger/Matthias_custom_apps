@@ -310,7 +310,7 @@ close all
 %% Add lost transitions
 add = questdlg('Add further transitions?', 'Add more?','No');
 if strcmp(add, 'Yes')
-    state_adder_v2
+    state_adder
 end
 %% Assign initial state
 if strcmp(start_state,'Bound') && isempty(find(spot_result.t_bind==1,1))
@@ -470,7 +470,7 @@ if strcmp(evaluate,'Yes')
         spot_result = rmfield(spot_result, {'t_bind_corr'; 't_unbind_corr'});
     end
     [spot_result.states, spot_result.T_bound, spot_result.T_unbound, spot_result.k_off, spot_result.k_on] = ...
-        state_calculator_v2 ( spot_result, size(spot_result.states,1), 100 );
+        state_calculator(spot_result, size(spot_result.states,1), 100);
     if ~isempty(find(spot_result.T_bound<0,1))
         display(['ERROR: ' num2str(length(find(spot_result.T_bound<0))) ' negative bound lifetimes.'])
         append_result = 0;
