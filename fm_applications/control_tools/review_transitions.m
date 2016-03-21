@@ -3,62 +3,68 @@ function review_transitions(plot_data, spot_data)
     w_plot = 2000; %Plot window size
     YLIM = [0 3];
 
-    first_frame = str2double(inputdlg('Enter start frame number','Start',1,{'1'}));
-
     %% Prepare graph
     close all
     fg_traces = figure('Units', 'normalized', 'OuterPosition', [0 0 1 1]);
-    hold off
-    plot(plot_data.r, 'r.', 'MarkerSize', 8)
-    hold on
-    plot(plot_data.rms10, 'k-', 'LineWidth', 1.5)
-    
-    % coarse
-    if isfield(spot_data, 't_bind_coarse')
-        for j = spot_data.t_bind_coarse'
-            plot([j,j],YLIM,'b-', 'LineWidth', .5);
-            plot(j,.1*YLIM(2),'bv', 'MarkerFaceColor', 'b')
-        end
-    end
-    if isfield(spot_data, 't_unbind_coarse') 
-        for j = spot_data.t_unbind_coarse'
-            plot([j,j],YLIM,'b-', 'LineWidth', .5);
-            plot(j,.9*YLIM(2),'b^', 'MarkerFaceColor', 'b')
-        end
-    end
-    
-    % fine_single
-    if isfield(spot_data, 't_bind_fine_single')
-        for j = spot_data.t_bind_fine_single'
-            plot([j,j],YLIM,'g-', 'LineWidth', .5);
-            plot(j,.1*YLIM(2),'gv', 'MarkerFaceColor', 'g')
-        end
-    end
-    if isfield(spot_data, 't_unbind_fine_single')
-        for j = spot_data.t_unbind_fine_single'
-            plot([j,j],YLIM,'g-', 'LineWidth', .5);
-            plot(j,.9*YLIM(2),'g^', 'MarkerFaceColor', 'g')
-        end
-    end
+    for i = 1:2
+        subplot(2,1,i)
+        hold off
+        plot(plot_data.r, 'r.', 'MarkerSize', 8)
+        hold on
+        plot(plot_data.rms10, 'k-', 'LineWidth', 1.5)
 
-    % fine_distribution
-    if isfield(spot_data, 't_bind_fine_distribution')
-        for j = spot_data.t_bind_fine_distribution'
-            plot([j,j],YLIM,'c-', 'LineWidth', .5);
-            plot(j,.1*YLIM(2),'cv', 'MarkerFaceColor', 'c')
+        % coarse
+        if isfield(spot_data, 't_bind_coarse')
+            for j = spot_data.t_bind_coarse'
+                plot([j,j],YLIM,'b-', 'LineWidth', .5);
+                plot(j,.1*YLIM(2),'bv', 'MarkerFaceColor', 'b')
+            end
         end
-    end
-    if isfield(spot_data, 't_unbind_fine_distribution')
-        for j = spot_data.t_unbind_fine_distribution'
-            plot([j,j],YLIM,'c-', 'LineWidth', .5);
-            plot(j,.9*YLIM(2),'c^', 'MarkerFaceColor', 'c')
+        if isfield(spot_data, 't_unbind_coarse') 
+            for j = spot_data.t_unbind_coarse'
+                plot([j,j],YLIM,'b-', 'LineWidth', .5);
+                plot(j,.9*YLIM(2),'b^', 'MarkerFaceColor', 'b')
+            end
         end
-    end
 
-    xlim([first_frame first_frame+w_plot])
-    ylim(YLIM)
+        % fine_single
+        if isfield(spot_data, 't_bind_fine_single')
+            for j = spot_data.t_bind_fine_single'
+                plot([j,j],YLIM,'g-', 'LineWidth', .5);
+                plot(j,.1*YLIM(2),'gv', 'MarkerFaceColor', 'g')
+            end
+        end
+        if isfield(spot_data, 't_unbind_fine_single')
+            for j = spot_data.t_unbind_fine_single'
+                plot([j,j],YLIM,'g-', 'LineWidth', .5);
+                plot(j,.9*YLIM(2),'g^', 'MarkerFaceColor', 'g')
+            end
+        end
+
+        % fine_distribution
+        if isfield(spot_data, 't_bind_fine_distribution')
+            for j = spot_data.t_bind_fine_distribution'
+                plot([j,j],YLIM,'c-', 'LineWidth', .5);
+                plot(j,.1*YLIM(2),'cv', 'MarkerFaceColor', 'c')
+            end
+        end
+        if isfield(spot_data, 't_unbind_fine_distribution')
+            for j = spot_data.t_unbind_fine_distribution'
+                plot([j,j],YLIM,'c-', 'LineWidth', .5);
+                plot(j,.9*YLIM(2),'c^', 'MarkerFaceColor', 'c')
+            end
+        end
+
+        xlim([1 length(plot_data.r)])
+        ylim(YLIM)
+    end
 
     %% Start state reviewing
+    
+    first_frame = str2double(inputdlg('Enter start frame number','Start',1,{'1'}));
+    
+    subplot(2,1,1)
+    xlim([first_frame first_frame+w_plot])
     go_on = 1;
     while go_on == 1
         % Take action
