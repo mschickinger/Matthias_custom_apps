@@ -113,6 +113,12 @@ switch set_max_frame
         max_frame = length(plot_data.r);
 end
 
+%% Assign states with transition detective
+
+tmp_output = transition_detective(plot_data.rms10(1:max_frame), plot_data.r(1:max_frame));
+spot_result.t_bind = tmp_output.t_bind_coarse;
+spot_result.t_unbind = tmp_output.t_unbind_coarse;
+
 %% Define initital state
 if isempty(spot_result.t_bind) && isempty(spot_result.t_unbind)
     xlim([1 w_plot]), figure(fg_traces)
