@@ -50,10 +50,8 @@ spot_result.states = zeros(size(data{m}{s,1}.pos0,1),1);
 %% Set maximum frame and kind of state traces
 % define traces
 plot_data = data{m}{s,1}.vwcm;
-state_trace_coarse = ones(size(correlations_pos0{m}{s,1}.forward))-medfilt1(correlations_pos0{m}{s,1}.forward,2*w_med+1);
-state_trace_coarse(1) = state_trace_coarse(2);
-state_trace_coarse(end) = state_trace_coarse(end-1);
 state_trace_fine = ones(size(correlations_pos0{m}{s,1}.forward))-correlations_pos0{m}{s,1}.forward;
+state_trace_coarse = plot_data.rms10;
 % create figure window
 fg_traces = figure('OuterPosition', [scrsz(1) scrsz(2) scrsz(3) scrsz(4)*.6]);
 hold off
