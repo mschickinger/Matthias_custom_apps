@@ -60,10 +60,10 @@ hold off
 plot(plot_data.r, 'r.', 'MarkerSize', 8)
 hold on
 plot(plot_data.rms10, 'k-', 'LineWidth', 1.5)
-plot(state_trace_fine, '-', 'LineWidth', .5)
+%plot(state_trace_fine, '-', 'LineWidth', .5)
 set(gca, 'ColorOrderIndex', 3);
-plot(state_trace_coarse, 'LineWidth', 1.5)
-plot(threshold, 'b-', 'Linewidth', 1.5)
+%plot(state_trace_coarse, 'LineWidth', 1.5)
+%plot(threshold, 'b-', 'Linewidth', 1.5)
 xlim([1 length(state_trace_coarse)])
 ylim(YLIM)
 %%% new
@@ -256,7 +256,7 @@ while check_transitions
         plot(plot_data.r,'r.', 'MarkerSize', 8);
         hold on
         plot(plot_data.rms10,'k-', 'LineWidth', 1.5);
-        plot(state_trace_fine, '-', 'LineWidth', .5)
+        %plot(state_trace_fine, '-', 'LineWidth', .5)
         set(gca, 'ColorOrderIndex', 3);
         plot(state_trace_coarse, 'LineWidth', 1.5)
         for j = spot_result.t_bind'
@@ -331,7 +331,7 @@ if ex
     plot(plot_data.r, 'r.', 'MarkerSize', 8)
     hold on
     plot(plot_data.rms10, 'k-', 'LineWidth', 1.5)
-    plot(state_trace_fine, '-', 'LineWidth', .5)
+    %plot(state_trace_fine, '-', 'LineWidth', .5)
     set(gca, 'ColorOrderIndex', 3);
     plot(state_trace_coarse, 'LineWidth', 1.5)
     plot(threshold, 'b-', 'Linewidth', 1.5)
