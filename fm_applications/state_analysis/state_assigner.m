@@ -336,7 +336,7 @@ if ex
     set(gca, 'ColorOrderIndex', 3);
     plot(state_trace_coarse, 'LineWidth', 1.5)
     plot(threshold, 'b-', 'Linewidth', 1.5)
-    for j = sort([spot_result.t_bind' spot_result.t_unbind'])
+    for j = sort([spot_result.t_bind spot_result.t_unbind])
         plot([j j], YLIM, 'b-', 'LineWidth', 1.5)
     end
     ylim(YLIM)
@@ -357,8 +357,8 @@ if ex
     end
     for i = 1:size(ex_int,2)
         spot_result.t_excluded = [spot_result.t_excluded; ...
-            spot_result.t_bind(spot_result.t_bind >= ex_int{i}(1) & spot_result.t_bind <= ex_int{i}(2)); ...
-            spot_result.t_unbind(spot_result.t_unbind >= ex_int{i}(1) & spot_result.t_unbind <= ex_int{i}(2))];
+            spot_result.t_bind(spot_result.t_bind >= ex_int{i}(1) & spot_result.t_bind <= ex_int{i}(2))'; ...
+            spot_result.t_unbind(spot_result.t_unbind >= ex_int{i}(1) & spot_result.t_unbind <= ex_int{i}(2))'];
         spot_result.excluded(ex_int{i}(1):ex_int{i}(2)) = 1;
     end
     plot(spot_result.excluded+.5, '-g')
