@@ -154,7 +154,7 @@ function [output] = vektorvergleich1(vektor1,vektor2,toleranz_max)
     legend('unbinding events','binding events');
    
     text(2.75,(max([ausser_tol1{1} ausser_tol2{1} ausser_tol1{2} ausser_tol2{2}])+1)*0.80,['Übereinstimmung:  ' num2str(proz_ueberein) '  %'],'horizontalalignment','left','verticalalignment','bottom','FontSize',15);
-    text(2.75,(max([ausser_tol1{1} ausser_tol2{1} ausser_tol1{2} ausser_tol2{2}])+1)*0.60,['unbinding events in Toleranz: ' num2str(n{1})],'horizontalalignment','left','verticalalignment','bottom','FontSize',12);
-    text(2.75,(max([ausser_tol1{1} ausser_tol2{1} ausser_tol1{2} ausser_tol2{2}])+1)*0.50,['    binding events in Toleranz: ' num2str(n{2})],'horizontalalignment','left','verticalalignment','bottom','FontSize',12);
+    text(2.75,(max([ausser_tol1{1} ausser_tol2{1} ausser_tol1{2} ausser_tol2{2}])+1)*0.60,['unbinding events in Toleranz:  ' num2str(n{1})],'horizontalalignment','left','verticalalignment','bottom','FontSize',12);
+    text(2.75,(max([ausser_tol1{1} ausser_tol2{1} ausser_tol1{2} ausser_tol2{2}])+1)*0.50,['binding events in Toleran:  ' num2str(n{2})],'horizontalalignment','left','verticalalignment','bottom','FontSize',12);
     
 end
