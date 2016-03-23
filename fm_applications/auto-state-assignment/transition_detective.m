@@ -197,6 +197,10 @@ function [ output ] = transition_detective( vector, radius, varargin )
     
     %plot
     if p.Results.plot
+        if strcmp(questdlg('Close all open figures?', 'Close all?', 'Yes'), 'Yes')
+            close all
+        end
+        figure('Units', 'normalized', 'OuterPosition', [0 0 1 1])
         plot(coarse,'g');
         hold on;
         plot(vector,'o', 'MarkerSize', 4);
