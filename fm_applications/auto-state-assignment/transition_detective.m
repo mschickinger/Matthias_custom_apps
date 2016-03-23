@@ -20,11 +20,11 @@ function [ output ] = transition_detective( vector, radius, varargin )
     savedlowstd = 0.04;
     savedhighstd = 0.1;
     %*sigmas entfernung von altem mean  1-->wird zu unbound
-    a1 = 4.8; %  >2.6
+    a1 = 3; %  >2.6
     a2 = 2; %  >2  kleiner als a1  <2.8
     %*sigmas entfernung zu neuem
     b1 = 2;  %   
-    b2 = 4;   %   
+    b2 = 3;   %   
     
     %values for post_transition_detective
     x1 = 5;
@@ -104,7 +104,7 @@ function [ output ] = transition_detective( vector, radius, varargin )
         
     %check for new mode
     %new mode: unbound                                    
-    if state==1 &&newmean>oldmean+a1*oldstandard && newmean>savedhighmean-b1*savedhighstd
+    if state==1 && newmean>oldmean+a1*oldstandard && newmean>savedhighmean-b1*savedhighstd
          distance=newmean-oldmean;
          
         %only save data if in range of old
