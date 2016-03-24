@@ -131,7 +131,7 @@ function [output] = StateVectorComparison(states1,states2,toleranz_max)
     ay = gca;
     ay.YTick = [1 2 3 4];
     ay.YTickLabels = {'1','2','1','2'};
-    legend(p,'states1: test trace','states2: reference trace','Location','west','Orientation','horizontal');
+    legend(p,'states1: variation','states2: reference','Location','west','Orientation','horizontal');
     output{14} = ay;
       
     subplot('Position',[0.05,0.10,0.40,0.35]);
@@ -139,25 +139,27 @@ function [output] = StateVectorComparison(states1,states2,toleranz_max)
     b1(1).FaceColor = [0.0 0.0 0.9];
     b1(2).FaceColor = [0.0 0.8 0.8];
     ylim([0 (max([histcounts(vektor_plot{1}) histcounts(vektor_plot{2})])+2) ]);
-    title('deviation from reference trace');
+    title('variation from reference value');
     legend('unbinding events','binding events','Orientation','horizontal');
-    xlabel({'negative: events of blue (down) graph happen earlier','positive: events of green (up) graph happen earlier'})
+    xlabel({'negativ: events of blue (down) graph happens earlier','positiv: events of green (up) graph happens earlier'})
     
     subplot('Position',[0.50,0.10,0.25,0.35]);
     b2 = bar([ausser_tol1{1} ausser_tol1{2}; ausser_tol2{1} ausser_tol2{2}]);
     b2(1).FaceColor = [0.0 0.0 0.9];
     b2(2).FaceColor = [0.0 0.8 0.8];
-    title('events out of tolerance');
+    title('events off tolerance');
     ylim([0 (max([1 ausser_tol1{1} ausser_tol2{1} ausser_tol1{2} ausser_tol2{2}])*1.2) ]);
     ax = gca;
     ax.XTick = [1 2];
     ax.XTickLabels = {'from 1 to 2 (1 is reference)','from 2 to 1 (2 is reference)'};
     legend('unbinding events','binding events','Orientation','horizontal');
    
-    subplot('Position',[0.80,0.10,0.15,0.35]);
-    axis off;
-    text(0,1,['match:  ' num2str(proz_ueberein) '  %'],'horizontalalignment','left','verticalalignment','bottom','FontSize',15);
-    text(0,0.8,['unbinding events in tolerance: ' num2str(n{1})],'horizontalalignment','left','verticalalignment','bottom','FontSize',12);
-    text(0,0.6,['binding events in tolerance: ' num2str(n{2})],'horizontalalignment','left','verticalalignment','bottom','FontSize',12);
+    %text(2.75,(max([0 ausser_tol1{1} ausser_tol2{1} ausser_tol1{2} ausser_tol2{2}])+1)*0.80,['conformity:  ' num2str(proz_ueberein) '  %'],'horizontalalignment','left','verticalalignment','bottom','FontSize',15);
+    %text(2.75,(max([0 ausser_tol1{1} ausser_tol2{1} ausser_tol1{2} ausser_tol2{2}])+1)*0.60,['unbinding events in tolerance: ' num2str(n{1})],'horizontalalignment','left','verticalalignment','bottom','FontSize',12);
+    %text(2.75,(max([0 ausser_tol1{1} ausser_tol2{1} ausser_tol1{2} ausser_tol2{2}])+1)*0.50,['    binding events in tolerance: ' num2str(n{2})],'horizontalalignment','left','verticalalignment','bottom','FontSize',12);
+    subplot('Position',[0.80,0.10,0.25,
+    text('right','down',['conformity:  ' num2str(proz_ueberein) '  %'],'horizontalalignment','left','verticalalignment','bottom','FontSize',15);
+    text('right','down',['unbinding events in tolerance: ' num2str(n{1})],'horizontalalignment','left','verticalalignment','bottom','FontSize',12);
+    text('right','down',['    binding events in tolerance: ' num2str(n{2})],'horizontalalignment','left','verticalalignment','bottom','FontSize',12);
     
 end
