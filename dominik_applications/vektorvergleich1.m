@@ -101,57 +101,56 @@ function [output] = vektorvergleich1(vektor1,vektor2,toleranz_max)
         output{k+10} = pos2{k}(sum(matrix_in_tol{k},1)==0);
     end
     %und Markierung in den Plots der Vektoren
-    E1 = (1:length(vektor1));
-    E2 = (1:length(vektor1));
-    E1(:) = 0;
-    E2(:) = 0;
+    
     for k = (1:2)
         P1{k} = pos1{k}(sum(matrix_in_tol{k},2)==0);
         P2{k} = pos2{k}(sum(matrix_in_tol{k},1)==0);
     end
-    E1(P1{1}) = 1;
-    E1(P2{1}) = 1;
-    E2(P1{2}) = 1;
-    E2(P2{2}) = 1;
-    
+        
     %PLOTS:
     close all
    
-    figure('Units', 'pixel', 'OuterPosition', [0 0 1920 1080], 'PaperPositionMode', 'auto')
+    figure('Units', 'normalized','OuterPosition', [0 0 1 1], 'PaperPositionMode', 'auto')
     
     subplot('Position',[0.05,0.60,0.90,0.35]);
-    p = plot([vektor1 vektor2+2 E1' E2']);
-    p(3).Color = 'r';
-    p(3).LineWidth = 2;
-    p(4).Color = 'r';
-    p(4).LineWidth = 2;
+    hold on
+    for k = (1:2)
+        for i = (1:length(P1{k}))
+            plot(P1{k}(i)*[1 1], [0 5],'-','Color',[0.8500    0.3250    0.0980]);        
+        end
+        for i = (1:length(P2{k}))
+            plot(P2{k}(i)*[1 1], [0 5],'-','Color',[0.8500    0.3250    0.0980]);        
+        end
+    end
+    
+    p = plot([vektor1 vektor2+2]);
+    p(1).Color = [0 0 1];
+    p(2).Color = [ 0.4660    0.6740    0.1880];
     ylim([0.5 4.5]);
     ay = gca;
     ay.YTick = [1 2 3 4];
     ay.YTickLabels = {'1','2','1','2'};
-    legend('vektor1: Abweichung','vektor2: Referenz','Location','west','Orientation','horizontal');
+    legend(p,'vektor1: Abweichung','vektor2: Referenz','Location','west','Orientation','horizontal');
   
     subplot('Position',[0.05,0.10,0.40,0.35]);
     b1 = bar([-5:5],[histcounts(vektor_plot{1},-5:6)' histcounts(vektor_plot{2},[-5:6])']);
     b1(1).FaceColor = [0.0 0.0 0.9];
     b1(2).FaceColor = [0.0 0.8 0.8];
-    ylim([0 max([histcounts(vektor_plot{1}) histcounts(vektor_plot{2})])+1 ]);
+    ylim([0 (max([histcounts(vektor_plot{1}) histcounts(vektor_plot{2})])+2) ]);
     title('Abweichung von Referenzwerten');
-    legend('unbinding events','binding events');
-    
-    text(-6,-((max([histcounts(vektor_plot{1}) histcounts(vektor_plot{2})])+1)*0.15),'negativ: events des blauen graphen (unten) finden früher statt','horizontalalignment','left','verticalalignment','bottom','FontSize',9);
-    text(0,-((max([histcounts(vektor_plot{1}) histcounts(vektor_plot{2})])+1)*0.20),'positiv: events des roten graphen (oben) finden früher statt','horizontalalignment','left','verticalalignment','bottom','FontSize',9);
+    legend('unbinding events','binding events','Orientation','horizontal');
+    xlabel({'negativ: events des blauen (unteren) graphen finden früher statt','positiv: events des günen (oberen) graphen finden früher statt'})
     
     subplot('Position',[0.50,0.10,0.25,0.35]);
     b2 = bar([ausser_tol1{1} ausser_tol1{2}; ausser_tol2{1} ausser_tol2{2}]);
     b2(1).FaceColor = [0.0 0.0 0.9];
     b2(2).FaceColor = [0.0 0.8 0.8];
     title('events außer Toleranz');
-    ylim([0 max([ausser_tol1{1} ausser_tol2{1} ausser_tol1{2} ausser_tol2{2}])+1]);
+    ylim([0 (max([ausser_tol1{1} ausser_tol2{1} ausser_tol1{2} ausser_tol2{2}])*1.2) ]);
     ax = gca;
     ax.XTick = [1 2];
     ax.XTickLabels = {'von 1 nach 2 (1 ist Referenz)','von 2 nach 1 (2 ist Referenz)'};
-    legend('unbinding events','binding events');
+    legend('unbinding events','binding events','Orientation','horizontal');
    
     text(2.75,(max([ausser_tol1{1} ausser_tol2{1} ausser_tol1{2} ausser_tol2{2}])+1)*0.80,['Übereinstimmung:  ' num2str(proz_ueberein) '  %'],'horizontalalignment','left','verticalalignment','bottom','FontSize',15);
     text(2.75,(max([ausser_tol1{1} ausser_tol2{1} ausser_tol1{2} ausser_tol2{2}])+1)*0.60,['unbinding events in Toleranz: ' num2str(n{1})],'horizontalalignment','left','verticalalignment','bottom','FontSize',12);
