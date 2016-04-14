@@ -1,22 +1,29 @@
 function [ output ] = transition_detective( vector, radius )
 
-
+    frames=length(vector);
     %counting variables
     i = 1;
     counter = 0;
     anzahl = 0;
     %variables to be set
+    
+    %starting values
     savedlowmean = 0.3;
     savedhighmean = 0.85;
-
     savedlowstd = 0.04;
     savedhighstd = 0.1;
-    %*sigmas entfernung von altem mean  1-->wird zu unbound
-    a1 = 4.8; %  >2.6
+    %*sigmas entfernung zu oldmean  1-->wird zu unbound
+    a1 = 3.0; %  >2.6  , vorher 4.8  3.4
     a2 = 2; %  >2  kleiner als a1  <2.8
-    %*sigmas entfernung zu neuem
-    b1 = 2;  %   
-    b2 = 4;   %   
+    %*sigmas entfernung zu vorigem mean
+    b1 = 1.6;  %  vorher 2, 1.1
+    b2 = 2.5;   %   
+    
+    %new variable
+    %   i=8,10, 18??,  27
+    xx=1.5;
+    yy=0.5;
+    
     
     %values for post_transition_detective
     x1 = 5;
@@ -25,7 +32,7 @@ function [ output ] = transition_detective( vector, radius )
     x = 3;
 
     %number of frames to look back for mean and std
-    back = 200;
+    back = 200;  % vorher 200
 
     %state: 2=unbound, 1=bound
     state = 1;
@@ -39,8 +46,8 @@ function [ output ] = transition_detective( vector, radius )
     fine_single = coarse;
     fine_distribution = coarse;
     
-    advance = 4;
-    rms_max = 1.5;
+    advance = 5;
+    rms_max = 2.5;
     r_max = 3;
     
     old_r(20) = 0;
@@ -64,15 +71,6 @@ function [ output ] = transition_detective( vector, radius )
 
      while i<length(vector)-advance
 
-             %DEBUGGING
-%                    if 27700<i
-%                   disp(i);
-%                   disp(state);
-%                   disp(newmean);
-%                   disp(oldmean+a1*oldstandard);
-%                   pause;
-%                    end
-
         %compare with mean of 4 in starting in advance frames
         tmp_vector = vector(i:end);
         newmean=mean(tmp_vector(find(tmp_vector < rms_max,5)));
@@ -94,12 +92,22 @@ function [ output ] = transition_detective( vector, radius )
             end
         end
         
+%          if i>18415
+%              disp(i);
+%              disp(savedhighstd);
+%              disp((abs(newmean-oldmean))/(oldstandard*xx));
+%              disp(abs(savedhighmean+0.19-newmean)/savedhighstd);
+%              pause;
+%          end
+        
     %check for new mode
     %new mode: unbound                                    
-    if state==1 &&newmean>oldmean+a1*oldstandard && newmean>savedhighmean-b1*savedhighstd
+    if state==1 && (abs(newmean-oldmean)/(oldstandard*xx))>abs(savedhighmean+0.19-newmean)/savedhighstd
+        %newmean>oldmean+a1*oldstandard && newmean>savedhighmean-b1*savedhighstd
          distance=newmean-oldmean;
          
         %only save data if in range of old
+        % NEUEN SPEICHERMECHANISMUS
         if oldmean-savedlowmean>-0.2
             savedlowmean=oldmean;
             savedlowstd=oldstandard;
@@ -114,7 +122,8 @@ function [ output ] = transition_detective( vector, radius )
         counter=0;
 
     %new mode: bound 
-    elseif state==2 && newmean<oldmean-a2*oldstandard && newmean<savedlowmean+b2*savedlowstd
+    elseif state==2 && (abs(newmean-oldmean)/(oldstandard*yy))>abs(savedlowmean-0.19-newmean)/savedlowstd
+        %newmean<oldmean-a2*oldstandard && newmean<savedlowmean+b2*savedlowstd
         distance=oldmean-newmean;
 
         if oldmean-savedhighmean<0.2
@@ -165,13 +174,49 @@ function [ output ] = transition_detective( vector, radius )
             end
         end
     end
+
+%     %first/last value of radius bigger/smaller than threshhold 
+%     %new mode: unbound
+%     if state==1 && vector(i)>oldmean+x1*oldstandard && vector(i) < rms_max && newmean>savedhighmean-b1*savedhighstd
+%          first = find(radius(i-4:i+4)>y & radius<r_max,1);
+%          last = find(radius(i-4:i+4)>y & radius<r_max,1,'last');
+%          if ~isempty(first) && ~isempty(last)
+%              changes(i-5+first:i-5+last)=2;
+%          end
+%     
+%     %new mode: bound   
+%     elseif state==2 && vector(i)<oldmean-x2*oldstandard && newmean<savedlowmean+b2*savedlowstd && radius(i) < y
+%          first = find(radius(i-10:i-1)>y & radius<r_max,1, 'last') +1;
+%          last = find(radius(i+1:i+10)>y & radius<r_max,1) -1;
+%          if ~isempty(first) && ~isempty(last)
+%              changes(i-5+first:i-5+last)=1;
+%          end
+%     end
+
+%     %mean of radius bigger/smaller than threshhold
+%     %new mode: unbound
+%     if state==1 && vector(i)>oldmean+x1*oldstandard && vector(i) < rms_max && newmean>savedhighmean-b1*savedhighstd
+%         for j=i-4:i+4
+%                 if mean(radius(j-1:j+1))>x
+%                     different(j)=2;
+%                 end
+%         end
+%     
+%     %new mode: bound
+%     elseif state==2 && vector(i)<oldmean-x2*oldstandard && newmean<savedlowmean+b2*savedlowstd && radius(i) < y
+%         for j=i-4:i+4
+%             if mean(radius(j-1:j+1))<x
+%                 different(j)=1;
+%             end
+%         end
+%     end
     
     coarse(i)=state;
     i=i+1;
     counter=counter+1;
     end
 
-    %get states of last advance
+    %get states of last advance  kann das ganz weg???
     if mean(vector(end-3:end))-savedlowmean<savedlowstd*a1
         coarse(end-3:end)=1;
     else
@@ -192,19 +237,19 @@ function [ output ] = transition_detective( vector, radius )
     hold on;
     plot(vector,'o', 'MarkerSize', 4);
     hold on;
-    plot(changes,'r');
-    plot(fine_distribution,'b');
-    ylim([0 2]);
+%     plot(changes,'r');
+%     plot(fine_distribution,'b');
+%     ylim([0 2]);
     
     %output vector prep
     
-    %coarse
-    t_bind_coarse = find((coarse(2:end)-coarse(1:end-1))==1)+1;
-    t_unbind_coarse = find((coarse(2:end)-coarse(1:end-1))==-1)+1;
+    %coarse  first in new, 
+    t_unbind_coarse = find((coarse(2:end)-coarse(1:end-1))==1)+1;
+    t_bind_coarse = find((coarse(2:end)-coarse(1:end-1))==-1)+1;
     
     %fine_dustribution
-    t_bind_fine_distribution = find((fine_distribution(2:end)-fine_distribution(1:end-1))==1)+1;
-    t_unbind_fine_distribution = find((fine_distribution(2:end)-fine_distribution(1:end-1))==-1)+1;
+    t_unbind_fine_distribution = find((fine_distribution(2:end)-fine_distribution(1:end-1))==1)+1;
+    t_bind_fine_distribution = find((fine_distribution(2:end)-fine_distribution(1:end-1))==-1)+1;
     
     %fine_single
     t_bind_fine_single = find((fine_single(2:end)-fine_single(1:end-1))==1)+1;
@@ -212,6 +257,6 @@ function [ output ] = transition_detective( vector, radius )
     
     % !!!  zugeh?rige namen f?r die variablen zu a,b,c habe ich nicht im review
     % gefunden
-    output=struct('a', coarse, 'b', fine_single, 'c', fine_distribution, 't_bind_coarse', t_bind_coarse, 't_unbind_coarse', t_unbind_coarse, 't_bind_fine_distribution', t_bind_fine_distribution, 't_unbind_fine_distribution', t_unbind_fine_distribution, 't_bind_fine_single', t_bind_fine_single, 't_unbind_fine_single', t_unbind_fine_single);
+    output=struct('a', coarse, 'b', fine_single, 'c', fine_distribution, 't_bind_coarse', t_bind_coarse, 't_unbind_coarse', t_unbind_coarse, 't_bind_fine_distribution', t_bind_fine_distribution, 't_unbind_fine_distribution', t_unbind_fine_distribution, 't_bind_fine_single', t_bind_fine_single, 't_unbind_fine_single', t_unbind_fine_single, 'frames', frames);
 
 end
