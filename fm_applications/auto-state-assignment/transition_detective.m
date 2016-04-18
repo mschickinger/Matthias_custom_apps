@@ -21,7 +21,7 @@ function [ output ] = transition_detective( vector, radius )
     
     %new variable
     %   i=8,10, 18??,  27
-    xx=1.5;
+    xx=2.2;
     yy=0.5;
     
     
@@ -32,7 +32,7 @@ function [ output ] = transition_detective( vector, radius )
     x = 3;
 
     %number of frames to look back for mean and std
-    back = 200;  % vorher 200
+    back = 250;  % vorher 200
 
     %state: 2=unbound, 1=bound
     state = 1;
@@ -92,13 +92,13 @@ function [ output ] = transition_detective( vector, radius )
             end
         end
         
-%          if i>18415
-%              disp(i);
-%              disp(savedhighstd);
-%              disp((abs(newmean-oldmean))/(oldstandard*xx));
-%              disp(abs(savedhighmean+0.19-newmean)/savedhighstd);
-%              pause;
-%          end
+         if i>19250
+             disp(i);
+             disp(newmean);
+             disp(abs(newmean-oldmean)/(oldstandard*yy));
+             disp(abs(savedlowmean-0.19-newmean)/savedlowstd);
+             pause;
+         end
         
     %check for new mode
     %new mode: unbound                                    
@@ -108,7 +108,7 @@ function [ output ] = transition_detective( vector, radius )
          
         %only save data if in range of old
         % NEUEN SPEICHERMECHANISMUS
-        if oldmean-savedlowmean>-0.2
+        if abs(oldmean-savedlowmean)>0.2
             savedlowmean=oldmean;
             savedlowstd=oldstandard;
         end
@@ -122,11 +122,11 @@ function [ output ] = transition_detective( vector, radius )
         counter=0;
 
     %new mode: bound 
-    elseif state==2 && (abs(newmean-oldmean)/(oldstandard*yy))>abs(savedlowmean-0.19-newmean)/savedlowstd
+    elseif state==2 && (abs(newmean-oldmean)/(oldstandard*yy))>abs(savedlowmean-0.20-newmean)/savedlowstd
         %newmean<oldmean-a2*oldstandard && newmean<savedlowmean+b2*savedlowstd
         distance=oldmean-newmean;
 
-        if oldmean-savedhighmean<0.2
+        if abs(oldmean-savedhighmean)<0.2
             savedhighmean=oldmean;
             savedhighstd=oldstandard;
         end
@@ -232,7 +232,9 @@ function [ output ] = transition_detective( vector, radius )
     fine_distribution(different==1) = 1;
     fine_distribution(different==2) = 2;
     
+    
     %plot
+    figure
     plot(coarse,'g');
     hold on;
     plot(vector,'o', 'MarkerSize', 4);
