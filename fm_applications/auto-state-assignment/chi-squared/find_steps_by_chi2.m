@@ -1,12 +1,13 @@
-function [steps, steps_in_order, chi2, counter_chi2, levels, step_trace] = find_steps_by_chi2(trace, N, max_frame)
+function [steps, steps_in_order, chi2, counter_chi2, levels, step_trace] = find_steps_by_chi2(trace, N, varargin)
 % find up to N transitions with chi-squared method
     % parse input and set parameters
     p = inputParser;
     addRequired(p, 'trace', @isnumeric);
     addRequired(p, 'N', @isnumeric);
     addOptional(p, 'max_frame', -1, @isnumeric);
+    addParameter(p, 'append', true, @islogical);
 
-    parse(p, trace, N, max_frame);
+    parse(p, trace, N, varargin{:});
 
     trace = p.Results.trace;
     N = p.Results.N;
