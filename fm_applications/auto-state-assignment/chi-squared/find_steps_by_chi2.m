@@ -77,6 +77,6 @@ function [steps, steps_in_order, chi2, counter_chi2, levels, step_trace] = find_
     steps_in_order = steps_in_order(steps_in_order>0);
     chi2 = chi2(chi2>0);
     counter_chi2 = counter_chi2(counter_chi2>0);
-    [levels, step_trace] = get_levels_trace(trace,steps);
-    display(['finished. total number of steps is ' num2str(length(steps_in_order)) '.'])
+    [levels, step_trace] = get_levels(trace,steps);
+    display(['finished. total number of steps is ' num2str(length(steps)) '.'])
 end
