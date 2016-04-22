@@ -35,7 +35,6 @@ function [steps, steps_in_order, chi2, counter_chi2, levels, step_trace] = find_
     go_on = 1; N_min = 25;
     S = 1;
     while (go_on || (S>2)) && length(steps)<N
-        display(['iteration number ' num2str(length(steps)+1) '...'])
         % find best fits for all plateaus
         candidates = zeros(1,length(steps)+1);
         windows = candidates;
