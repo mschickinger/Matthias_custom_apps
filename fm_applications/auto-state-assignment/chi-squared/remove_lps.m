@@ -12,15 +12,14 @@ function [ steps_out ] = remove_lps( trace, steps_in, varargin )
     parse(p,trace, steps_in, varargin{:});
     
     % preparation of data
-    switch isempty(p.Results.interval)
-        case true
-            trace = p.Results.trace;
-            tmp_steps = p.Results.steps_in;
-        case false
-            interval = p.Results.interval;
-            trace = p.Results.trace(interval(1):interval(2));
-            tmp_steps = p.Results.steps_in(p.Results.steps_in>=interval(1) ...
-                & p.Results.steps_in<=interval(2)) - interval(1) + 1;
+    if isempty(p.Results.interval)
+        trace = p.Results.trace;
+        tmp_steps = p.Results.steps_in;
+    else
+        interval = p.Results.interval;
+        trace = p.Results.trace(interval(1):interval(2));
+        tmp_steps = p.Results.steps_in(p.Results.steps_in>=interval(1) ...
+            & p.Results.steps_in<=interval(2)) - interval(1) + 1;
     end
     
     % main part: decide which step to kill
