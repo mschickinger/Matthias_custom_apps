@@ -1,4 +1,4 @@
-function [steps, steps_in_order, chi2, counter_chi2, levels, step_trace] = chi_squared(trace, N, max_frame)
+function [steps, steps_in_order, chi2, counter_chi2, levels, step_trace] = find_steps_by_chi2(trace, N, max_frame)
 % find up to N transitions with chi-squared method
     % parse input and set parameters
     p = inputParser;

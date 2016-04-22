@@ -1,4 +1,4 @@
-function [ levels, step_trace ] = get_levels_trace( trace, steps )
+function [ levels, step_trace ] = get_levels( trace, steps )
 % self-explanatory. sub-function for step finding stuff
     
     steps = sort(steps);
