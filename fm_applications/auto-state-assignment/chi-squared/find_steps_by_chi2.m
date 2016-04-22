@@ -10,8 +10,11 @@ function [steps, steps_in_order, chi2, counter_chi2, levels, step_trace] = find_
 
     trace = p.Results.trace;
     N = p.Results.N;
-    if max_frame > 0
-        trace = trace(1:max_frame);
+    if p.Results.max_frame > 0
+        trace = trace(1:p.Results.max_frame);
+    end
+    if any(isnan(trace))
+        trace = trace(1:find(isnan(trace),1)-1);
     end
 
     % chi2 containers
