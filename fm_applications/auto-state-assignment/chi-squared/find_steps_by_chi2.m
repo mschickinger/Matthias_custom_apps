@@ -32,7 +32,7 @@ function [steps, steps_in_order, chi2, counter_chi2, levels, step_trace] = find_
     display(['iteration number ' num2str(length(steps)) ' done.'])
 
     % find all other transitions until S has peaked and fallen below 2 again
-    go_on = 1;
+    go_on = 1; N_min = 25;
     S = 1;
     while (go_on || (S>2)) && length(steps)<N
         display(['iteration number ' num2str(length(steps)+1) '...'])
@@ -69,7 +69,9 @@ function [steps, steps_in_order, chi2, counter_chi2, levels, step_trace] = find_
         chi2(length(steps)) = get_chi2(trace, steps);
         counter_chi2(length(steps)) = get_chi2(trace, countersteps(countersteps>0));
         S = counter_chi2(length(steps))/chi2(length(steps));
-        go_on = go_on*(S<2.5);
+        if go_on && length(steps)>N_min
+            go_on = go_on*(S<2.5);
+        end
         display(['iteration number ' num2str(length(steps)) ' done. S = ' num2str(S)])
     end
     steps_in_order = steps_in_order(steps_in_order>0);
