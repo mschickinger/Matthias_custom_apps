@@ -25,14 +25,20 @@ function [ steps_no_stairs ] = eliminate_stairs ( trace, steps, varargin )
     for s = 1:2
         % first entry (i=1)
         tmp_ceil = min(steps_cell{1+(s==1)}(steps_cell{1+(s==1)}>steps_cell{s}(1)));
+        if isempty(tmp_ceil)
+            tmp_ceil = length(trace)+1;
+        end
         while sum(steps_cell{s}>=steps_cell{s}(1) & steps_cell{s}<tmp_ceil)>1
             steps_cell{s} = remove_lps(trace, steps_cell{s}, [1 tmp_ceil-1]);
         end
-
+        
         i = 2;
         while i < length(steps_cell{s})
             tmp_floor = max(steps_cell{1+(s==1)}(steps_cell{1+(s==1)}<steps_cell{s}(i)));
             tmp_ceil = min(steps_cell{1+(s==1)}(steps_cell{1+(s==1)}>steps_cell{s}(i)));
+            if isempty(tmp_ceil)
+                tmp_ceil = length(trace)+1;
+            end
             while sum(steps_cell{s}>tmp_floor & steps_cell{s}<tmp_ceil)>1
                 steps_cell{s} = remove_lps(trace, steps_cell{s}, [tmp_floor tmp_ceil-1]);
             end
@@ -41,5 +47,5 @@ function [ steps_no_stairs ] = eliminate_stairs ( trace, steps, varargin )
     end
     
     % create output
-    steps_no_stairs = sort(vertcat(steps_cell));
+    steps_no_stairs = sort(vertcat(steps_cell{:}));
 end
