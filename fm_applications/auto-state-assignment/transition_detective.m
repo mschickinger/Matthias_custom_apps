@@ -60,7 +60,7 @@ function [ output ] = transition_detective( vector, varargin )
 
 
     %Anfangsstate
-    if abs(median(vector(1:10))-max(vector))>abs(median(vector(1:10))-min(vector)) && median(vector(1:10))<0.7
+    if max(vector)-median(vector(1:10))>median(vector(1:10)-min(vector) %&& median(vector(1:10))<0.7
         state=1;
     else
         state=2;
