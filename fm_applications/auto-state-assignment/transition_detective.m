@@ -1,4 +1,4 @@
-function [ output ] = transition_detective( vector, radius, varargin )
+function [ output ] = transition_detective( vector, varargin )
 
     %% parse input
     p = inputParser;
