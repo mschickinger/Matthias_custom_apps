@@ -1,4 +1,4 @@
-function [step_pos, delta, chi2] = find_2mpt(vector, varargin)
+function [step_pos, delta, chi2] = find_2mps(vector, varargin)
 
     % parse input
     p = inputParser;
