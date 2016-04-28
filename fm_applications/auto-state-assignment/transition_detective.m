@@ -229,8 +229,8 @@ function [ output ] = transition_detective( vector, radius, varargin )
         hold on;
         plot(vector,'o', 'MarkerSize', 4);
         hold on;
-        plot(changes,'r');
-        plot(fine_distribution,'b');
+        %plot(changes,'r');
+        %plot(fine_distribution,'b');
         ylim([0 2]);
     end
     
@@ -241,12 +241,12 @@ function [ output ] = transition_detective( vector, radius, varargin )
     t_unbind_coarse = find((coarse(2:end)-coarse(1:end-1))==1)+1;
     
     %fine_dustribution
-    t_bind_fine_distribution = find((fine_distribution(2:end)-fine_distribution(1:end-1))==-1)+1;
-    t_unbind_fine_distribution = find((fine_distribution(2:end)-fine_distribution(1:end-1))==1)+1;
+    %t_bind_fine_distribution = find((fine_distribution(2:end)-fine_distribution(1:end-1))==-1)+1;
+    %t_unbind_fine_distribution = find((fine_distribution(2:end)-fine_distribution(1:end-1))==1)+1;
     
     %fine_single
-    t_bind_fine_single = find((fine_single(2:end)-fine_single(1:end-1))==-1)+1;
-    t_unbind_fine_single = find((fine_single(2:end)-fine_single(1:end-1))==1)+1;
+    %t_bind_fine_single = find((fine_single(2:end)-fine_single(1:end-1))==-1)+1;
+    %t_unbind_fine_single = find((fine_single(2:end)-fine_single(1:end-1))==1)+1;
     
     output.states = coarse;
 
@@ -255,9 +255,10 @@ function [ output ] = transition_detective( vector, radius, varargin )
 
     output.t_bind_coarse = t_bind_coarse;
     output.t_unbind_coarse = t_unbind_coarse;
-    output.t_bind_fine_distribution = t_bind_fine_distribution;
-    output.t_unbind_fine_distribution = t_unbind_fine_distribution;
-    output.t_bind_fine_single = t_bind_fine_single;
-    output.t_unbind_fine_single = t_unbind_fine_single;
+    
+    %output.t_bind_fine_distribution = t_bind_fine_distribution;
+    %output.t_unbind_fine_distribution = t_unbind_fine_distribution;
+    %output.t_bind_fine_single = t_bind_fine_single;
+    %output.t_unbind_fine_single = t_unbind_fine_single;
 
 end
