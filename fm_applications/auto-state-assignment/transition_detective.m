@@ -78,7 +78,7 @@ function [ output ] = transition_detective( vector, radius, varargin )
         
         tmp_vector = vector(1:i);
         if  counter>back
-             oldmean = mean(tmp_vector(find(tmp_vector < vector_max,back,'last')));
+             oldmean = mean(tmp_vector(find(tmp_vector < rms_max,back,'last')));
              oldstandard=std(vector(i-back:i));
         else       
             if state==2
@@ -103,7 +103,7 @@ function [ output ] = transition_detective( vector, radius, varargin )
         end
          
         %only switch into new mode when i state is close to new mean
-        while vector(i)<(oldmean+distance*0.7) && vector(i)<vector_max
+        while vector(i)<(oldmean+distance*0.7) && vector(i)<rms_max
             coarse(i) = state;
             i=i+1;
         end
