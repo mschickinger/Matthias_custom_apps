@@ -67,15 +67,14 @@ function [ output ] = transition_detective( vector, varargin )
     end
     
 
-     while i<=length(vector)-advance
-
+    while i<=length(vector)-advance
         %compare with mean of 4 in starting in advance frames
         tmp_vector = vector(i:end);
         newmean=mean(tmp_vector(find(tmp_vector < rms_max,advance)));
 
         %standard and mean
         %calculation depending on if longer than "back" frames in new state
-        
+
         tmp_vector = vector(1:i);
         if  counter>back
              oldmean = mean(tmp_vector(find(tmp_vector < rms_max,back,'last')));
@@ -90,42 +89,42 @@ function [ output ] = transition_detective( vector, varargin )
             end
         end
         
-    %check for new mode
-    %new mode: unbound                                    
+        %check for new mode
+        %new mode: unbound                                    
 
-    if state==1 && (abs(newmean-oldmean)/(oldstandard*xx))>abs(savedhighmean+0.2-newmean)/savedhighstd
-        distance=newmean-oldmean;
-         
-        %only save data if in range of old
-        if abs(oldmean-savedlowmean)>0.2
-            savedlowmean=oldmean;
-            savedlowstd=oldstandard;
-        end
-         
-        %only switch into new mode when i state is close to new mean
-        while vector(i)<(oldmean+distance*0.7) && vector(i)<rms_max
-            coarse(i) = state;
-            i=i+1;
-        end
-        state=2;
-        counter=0;
+        if state==1 && (abs(newmean-oldmean)/(oldstandard*xx))>abs(savedhighmean+0.2-newmean)/savedhighstd
+            distance=newmean-oldmean;
 
-    %new mode: bound 
-    elseif state==2 && (abs(newmean-oldmean)/(oldstandard*yy))>abs(savedlowmean-0.1-newmean)/savedlowstd
+            %only save data if in range of old
+            if abs(oldmean-savedlowmean)>0.2
+                savedlowmean=oldmean;
+                savedlowstd=oldstandard;
+            end
 
-        distance=oldmean-newmean;
+            %only switch into new mode when i state is close to new mean
+            while vector(i)<(oldmean+distance*0.7) && vector(i)<rms_max
+                coarse(i) = state;
+                i=i+1;
+            end
+            state=2;
+            counter=0;
 
-        if abs(oldmean-savedhighmean)<0.2
-            savedhighmean=oldmean;
-            savedhighstd=oldstandard;
+        %new mode: bound 
+        elseif state==2 && (abs(newmean-oldmean)/(oldstandard*yy))>abs(savedlowmean-0.1-newmean)/savedlowstd
+
+            distance=oldmean-newmean;
+
+            if abs(oldmean-savedhighmean)<0.2
+                savedhighmean=oldmean;
+                savedhighstd=oldstandard;
+            end
+            while vector(i)>(oldmean-distance*0.7)
+                coarse(i)=state;
+                i=i+1;
+            end
+            state=1;
+            counter=0;     
         end
-        while vector(i)>(oldmean-distance*0.7)
-            coarse(i)=state;
-            i=i+1;
-        end
-        state=1;
-        counter=0;     
-    end
 
 %     %post_transition_detective
 %      
