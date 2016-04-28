@@ -3,10 +3,10 @@ function [ output ] = transition_detective( vector, radius, varargin )
     %% parse input
     p = inputParser;
     addRequired(p, 'vector', @isnumeric); % these are the rms10 values from "data"
-    addRequired(p, 'radius', @isnumeric); % these are the r values from "data"
+    addOptional(p, 'radius', @isnumeric); % these are the r values from "data"
     addParameter(p, 'plot', false, @islogical);
 
-    parse(p, vector, radius, varargin{:});
+    parse(p, vector, varargin{:});
 
     %% identify state transitions
 
