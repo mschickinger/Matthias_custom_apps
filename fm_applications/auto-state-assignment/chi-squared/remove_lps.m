@@ -47,7 +47,7 @@ function [ steps_out ] = remove_lps( trace, steps_in, varargin )
 %     [~, mindex] = min(delta_chi2);
     
     % decide based on total step size (difference of mean levels)
-    tmp_levels = get_levels_trace(trace, tmp_steps);
+    tmp_levels = get_levels(trace, tmp_steps);
     [~, mindex] = min(abs(tmp_levels(2:end)-tmp_levels(1:end-1)));
    
     % create output

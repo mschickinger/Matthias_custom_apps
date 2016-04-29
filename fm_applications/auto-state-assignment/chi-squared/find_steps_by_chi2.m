@@ -1,17 +1,21 @@
-function [steps, steps_in_order, chi2, counter_chi2, levels, step_trace] = find_steps_by_chi2(trace, N, max_frame)
+function [steps, steps_in_order, chi2, counter_chi2, levels, step_trace] = find_steps_by_chi2(trace, N, varargin)
 % find up to N transitions with chi-squared method
     % parse input and set parameters
     p = inputParser;
     addRequired(p, 'trace', @isnumeric);
     addRequired(p, 'N', @isnumeric);
     addOptional(p, 'max_frame', -1, @isnumeric);
+    addParameter(p, 'append', true, @islogical);
 
-    parse(p, trace, N, max_frame);
+    parse(p, trace, N, varargin{:});
 
     trace = p.Results.trace;
     N = p.Results.N;
-    if max_frame > 0
-        trace = trace(1:max_frame);
+    if p.Results.max_frame > 0
+        trace = trace(1:p.Results.max_frame);
+    end
+    if any(isnan(trace))
+        trace = trace(1:find(isnan(trace),1)-1);
     end
 
     % chi2 containers
@@ -32,10 +36,9 @@ function [steps, steps_in_order, chi2, counter_chi2, levels, step_trace] = find_
     display(['iteration number ' num2str(length(steps)) ' done.'])
 
     % find all other transitions until S has peaked and fallen below 2 again
-    go_on = 1;
+    go_on = 1; N_min = 25;
     S = 1;
     while (go_on || (S>2)) && length(steps)<N
-        display(['iteration number ' num2str(length(steps)+1) '...'])
         % find best fits for all plateaus
         candidates = zeros(1,length(steps)+1);
         windows = candidates;
@@ -69,12 +72,14 @@ function [steps, steps_in_order, chi2, counter_chi2, levels, step_trace] = find_
         chi2(length(steps)) = get_chi2(trace, steps);
         counter_chi2(length(steps)) = get_chi2(trace, countersteps(countersteps>0));
         S = counter_chi2(length(steps))/chi2(length(steps));
-        go_on = go_on*(S<2.5);
+        if go_on && length(steps)>N_min
+            go_on = go_on*(S<2.5);
+        end
         display(['iteration number ' num2str(length(steps)) ' done. S = ' num2str(S)])
     end
     steps_in_order = steps_in_order(steps_in_order>0);
     chi2 = chi2(chi2>0);
     counter_chi2 = counter_chi2(counter_chi2>0);
-    [levels, step_trace] = get_levels_trace(trace,steps);
-    display(['finished. total number of steps is ' num2str(length(steps_in_order)) '.'])
+    [levels, step_trace] = get_levels(trace,steps);
+    display(['finished. total number of steps is ' num2str(length(steps)) '.'])
 end
