@@ -18,6 +18,11 @@ function [step_pos, delta, chi2] = find_mps(vector, varargin)
     end
 
     [chi2_min, step_pos] = min(chi2);
+    if length(step_pos)>1
+        step_pos = step_pos(1);
+        chi2_min = chi2_min(1);
+    end
+    
     delta = max(vector(max(step_pos-5,1):min(step_pos+4,length(vector))))-min(vector(max(step_pos-5,1):min(step_pos+4,length(vector))));
     
     if p.Results.plot
