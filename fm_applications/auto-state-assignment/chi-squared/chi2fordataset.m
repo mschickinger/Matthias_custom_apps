@@ -13,7 +13,7 @@ sc2.steptrace = cell(size(sc2.steps));
 max_frame = 35980;
 
 %% Find maximum of N steps
-for i = 5:length(sample_list)
+for i = 1:length(sample_list)
     display(['FINDING STEPS FOR SPOT PAIR #' num2str(sample_list(i)) ' (' num2str(i) ' of ' num2str(length(sample_list)) ').'])
     [sc2.steps_raw{i}, ~, sc2.chi2{i}, sc2.counter_chi2{i}] = find_steps_by_chi2(sample_data{sample_list(i),1}.rms10, 100, max_frame);
 end
