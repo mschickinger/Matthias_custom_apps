@@ -73,13 +73,17 @@ function [steps_raw, steps] = chi2_by_intervals(trace, varargin)
 
     % eliminate all stairs
     steps_raw = steps_raw(steps_raw>0);
-    steps = eliminate_stairs(trace,steps_raw);
-    tmp = length(steps);
-    go_on = 1;
-    while go_on
-        steps = eliminate_stairs(trace, steps);
-        go_on = length(steps)<tmp;
+    if length(steps_raw)>2
+        steps = eliminate_stairs(trace,steps_raw);
         tmp = length(steps);
+        go_on = 1;
+        while go_on
+            steps = eliminate_stairs(trace, steps);
+            go_on = length(steps)<tmp;
+            tmp = length(steps);
+        end
+    else
+        steps = steps_raw;
     end
     display(['Final number of steps is: ' num2str(length(steps))])
     
