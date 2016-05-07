@@ -7,14 +7,15 @@ function [steps_raw, steps] = chi2_by_intervals(trace, varargin)
     p = inputParser;
     addRequired(p, 'trace', @isnumeric);
     addOptional(p, 'N_max', 1000, @isnumeric);
+    addOptional(p, 'ratio_min', 1.05, @isnumeric);
 
     parse(p,trace, varargin{:});
     trace = p.Results.trace;
     N_max = p.Results.N_max;
+    ratio_min = p.Results.ratio_min;
 
     steps_raw = zeros(N_max,1); % positions of steps
     
-    ratio_min = 1.1;
     display('looking for starting step pair...')
     % find starting pair (most prominent in entire trace)
     tmp = find_2mps(trace);
