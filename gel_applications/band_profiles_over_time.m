@@ -20,7 +20,7 @@ gelData_raw = load_gel_image('data_dir', '/Users/matthiasschickinger/PhD/Gels/',
 close all
 
 %% background correct data
-gelData = background_correct_gel_image(gelData_raw, 'numberOfAreas', 1);
+gelData = background_correct_gel_image(gelData_raw, 'numberOfAreas', 4);
 
 %{
 %% adjust of unequal image size
@@ -60,7 +60,7 @@ end
 
 %% get lanes
 lanes = cell(size(single_gelData));
-for i = 1:length(lanes)
+for i = 2:length(lanes)
     lanes{i} = get_gel_lanes(single_gelData{i});
 end
 n_lanes = length(lanes{1}.profiles);
