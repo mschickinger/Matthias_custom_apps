@@ -21,22 +21,40 @@ end
 
 indices = cellfun(@isempty,discovery);      %searches for all empty cells
 discovery(indices) = {0};                   %fills up the empty cells with zeros
+dontforget{1} = zeros(size(discovery,1),size(discovery,2));
+for i = 1:size(discovery,1)                             %it's possible to find more than one suitable code in a sequence
+    for j = 1:size(discovery,2)
+        if size(discovery{i,j},2)>1                     %use only the first match to get a suspicious prestock
+            dontforget{1}(i,j) = discovery{i,j}(2:end);    %but keep the other matches in mind
+            discovery{i,j} = discovery{i,j}(1);         %want only one number in each cell to convert it in a matrix
+        end
+    end
+end
 discoverymatrix = cell2mat(discovery);      %convert the cell into a matrix
 discoverymatrix(2:(end+1),:) = discoverymatrix;
 for i = 1:size(discoverymatrix,2)
     discoverymatrix(1,i) = i;               %labeling the first row with the oligo number in excel list
 end
 
-indicesrev = cellfun(@isempty,discoveryrev);%do the same for the rev-cell
+indicesrev = cellfun(@isempty,discoveryrev);    %do the same for the rev-cell
 discoveryrev(indicesrev) = {0};
+dontforget{2} = zeros(size(discoveryrev,1),size(discoveryrev,2));
+for i = 1:size(discoveryrev,1)                             %it's possible to find more than one suitable code in a sequence
+    for j = 1:size(discoveryrev,2)
+        if size(discoveryrev{i,j},2)>1                     %use only the first match to get a suspicious prestock
+            dontforget{2}(i,j) = discoveryrev{i,j}(2:end);    %but keep the other matches in mind
+            discoveryrev{i,j} = discoveryrev{i,j}(1);         %want only one number in each cell to convert it in a matrix
+        end
+    end
+end
 discoveryrevmatrix = cell2mat(discoveryrev);
 discoveryrevmatrix(2:(end+1),:) = discoveryrevmatrix;
 for i = 1:size(discoveryrevmatrix,2)
     discoveryrevmatrix(1,i) = i;            %labeling the first row with the oligo number in excel list
 end
 
-a{1} = sum(discoverymatrix(2:end,:),1);     %sum up coloms with zeros under the row number
-discoverymatrix(:,find(a{1}==0)) = [];      %delet the total colume where the sum is zero
+a{1} = sum(discoverymatrix(2:end,:),1);     %sum up columns with zeros under the row number
+discoverymatrix(:,find(a{1}==0)) = [];      %delet the total columne where the sum is zero
 
 a{2} = sum(discoveryrevmatrix(2:end,:),1);  %the same for the rev matrix
 discoveryrevmatrix(:,find(a{2}==0)) = [];
@@ -66,6 +84,9 @@ for k = 1:2
 
 suspicious{k} = prestock(founds{k});        %suspicious prestocks in working stock
 end
+
+output{1} = suspicious{1};
+output{2} = suspicious{2};
 
 end
 
