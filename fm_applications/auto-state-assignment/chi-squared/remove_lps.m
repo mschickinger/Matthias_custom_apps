@@ -57,7 +57,7 @@ function [ steps_out ] = remove_lps( trace, steps_in, varargin )
             steps_out = tmp_steps;
         case false
             steps_out = p.Results.steps_in(p.Results.steps_in ~= ...
-                tmp_steps(mindex) + interval(1) - 1);
+                tmp_steps(mindex)) + interval(1) - 1;
     end
 end
 
