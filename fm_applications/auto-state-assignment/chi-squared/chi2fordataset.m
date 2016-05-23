@@ -47,6 +47,7 @@ sc2_101.levels = cell(size(sc2.steps));
 sc2_101.steptrace = cell(size(sc2.steps));
 
 %%
+tic
 for i = 1:length(sample_list)
     display(['Starting step finding for spot number ' num2str(i) ' of ' num2str(length(sample_list)) ', index ' num2str(sample_list(i))])
     if any(isnan(sample_data{sample_list(i),1}.rms10))
@@ -56,4 +57,5 @@ for i = 1:length(sample_list)
     end
     [sc2_101.steps_raw{i}, sc2_101.steps{i}] = chi2_by_intervals(sample_data{sample_list(i),1}.rms10(1:max_frame),100000, 1.01);
     [sc2_101.levels{i}, sc2_101.steptrace{i}] = get_levels(sample_data{sample_list(i),1}.rms10(1:max_frame), sc2_101.steps{i});
+    toc
 end
