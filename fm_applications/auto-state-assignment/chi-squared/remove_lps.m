@@ -49,6 +49,9 @@ function [ steps_out ] = remove_lps( trace, steps_in, varargin )
     % decide based on total step size (difference of mean levels)
     tmp_levels = get_levels(trace, tmp_steps);
     [~, mindex] = min(abs(tmp_levels(2:end)-tmp_levels(1:end-1)));
+    if length(mindex)>1
+        mindex = mindex(1);
+    end
    
     % create output
     switch isempty(p.Results.interval)
