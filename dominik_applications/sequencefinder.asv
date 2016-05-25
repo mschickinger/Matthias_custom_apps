@@ -85,7 +85,7 @@ prematch{2} =
 sequencetestelse{1} =
 sequencetestelse{2} =
 prematchelse{1}(m) =
-prematchelse{2}(m) =
+prematchelse{k}(m) =
 for k = 1:2
     for i = 1:length(founds{k})                                                    %count of compared basepares with oligo
        if length(oligo{1})==length(sequence{founds{k}(i)})                         %check if oligo and sequence have the same length
