@@ -9,85 +9,116 @@ Output: ...
 
 %}
 
+%imports variables from excel list
+oligo = testsequence;
 
-oligo = testsequence;       %imports variables from excel list
+%oligo = VarName9{1};
+%testlength = 7;
+%prestock = Prestock;
 
-oligotest = cell(1,(length(oligo{1})-testlength+1));
-discovery = cell((length(oligo{1})-testlength+1),length(sequence));
-for i = 1:(length(oligo{1})-testlength+1)
-    oligotest{i} = oligo{1}(i:i+testlength-1);      %cuts the testsequence in all possible parts of testlength length
+oligotest = cell(1,(length(oligo)-testlength+1));
+discovery = cell((length(oligo)-testlength+1),length(sequence));
+for i = 1:(length(oligo)-testlength+1)
+    %cuts the testsequence in all possible parts of testlength length
+    oligotest{i} = oligo(i:i+testlength-1);
     for j = 1:length(sequence)
-        discovery{i,j} = regexp(sequence{j},oligotest{i});  %search for all possible testsequenceparts in the list of sequences
-    end                                                     %and gives out a cell of match informations
+        %search for all possible testsequenceparts in the list of sequences
+        %and gives out a cell of match informations
+        discovery{i,j} = regexp(sequence{j},oligotest{i});
+    end
 end
 
-oligorev{1} = rev_comp(oligo{1});   %gives the complementar sequence of testsequence and do the same again
-
-oligotestrev = cell(1,(length(oligorev{1})-testlength+1));
-discoveryrev = cell((length(oligorev{1})-testlength+1),length(sequence));
-for i = 1:(length(oligorev{1})-testlength+1)
-    oligotestrev{i} = oligorev{1}(i:i+testlength-1);
+%IS THIS REALLY NECESSARY??????
+%gives the complementar sequence of testsequence and creates the same
+%discovery cell as before
+oligorev = rev_comp(oligo);
+oligotestrev = cell(1,(length(oligorev)-testlength+1));
+discoveryrev = cell((length(oligorev)-testlength+1),length(sequence));
+for i = 1:(length(oligorev)-testlength+1)
+    oligotestrev{i} = oligorev(i:i+testlength-1);
     for j = 1:length(sequence)
         discoveryrev{i,j} = regexp(sequence{j},oligotestrev{i});
     end
 end
 
-indices = cellfun(@isempty,discovery);      %searches for all empty cells
-discovery(indices) = {0};                   %fills up the empty cells with zeros
+%searches for all empty cells in discovery and fill them up with zeros
+discovery(cellfun(@isempty,discovery)) = {0};
 dontforget{1} = zeros(size(discovery,1),size(discovery,2));
-for i = 1:size(discovery,1)                             %it's possible to find more than one suitable code in a sequence
+%it is possible to find more than one suitable code in a sequence
+for i = 1:size(discovery,1)
     for j = 1:size(discovery,2)
-        if size(discovery{i,j},2)>1                     %use only the first match to get a suspicious prestock
-            dontforget{1}(i,j) = discovery{i,j}(2:end);    %but keep the other matches in mind
-            discovery{i,j} = discovery{i,j}(1);         %want only one number in each cell to convert it in a matrix
+        %use only the first match to get a suspicious prestock because we
+        %want only one number in each cell to convert it in a matrix
+        if size(discovery{i,j},2)>1
+            %but keep the other matches in mind
+            dontforget{1}(i,j) = discovery{i,j}(2:end);
+            discovery{i,j} = discovery{i,j}(1);
         end
     end
 end
-discoverymatrix = cell2mat(discovery);      %convert the cell into a matrix
-discoverymatrix(2:(end+1),:) = discoverymatrix;
-for i = 1:size(discoverymatrix,2)
-    discoverymatrix(1,i) = i;               %labeling the first row with the oligo number in excel list
+
+%create new matrix in size we need and two layers only with zeros
+discoverymatrix = zeros(size(discovery,1)+2,size(discovery,2),2);
+%converte the discovery cell into the first layer of the new matrix
+discoverymatrix(2:(end-1),:,1) = cell2mat(discovery);
+%labeling the first row with the oligo number in excel list in both layers
+for m = 1:2
+    for i = 1:size(discoverymatrix,2)
+        discoverymatrix(1,i,m) = i;
+    end
 end
 
-indicesrev = cellfun(@isempty,discoveryrev);    %do the same for the rev-cell
-discoveryrev(indicesrev) = {0};
+%do the same for the reverce cell in layer two
+discoveryrev(cellfun(@isempty,discoveryrev)) = {0};
 dontforget{2} = zeros(size(discoveryrev,1),size(discoveryrev,2));
-for i = 1:size(discoveryrev,1)                             %it's possible to find more than one suitable code in a sequence
+for i = 1:size(discoveryrev,1)
     for j = 1:size(discoveryrev,2)
-        if size(discoveryrev{i,j},2)>1                     %use only the first match to get a suspicious prestock
-            dontforget{2}(i,j) = discoveryrev{i,j}(2:end);    %but keep the other matches in mind
-            discoveryrev{i,j} = discoveryrev{i,j}(1);         %want only one number in each cell to convert it in a matrix
+        if size(discoveryrev{i,j},2)>1
+            dontforget{2}(i,j) = discoveryrev{i,j}(2:end);
+            discoveryrev{i,j} = discoveryrev{i,j}(1);
         end
     end
 end
-discoveryrevmatrix = cell2mat(discoveryrev);
-discoveryrevmatrix(2:(end+1),:) = discoveryrevmatrix;
-for i = 1:size(discoveryrevmatrix,2)
-    discoveryrevmatrix(1,i) = i;            %labeling the first row with the oligo number in excel list
+
+discoverymatrix(2:(end-1),:,2) = cell2mat(discoveryrev);
+
+%sum up all columns from second index to second to last index
+column = zeros(1,size(discovery,2),2);
+discoverycell = cell(1,2);
+discoverycell{1} = zeros(size(discoverymatrix,1),size(discoverymatrix,2));
+discoverycell{2} = zeros(size(discoverymatrix,1),size(discoverymatrix,2));
+for k = 1:2
+    column(1,:,k) = sum(discoverymatrix(2:(end-1),:,k),1);
+    discoverymatrix(end,:,k) = column(1,:,k);
+    %we need a cell again because after deleting empty columns the layers
+    %have different sizes
+    discoverycell{k} = discoverymatrix(:,:,k);
+    %delete all columns with sum equals zero in both cells
+    discoverycell{k}(:,column(1,:,k)==0) = [];
 end
 
-a{1} = sum(discoverymatrix(2:end,:),1);     %sum up columns with zeros under the row number
-discoverymatrix(a{1}==0) = [];      %delet the total columne where the sum is zero
+%in which oligos of excel list matches were found
+founds{1} = discoverycell{1}(1,:);
+founds{2} = discoverycell{2}(1,:);
+%suspicious prestocks in working stock
+%suspicious because of founds of testlength code in sequences
+suspects{1} = prestock(founds{1});
+suspects{2} = prestock(founds{2});
 
-a{2} = sum(discoveryrevmatrix(2:end,:),1);  %the same for the rev matrix
-discoveryrevmatrix(a{2}==0) = [];
+%match{1} = zeros(1,length(founds{1}));
+%match{2} = zeros(1,length(founds{2}));
+%sequencetest{1} = 
+%sequencetest{2} = 
+%prematch{1} =
+%prematch{2} =
+%sequencetestelse{1} =
+%sequencetestelse{2} =
+%prematchelse{1}(m) =
+%prematchelse{2}(m) =
 
-founds{1} = discoverymatrix(1,:);       %in which oligos of excel list matches were found
-
-founds{2} = discoveryrevmatrix(1,:);    %in which reverse complementar oligos of list matches were found
-
-match{1} = zeros(1,length(founds{1}));
-match{2} = zeros(1,length(founds{2}));
-sequencetest{1} = 
-sequencetest{2} = 
-prematch{1} =
-prematch{2} =
-sequencetestelse{1} =
-sequencetestelse{2} =
-prematchelse{1}(m) =
-prematchelse{2}(m) =
+%{
 for k = 1:2
-    for i = 1:length(founds{k})                                                    %count of compared basepares with oligo
+    for i = 1:length(founds{k}) %count of compared basepares with oligo
        if length(oligo{1})==length(sequence{founds{k}(i)})                         %check if oligo and sequence have the same length
             match{k}(i) = sum(sequence{founds{k}(i)}==oligo{1});                   %count matches
        elseif length(oligo{1})<length(sequence{founds{k}(i)})                      %sequence is longer than oligo
@@ -104,12 +135,45 @@ for k = 1:2
             match{k}(i) = max(prematchelse{k}(:));     %take only the part of most compare
        end
     end
+end
+%}
 
-suspicious{k} = prestock(founds{k});        %suspicious prestocks in working stock
+
+%finding comparisons in changing overlapping sequences of testoligo and sequence
+%DEFINE SUMME
+%summe = ...
+for j = 1:length(sequence)
+    summe{j} = 0;
+    for i = 1:(length(oligo)+length(sequence{j})-1)
+        if length(sequence{j})==length(oligo)
+            summe{j} = sum(oligo(max(end+1-i,1):end)==sequence{j}(1:min(i,length(sequence{j})))) + summe{j};
+        elseif length(sequence{j})>length(oligo)
+            if i<=length(oligo)
+                summe{j} = sum(oligo(end+1-i:end)==sequence{j}(1:i)) + summe{j};
+            else
+                summe{j} = sum(oligo==sequence{j}(i+1-length(oligo):min(i,length(sequence{j})))) + summe{j};
+            end
+        else
+            if i<=length(sequence{j})
+                summe{j} = sum(oligo(end+1-i:end)==sequence{j}(1:i)) + summe{j};
+            else
+                summe{j} = sum(oligo(end-i:end-i+length(sequence{j}))==sequence{j}) + summe{j};
+            end
+        end
+    end
 end
 
-output{1} = suspicious{1};
-output{2} = suspicious{2};
+%now we have two informations:
+%founds: testoligo is in sequence
+%summe: sum of overlapping codes
+
+               
+%output informations:
+%from info one: suspects, dontforget, founds
+%from info two: summe, maxsumme
+%and mainsuspect which we find in both informations
+output{1} = suspects{1};
+output{2} = suspects{2};
 
 end
 
