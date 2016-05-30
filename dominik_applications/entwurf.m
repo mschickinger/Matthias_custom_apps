@@ -1,8 +1,9 @@
 %oligo = testsequence;       %imports variables from excel list
-oligo = VarName9{1};
+oligo = 'CAGTTGAAAGGAATTGAGGAA';
 testlength = 7;
 prestock = Prestock;
 
+%%
 oligotest = cell(1,(length(oligo)-testlength+1));
 discovery = cell((length(oligo)-testlength+1),length(sequence));
 for i = 1:(length(oligo)-testlength+1)
@@ -16,33 +17,22 @@ for i = 1:(length(oligo)-testlength+1)
 end
 
 %searches for all empty cells in discovery and fill them up with zeros
-discovery(cellfun(@isempty,discovery)) = {0};
-dontforget = cell(discovery);
+discoverymatrix = zeros(size(discovery));
 %it is possible to find more than one suitable codes in a sequence
 for i = 1:size(discovery,1)
     for j = 1:size(discovery,2)
         %use only the first match to get a suspicious prestock because we
         %want only one number in each cell to convert it in a matrix
-        if size(discovery{i,j},2)>1
-            %but keep the other matches in mind
-            dontforget{i,j} = discovery{i,j}(2:end);
-            discovery{i,j} = discovery{i,j}(1);
+        if ~isempty(discovery{i,j})
+            discoverymatrix(i,j) = discovery{i,j}(1);
         end
     end
 end
 
 %create new matrix in size of discovery only with zeros
 %add two rows for numbering and column sum
-discoverymatrix = zeros(size(discovery,1)+2,size(discovery,2));
-%converte the discovery cell into the new matrix
-discoverymatrix(2:(end-1),:) = cell2mat(discovery);
 
-for i = 1:size(discovery,2)
-    %labeling the first row with the oligo number in excel list
-    discoverymatrix(1,i) = i;
-    %sum up all columns from second index to second to last index
-    discoverymatrix(end,i) = sum(discoverymatrix(2:(end-1),i));
-end
+discoverymatrix = [1:size(discoverymatrix,2) ; discoverymatrix ; sum(discoverymatrix)];
 
 %delete all columns with sum equals zero
 discoverymatrix(:,discoverymatrix(end,:)==0) = [];
@@ -86,6 +76,7 @@ for k = 1:2
 end
 %}
 
+%% Overlap
 
 %finding comparisons in changing overlapping sequences of testoligo and sequence
 %DEFINE SUMME
@@ -93,17 +84,17 @@ summe = cell(1,length(sequence));
 %summe = cell(1);
 %for j = 1:length(summe)
 for j = 1:length(sequence)
-    summe{j} = 0;
+    summe{j} = zeros(length(oligo)+length(sequence{j})-1,1);
     %for i = 1:(length(oligo)+length(sequence{j})-1)
     %when sequence and oligo has the same length
     if length(sequence{j})==length(oligo)
         for i = 1:(length(oligo)+length(sequence{j})-1)
             %before passing by
             if i<=length(oligo)
-                summe{j} = sum(oligo(end+1-i:end)==sequence{j}(1:i)) + summe{j};
+                summe{j}(i) = sum(oligo(end+1-i:end)==sequence{j}(1:i));
             %after passing by
             else
-                summe{j} = sum(oligo(1:(end+length(oligo)-i))==sequence{j}(i+1-length(oligo):end)) + summe{j};
+                summe{j}(i) = sum(oligo(1:(end+length(oligo)-i))==sequence{j}(i+1-length(oligo):end));
             end
         end
     %when sequence has more basepares than oligo
@@ -111,13 +102,13 @@ for j = 1:length(sequence)
         for i = 1:(length(oligo)+length(sequence{j})-1)
             %before passing by
             if i<=length(oligo)
-                summe{j} = sum(oligo(end+1-i:end)==sequence{j}(1:i)) + summe{j};
+                summe{j}(i) = sum(oligo(end+1-i:end)==sequence{j}(1:i));
             %next to
             elseif i>length(oligo) && i<=length(sequence{j})
-                summe{j} = sum(oligo==sequence{j}(i+1-length(oligo):i)) + summe{j};
+                summe{j}(i) = sum(oligo==sequence{j}(i+1-length(oligo):i));
             %after passing by
             else
-                summe{j} = sum(oligo(1:(end+length(sequence{j})-i))==sequence{j}(i+1-length(oligo):end)) + summe{j};
+                summe{j}(i) = sum(oligo(1:(end+length(sequence{j})-i))==sequence{j}(i+1-length(oligo):end));
             end
         end
     %when sequence has less basepares than oligo    
@@ -125,13 +116,13 @@ for j = 1:length(sequence)
         for i = 1:(length(oligo)+length(sequence{j})-1)
             %before passing by
             if i<=length(sequence{j})
-                summe{j} = sum(oligo(end+1-i:end)==sequence{j}(1:i)) + summe{j};
+                summe{j}(i) = sum(oligo(end+1-i:end)==sequence{j}(1:i));
             %next to
             elseif i>length(sequence{j}) && i<=length(oligo)
-                summe{j} = sum(oligo((end-i+1):(end-i+length(sequence{j})))==sequence{j}) + summe{j};
+                summe{j}(i) = sum(oligo((end-i+1):(end-i+length(sequence{j})))==sequence{j});
             %after passing by
             else
-                summe{j} = sum(oligo(1:(end+length(sequence{j})-i))==sequence{j}((i+1-length(oligo)):end)) + summe{j};
+                summe{j}(i) = sum(oligo(1:(end+length(sequence{j})-i))==sequence{j}((i+1-length(oligo)):end));
             end
         end
     end
@@ -142,7 +133,7 @@ end
 %founds: testoligo is in sequence
 %summe: sum of overlapping codes
 
-               
+%%               
 %output informations:
 %from info one: suspects, dontforget, founds
 %from info two: summe, maxsumme
