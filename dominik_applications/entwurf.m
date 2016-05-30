@@ -130,6 +130,29 @@ for j = 1:length(sequence)
     maxima(j) = max(summe{j});
 end
 
+%% Alternative:
+summe2 = cell(1,length(sequence));
+maxima2 = zeros(size(summe2));
+for j = 1:length(sequence)
+    % Length of the universe for these two sequences:
+    L = length(oligo)+length(sequence{j})-1;
+    % units of the universe filled with "sequence":
+    fill2 = zeros(1,L);
+    fill2(length(oligo):end) = 1;
+    %
+    summe2{j} = zeros(length(oligo)+length(sequence{j})-1,1);
+    for i = 1:L
+         %units of the universe filled with "oligo" during iteration i:
+         fill1 = zeros(1,L);
+         fill1(i:min(i+length(oligo)-1,L)) = 1;
+         %units of universe filled with both sequences during iteration i:
+         overlap = find(fill1 & fill2);  
+         %point of reference for oligo is moving with i, 
+         %p.o.r. for sequence stays fixed at value length(oligo):
+         summe2{j}(i) = sum(oligo(overlap-i+1)==sequence{j}(overlap-length(oligo)+1));
+    end
+    maxima2(j) = max(summe2{j});
+end
 
 %now we have two informations:
 %founds: testoligo is in sequence
