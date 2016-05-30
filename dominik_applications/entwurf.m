@@ -32,7 +32,7 @@ end
 %create new matrix in size of discovery only with zeros
 %add two rows for numbering and column sum
 
-discoverymatrix = [1:size(discoverymatrix,2) ; discoverymatrix ; sum(discoverymatrix)];
+discoverymatrix = [1:size(discoverymatrix,2) ; discoverymatrix ; sum(discoverymatrix>0)];
 
 %delete all columns with sum equals zero
 discoverymatrix(:,discoverymatrix(end,:)==0) = [];
