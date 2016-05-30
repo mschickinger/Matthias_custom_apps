@@ -139,8 +139,7 @@ for j = 1:length(sequence)
     % units of the universe filled with "sequence":
     fill2 = zeros(1,L);
     fill2(length(oligo):end) = 1;
-    %
-    summe2{j} = zeros(length(oligo)+length(sequence{j})-1,1);
+    summe2{j} = zeros(L,1);
     for i = 1:L
          %units of the universe filled with "oligo" during iteration i:
          fill1 = zeros(1,L);
