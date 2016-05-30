@@ -81,6 +81,7 @@ end
 %finding comparisons in changing overlapping sequences of testoligo and sequence
 %DEFINE SUMME
 summe = cell(1,length(sequence));
+maxima = zeros(size(summe));
 %summe = cell(1);
 %for j = 1:length(summe)
 for j = 1:length(sequence)
@@ -126,6 +127,7 @@ for j = 1:length(sequence)
             end
         end
     end
+    maxima(j) = max(summe{j});
 end
 
 
