@@ -153,6 +153,19 @@ for j = 1:length(sequence)
     maxima2(j) = max(summe2{j});
 end
 
+
+%% Alternative 2:
+summe3 = cell(1,length(sequence));
+maxima3 = zeros(size(summe3));
+for j = 1:length(sequence)
+    L = length(oligo)+length(sequence{j})-1;
+    summe3{j} = zeros(L,1);
+    for i = 1:L
+         overlap = max(i,length(oligo)):min(i+length(oligo)-1,L);  
+         summe3{j}(i) = sum(oligo(overlap-i+1)==sequence{j}(overlap-length(oligo)+1));
+    end
+    maxima3(j) = max(summe3{j});
+end
 %now we have two informations:
 %founds: testoligo is in sequence
 %summe: sum of overlapping codes
