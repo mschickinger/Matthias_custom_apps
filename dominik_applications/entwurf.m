@@ -1,9 +1,10 @@
-%oligo = testsequence;       %imports variables from excel list
+%oligo = testsequence;
 oligo = 'CAGTTGAAAGGAATTGAGGAA';
 testlength = 7;
 prestock = Prestock;
 
-%%
+%% Discovery
+
 oligotest = cell(1,(length(oligo)-testlength+1));
 discovery = cell((length(oligo)-testlength+1),length(sequence));
 for i = 1:(length(oligo)-testlength+1)
@@ -31,7 +32,6 @@ end
 
 %create new matrix in size of discovery only with zeros
 %add two rows for numbering and column sum
-
 discoverymatrix = [1:size(discoverymatrix,2) ; discoverymatrix ; sum(discoverymatrix>0)];
 
 %delete all columns with sum equals zero
@@ -42,39 +42,6 @@ founds = discoverymatrix(1,:);
 %suspicious prestocks in working stock
 %suspicious because of founds of testlength code in sequences
 suspects = prestock(founds);
-
-%match{1} = zeros(1,length(founds{1}));
-%match{2} = zeros(1,length(founds{2}));
-%sequencetest{1} = 
-%sequencetest{2} = 
-%prematch{1} =
-%prematch{2} =
-%sequencetestelse{1} =
-%sequencetestelse{2} =
-%prematchelse{1}(m) =
-%prematchelse{2}(m) =
-
-%{
-for k = 1:2
-    for i = 1:length(founds{k}) %count of compared basepares with oligo
-       if length(oligo{1})==length(sequence{founds{k}(i)})                         %check if oligo and sequence have the same length
-            match{k}(i) = sum(sequence{founds{k}(i)}==oligo{1});                   %count matches
-       elseif length(oligo{1})<length(sequence{founds{k}(i)})                      %sequence is longer than oligo
-            for j = 1:(length(sequence{founds{k}(i)})-length(oligo{1})+1)          %take all parts of sequence in length of oligo
-                sequencetest{j} = sequence{founds{k}(i)}(j:j+length(oligo{1})-1);  %and compare them with the oligo
-                prematch{k}(j) = sum(oligo{1}==sequencetest{j});
-            end
-            match{k}(i) = max(prematch{k}(:));                                     %take only the part of most compare
-       else                                                                        %oligo is longer than sequence
-            for m = 1:(length(oligo{1})-length(sequence{founds{k}(i)})+1)          %take all parts of oligo in length of sequence
-            sequencetestelse{m} = oligo{1}(m:m+length(sequence{founds{k}(i)})-1);  %and compare them with the sequence
-            prematchelse{k}(m) = sum(sequencetestelse{m}==sequence{founds{k}(i)});
-            end
-            match{k}(i) = max(prematchelse{k}(:));     %take only the part of most compare
-       end
-    end
-end
-%}
 
 %% Overlap
 
@@ -134,9 +101,9 @@ end
 summe2 = cell(1,length(sequence));
 maxima2 = zeros(size(summe2));
 for j = 1:length(sequence)
-    % Length of the universe for these two sequences:
+    %length of the universe for these two sequences:
     L = length(oligo)+length(sequence{j})-1;
-    % units of the universe filled with "sequence":
+    %units of the universe filled with "sequence":
     fill2 = zeros(1,L);
     fill2(length(oligo):end) = 1;
     summe2{j} = zeros(L,1);
@@ -153,7 +120,6 @@ for j = 1:length(sequence)
     maxima2(j) = max(summe2{j});
 end
 
-
 %% Alternative 2:
 summe3 = cell(1,length(sequence));
 maxima3 = zeros(size(summe3));
@@ -166,14 +132,8 @@ for j = 1:length(sequence)
     end
     maxima3(j) = max(summe3{j});
 end
-%now we have two informations:
-%founds: testoligo is in sequence
-%summe: sum of overlapping codes
 
-%%               
-%output informations:
-%from info one: suspects, dontforget, founds
-%from info two: summe, maxsumme
-%and mainsuspect which we find in both informations
+%% Output
+
 output{1} = suspects{1};
 output{2} = suspects{2};
