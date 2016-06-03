@@ -78,10 +78,10 @@ suspect3 = find((max(maxima(maxima<length(oligo)))*0.6<=maxima));
 %mainsuspects are found in both lists of suspects
 mainsuspects = intersect(suspect3,founds);
 
-%row-sum of summe
-rowsum = zeros(1,size(summe,2));
+%column-sum of summe
+columnsum = zeros(1,size(summe,2));
 for j = 1:size(summe,2)
-    rowsum(j) = sum(summe{j});
+    columnsum(j) = sum(summe{j});
 end
 
 info = cell(1,length(mainsuspects));
@@ -91,7 +91,7 @@ end
 output.mainsuspects = mainsuspects;
 output.info = info;
 output.summe = summe;
-output.rowsum = rowsum;
+output.columnsum = columnsum;
 output.suspects = suspects;
 output.founds = founds;
 output.maxima = maxima;

@@ -71,20 +71,27 @@ for j = 1:length(sequence)
 end
 
 %% Output
+%positions of highest maxima in summ3
+%cut-off level is defined by '*0.6'
+suspect3 = find((max(maxima(maxima<length(oligo)))*0.6<=maxima));
 
-%row-sum of summe
-rowsum = zeros(1,size(summe,2));
+%mainsuspects are found in both lists of suspects
+mainsuspects = intersect(suspect3,founds);
+
+%-sum of summe
+columnsum = zeros(1,size(summe,2));
 for j = 1:size(summe,2)
-    rowsum(j) = sum(summe{j});
+    columnsum(j) = sum(summe{j});
 end
 
-output.info = cell(1,length(mainsuspects));
+info = cell(1,length(mainsuspects));
 for i = 1:length(mainsuspects)
-    output.info{i} = [sequence{mainsuspects(i)},' in ',prestock{mainsuspects(i)}];
+    info{i} = [sequence{mainsuspects(i)},' in ',prestock{mainsuspects(i)}];
 end
-
+output.mainsuspects = mainsuspects;
+output.info = info;
 output.summe = summe;
-output.rowsum = rowsum;
+output.columnsum = columnsum;
 output.suspects = suspects;
 output.founds = founds;
 output.maxima = maxima;
