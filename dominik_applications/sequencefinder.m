@@ -9,7 +9,7 @@ Output: {1} mainsuspects    = positions of sequences found in both tests
         {2}
         {3} suspects        = prestocks in which the testsequence were found
         {4} founds          = positions of sequences the testsequence is part of
-        {5} maxima3         = sums of comparisons of testsequence and sequence
+        {5} maxima         = sums of comparisons of testsequence and sequence
         {6} discovery       = cell of all comparison of testsequenceparts and all sequences
         {7} discoverymatrix = discovery cell converted in matrix with numbering in first row and sum of items in last row
 
@@ -55,117 +55,38 @@ founds = discoverymatrix(1,:);
 %suspicious because of founds of testlength code in sequences
 suspects = prestock(founds);
 
-%{
+
 %% Overlap
 
-%finding comparisons in changing overlapping sequences of testoligo and sequence
-%DEFINE SUMME
 summe = cell(1,length(sequence));
 maxima = zeros(size(summe));
-%summe = cell(1);
-%for j = 1:length(summe)
-for j = 1:length(sequence)
-    summe{j} = zeros(length(oligo)+length(sequence{j})-1,1);
-    %for i = 1:(length(oligo)+length(sequence{j})-1)
-    %when sequence and oligo has the same length
-    if length(sequence{j})==length(oligo)
-        for i = 1:(length(oligo)+length(sequence{j})-1)
-            %before passing by
-            if i<=length(oligo)
-                summe{j}(i) = sum(oligo(end+1-i:end)==sequence{j}(1:i));
-            %after passing by
-            else
-                summe{j}(i) = sum(oligo(1:(end+length(oligo)-i))==sequence{j}(i+1-length(oligo):end));
-            end
-        end
-    %when sequence has more basepares than oligo
-    elseif length(sequence{j})>length(oligo)
-        for i = 1:(length(oligo)+length(sequence{j})-1)
-            %before passing by
-            if i<=length(oligo)
-                summe{j}(i) = sum(oligo(end+1-i:end)==sequence{j}(1:i));
-            %next to
-            elseif i>length(oligo) && i<=length(sequence{j})
-                summe{j}(i) = sum(oligo==sequence{j}(i+1-length(oligo):i));
-            %after passing by
-            else
-                summe{j}(i) = sum(oligo(1:(end+length(sequence{j})-i))==sequence{j}(i+1-length(oligo):end));
-            end
-        end
-    %when sequence has less basepares than oligo    
-    else
-        for i = 1:(length(oligo)+length(sequence{j})-1)
-            %before passing by
-            if i<=length(sequence{j})
-                summe{j}(i) = sum(oligo(end+1-i:end)==sequence{j}(1:i));
-            %next to
-            elseif i>length(sequence{j}) && i<=length(oligo)
-                summe{j}(i) = sum(oligo((end-i+1):(end-i+length(sequence{j})))==sequence{j});
-            %after passing by
-            else
-                summe{j}(i) = sum(oligo(1:(end+length(sequence{j})-i))==sequence{j}((i+1-length(oligo)):end));
-            end
-        end
-    end
-    maxima(j) = max(summe{j});
-end
-%}
-
-%{
-%% Alternative:
-summe2 = cell(1,length(sequence));
-maxima2 = zeros(size(summe2));
-for j = 1:length(sequence)
-    %length of the universe for these two sequences:
-    L = length(oligo)+length(sequence{j})-1;
-    %units of the universe filled with "sequence":
-    fill2 = zeros(1,L);
-    fill2(length(oligo):end) = 1;
-    summe2{j} = zeros(L,1);
-    for i = 1:L
-         %units of the universe filled with "oligo" during iteration i:
-         fill1 = zeros(1,L);
-         fill1(i:min(i+length(oligo)-1,L)) = 1;
-         %units of universe filled with both sequences during iteration i:
-         overlap = find(fill1 & fill2);  
-         %point of reference for oligo is moving with i, 
-         %p.o.r. for sequence stays fixed at value length(oligo):
-         summe2{j}(i) = sum(oligo(overlap-i+1)==sequence{j}(overlap-length(oligo)+1));
-    end
-    maxima2(j) = max(summe2{j});
-end
-%}
-
-%% Alternative 2:
-summe3 = cell(1,length(sequence));
-maxima3 = zeros(size(summe3));
 for j = 1:length(sequence)
     L = length(oligo)+length(sequence{j})-1;
-    summe3{j} = zeros(L,1);
+    summe{j} = zeros(L,1);
     for i = 1:L
          overlap = max(i,length(oligo)):min(i+length(oligo)-1,L);  
-         summe3{j}(i) = sum(oligo(overlap-i+1)==sequence{j}(overlap-length(oligo)+1));
+         summe{j}(i) = sum(oligo(overlap-i+1)==sequence{j}(overlap-length(oligo)+1));
     end
-    maxima3(j) = max(summe3{j});
+    maxima(j) = max(summe{j});
 end
 
 %% Output
 %positions of highest maxima in summ3
-suspect3 = find((max(maxima3)*0.6<=maxima3));
+suspect3 = find((max(maxima(maxima<length(oligo)))*0.6<=maxima));
 %mainsuspects are found in both lists of suspects
 mainsuspects = intersect(suspect3,founds);
 
+output.info = cell(1,length(mainsuspects));
 for i = 1:length(mainsuspects)
-    output{2}{i} = [sequence{mainsuspects(i)},' in ',prestock{mainsuspects(i)}];
+    output.info{i} = [sequence{mainsuspects(i)},' in ',prestock{mainsuspects(i)}];
 end
-
-output{1} = mainsuspects;
-%output{2} = 
-output{3} = suspects;
-output{4} = founds;
-output{5} = maxima3;
-output{6} = discovery;
-output{7} = discoverymatrix;
+output.mainsuspects = mainsuspects;
+output.summe = summe;
+output.suspects = suspects;
+output.founds = founds;
+output.maxima = maxima;
+output.discovery = discovery;
+output.discoverymatrix = discoverymatrix;
 
 end
 
