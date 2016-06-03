@@ -78,7 +78,7 @@ end
 colors = {'b', 'g', 'r', 'c', 'k', 'm', 'y'};
 figure('Units', 'normalized', 'Position', [0 .5 1 .5])
 hold off
-for i = 39%:size(discombination,2)
+for i = 1:size(discombination,2)
     hold off
     for j = 1:size(discombination{i},1)
         plot(discombination{i}(j,1):discombination{i}(j,1)+discombination{i}(j,3), ...
