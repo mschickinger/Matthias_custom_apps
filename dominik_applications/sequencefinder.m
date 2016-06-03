@@ -1,11 +1,17 @@
 function [output] = sequencefinder(sequence,testsequence,testlength,prestock)
 %{
-Input:  sequence = list of all oligo-sequences from workingstock
-        testsequence = code to search in sequence
-        testlength = number of basepares to search for comparison
-        prestock = names of stocks in which you can find each sequence
+Input:  sequence        = list of all oligo-sequences from workingstock
+        testsequence    = code to search in sequence
+        testlength      = number of basepares to search for comparison
+        prestock        = names of stocks in which you can find each sequence
 
-Output: ...
+Output: {1} mainsuspects    = positions of sequences found in both tests
+        {2}
+        {3} suspects        = prestocks in which the testsequence were found
+        {4} founds          = positions of sequences the testsequence is part of
+        {5} maxima3         = sums of comparisons of testsequence and sequence
+        {6} discovery       = cell of all comparison of testsequenceparts and all sequences
+        {7} discoverymatrix = discovery cell converted in matrix with numbering in first row and sum of items in last row
 
 %}
 
@@ -144,12 +150,22 @@ for j = 1:length(sequence)
 end
 
 %% Output
-suspect3 = zeros(1,length(maxima3));
-suspect3 = find(max(maxima3)*0.75<maxima3);
+%positions of highest maxima in summ3
+suspect3 = find((max(maxima3)*0.6<=maxima3));
+%mainsuspects are found in both lists of suspects
+mainsuspects = intersect(suspect3,founds);
 
+for i = 1:length(mainsuspects)
+    output{2}{i} = [sequence{mainsuspects(i)},' in ',prestock{mainsuspects(i)}];
+end
 
-output{1} = suspects;
-output{2} = founds;
-output{3} = maxima3;
+output{1} = mainsuspects;
+%output{2} = 
+output{3} = suspects;
+output{4} = founds;
+output{5} = maxima3;
+output{6} = discovery;
+output{7} = discoverymatrix;
+
 end
 
