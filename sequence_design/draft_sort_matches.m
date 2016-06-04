@@ -1,5 +1,5 @@
 testsequence = 'CAGTTGAAAGGAATTGAGGAA';
-prestock = Prestock;
+%prestock = Prestock;
 S6 = cell(1,length(testsequence));
 i = 3;
 go_on = 1;
