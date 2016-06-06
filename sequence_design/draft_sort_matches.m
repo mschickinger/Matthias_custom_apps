@@ -33,10 +33,18 @@ testsequence = [testsequence cell(size(testsequence))];
 for i = 1:size(testsequence,1)
     testsequence{i,2} = rev_comp(testsequence{i,1});
 end
+%testsequence = 'CAGTTGAAAGGAATTGAGGAA';
 
-
-% sequence: need to import column 'sequence' from Excel sheet or load a .mat file
-prestock = Prestock;
+%%
+%need prestock and sequence in workspace!
+S6 = cell(1,length(testsequence));
+i = 3;
+go_on = 1;
+while i <= length(testsequence) && go_on == 1
+    S6{i} = sequencefinder(sequence,testsequence,i,prestock);
+    go_on = size(S6{i}.discoverymatrix,2)>1;  
+    i = i+1;
+end
 
 %% 
 sequence_match = cell(size(testsequence));
