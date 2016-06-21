@@ -4,8 +4,10 @@ function [ output ] = transition_detective( vector, varargin )
     p = inputParser;
     addRequired(p, 'vector', @isnumeric); % these are the rms10 values from "data"
     addOptional(p, 'radius', @isnumeric); % these are the r values from "data"
+    addOptional(p, 'xxyy', [2.6 0.35], @isnumeric); %these are variable input values for xx and yy; the default values are empirical
     addParameter(p, 'plot', false, @islogical);
-
+    
+   
     parse(p, vector, varargin{:});
 
     %% identify state transitions
@@ -17,15 +19,18 @@ function [ output ] = transition_detective( vector, varargin )
     %variables to be set
     
     %starting values
-    savedlowmean = 0.3;
-    savedhighmean = 0.85;
-    savedlowstd = 0.04;
-    savedhighstd = 0.1;
+    savedlowmean = 1.28; %0.3
+    savedhighmean = 1.90; %0.85
+    savedlowstd = 0.16; %0.04
+    savedhighstd = 0.29; %0.1
 
     %*sigmas entfernung zu vorigem mean
     % new thresholding variables
-    xx=2.6;
-    yy=0.35;
+    xx=p.Results.xxyy(1); % 2.6
+    yy=p.Results.xxyy(2); % 0.35
+    %xx = 3;
+    %yy = 0.4;
+    
     
     %{
     %values for post_transition_detective
@@ -51,7 +56,7 @@ function [ output ] = transition_detective( vector, varargin )
     %needed variables
     coarse(length(vector)) = 0;    
     advance = 5;
-    rms_max = 2.5;
+    rms_max = 3; %2.5
 
 
     %Anfangsstate
@@ -85,9 +90,9 @@ function [ output ] = transition_detective( vector, varargin )
         end
         
         %check for new mode
-        %new mode: unbound                                    
+        %new mode: unbound                                     
 
-        if state==1 && (abs(newmean-oldmean)/(oldstandard*xx))>abs(savedhighmean+0.2-newmean)/savedhighstd
+        if state==1 && (abs(newmean-oldmean)/(oldstandard*xx))>abs(savedhighmean+0-newmean)/savedhighstd %+0.2
             distance=newmean-oldmean;
 
             %only save data if in range of old
@@ -105,7 +110,7 @@ function [ output ] = transition_detective( vector, varargin )
             counter=0;
 
         %new mode: bound 
-        elseif state==2 && (abs(newmean-oldmean)/(oldstandard*yy))>abs(savedlowmean-0.1-newmean)/savedlowstd
+        elseif state==2 && (abs(newmean-oldmean)/(oldstandard*yy))>abs(savedlowmean-0-newmean)/savedlowstd %-0.1
 
             distance=oldmean-newmean;
 
@@ -157,7 +162,7 @@ function [ output ] = transition_detective( vector, varargin )
 %             end
 %         end
 %     end
-
+% 
 %     %first/last value of radius bigger/smaller than threshhold 
 %     %new mode: unbound
 %     if state==1 && vector(i)>oldmean+x1*oldstandard && vector(i) < rms_max && newmean>savedhighmean-b1*savedhighstd
@@ -175,7 +180,7 @@ function [ output ] = transition_detective( vector, varargin )
 %              changes(i-5+first:i-5+last)=1;
 %          end
 %     end
-
+% 
 %     %mean of radius bigger/smaller than threshhold
 %     %new mode: unbound
 %     if state==1 && vector(i)>oldmean+x1*oldstandard && vector(i) < rms_max && newmean>savedhighmean-b1*savedhighstd
@@ -193,6 +198,7 @@ function [ output ] = transition_detective( vector, varargin )
 %             end
 %         end
 %     end
+    
     
     coarse(i)=state;
     i=i+1;
@@ -225,7 +231,7 @@ function [ output ] = transition_detective( vector, varargin )
         hold on;
         %plot(changes,'r');
         %plot(fine_distribution,'b');
-        ylim([0 2]);
+        ylim([min(vector)-0.5 max(vector)+0.5]);
     end
     
     %% output structure
