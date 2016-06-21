@@ -48,19 +48,14 @@ function [ output ] = transition_detective( vector, varargin )
     %number of frames to look back for mean and std
     back = 400;  % vorher 200
 
-    %state: 2=unbound, 1=bound
-    state = 1;
-
     %needed variables
-    newmean = 0;
-    oldmean = 0;
     coarse(length(vector)) = 0;    
     advance = 5;
     rms_max = 2.5;
 
 
     %Anfangsstate
-    if max(vector)-median(vector(1:10))>median(vector(1:10)-min(vector) %&& median(vector(1:10))<0.7
+    if max(vector)-median(vector(1:10))>median(vector(1:10))-min(vector) %&& median(vector(1:10))<0.7 
         state=1;
     else
         state=2;
@@ -78,7 +73,7 @@ function [ output ] = transition_detective( vector, varargin )
         tmp_vector = vector(1:i);
         if  counter>back
              oldmean = mean(tmp_vector(find(tmp_vector < rms_max,back,'last')));
-             oldstandard=std(vector(i-back:i));
+             oldstandard=std(tmp_vector(find(tmp_vector < rms_max,back,'last')));
         else       
             if state==2
                 oldmean=(mean(vector(i-counter:i))*counter+(back-counter)*savedhighmean)/back;
@@ -114,7 +109,7 @@ function [ output ] = transition_detective( vector, varargin )
 
             distance=oldmean-newmean;
 
-            if abs(oldmean-savedhighmean)<0.2
+            if abs(oldmean-savedhighmean)<0.2 % ??? richtig?
                 savedhighmean=oldmean;
                 savedhighstd=oldstandard;
             end
