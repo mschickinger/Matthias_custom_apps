@@ -68,7 +68,8 @@ function [steps_raw, steps] = chi2_by_intervals(trace, varargin)
         end
         [steps_raw(1:N), indices] = sort(steps_raw(1:N));
         offen = offen(indices);
-        display(['Current number of steps is: ' num2str(N)])
+        display(['Current number of steps is: ' num2str(N) ...
+            ', number of open intervals is: ' num2str(sum(offen))])
     end
 
     % eliminate all stairs
