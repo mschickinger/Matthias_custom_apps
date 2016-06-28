@@ -67,7 +67,7 @@ function [steps_raw, steps] = chi2_by_intervals(trace, varargin)
             counter = N;
         end
         [steps_raw(1:N), indices] = sort(steps_raw(1:N));
-        offen = offen(indices);
+        offen(1:N) = offen(indices);
         display(['Current number of steps is: ' num2str(N)])
     end
 
