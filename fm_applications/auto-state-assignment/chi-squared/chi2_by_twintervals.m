@@ -91,6 +91,7 @@ function [steps_raw, steps, ratioS] = chi2_by_twintervals(trace, varargin)
 %         steps = steps_raw;
 %     end
     display(['Final number of steps is: ' num2str(length(steps))])
+    display(['Maximum step frame number: ' num2str(max(steps))])
    
     function add_twinsteps(startFrame,endFrame)
         tmp_trace = trace(startFrame:endFrame);
