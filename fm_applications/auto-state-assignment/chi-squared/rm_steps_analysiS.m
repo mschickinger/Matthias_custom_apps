@@ -1,4 +1,4 @@
-function [sequence, S, stremain]= remove_step_by_step(trace, steps)
+function [sequence, S, stremain]= rm_steps_analysiS(trace, steps)
 
     % Parse input
     p = inputParser;
