@@ -1,4 +1,4 @@
-function [steps_raw, steps] = chi2_by_intervals(trace, varargin)
+function [steps_raw, steps, ratioS] = chi2_by_intervals(trace, varargin)
 % Step-by-step step determination with chi-squared method
 % New approach (May 1st 2016): Optimize individual intervals, not entire
 % time trace
@@ -16,6 +16,9 @@ function [steps_raw, steps] = chi2_by_intervals(trace, varargin)
 
     steps_raw = zeros(N_max,1); % positions of steps
     
+    % quality control array: ratioS
+    ratioS = zeros(N_max,2);
+    
     display('looking for starting step pair...')
     % find starting pair (most prominent in entire trace)
     tmp = find_2mps(trace);
@@ -29,7 +32,8 @@ function [steps_raw, steps] = chi2_by_intervals(trace, varargin)
     counter = N;
     while go_on
         [steps_raw, N] = add_steps(1,steps_raw(1)-1,steps_raw,N);
-        steps_raw(1:N) = sort(steps_raw(1:N));
+        [steps_raw(1:N), indices] = sort(steps_raw(1:N));
+        ratioS(1:N,:) = ratioS(indices,:);
         go_on = (N>counter);
         counter = N;
     end
@@ -40,7 +44,8 @@ function [steps_raw, steps] = chi2_by_intervals(trace, varargin)
         start_frame = steps_raw(N)+1;
         if start_frame < length(trace)
             [steps_raw, N] = add_steps(start_frame,length(trace),steps_raw,N);
-            steps_raw(1:N) = sort(steps_raw(1:N));
+            [steps_raw(1:N), indices] = sort(steps_raw(1:N));
+            ratioS(1:N,:) = ratioS(indices,:);
             go_on = (N>counter);
             counter = N;
         else
@@ -67,13 +72,14 @@ function [steps_raw, steps] = chi2_by_intervals(trace, varargin)
             counter = N;
         end
         [steps_raw(1:N), indices] = sort(steps_raw(1:N));
-        offen = offen(indices);
+        offen(1:N) = offen(indices);
+        ratioS(1:N,:) = ratioS(indices,:);
         display(['Current number of steps is: ' num2str(N) ...
             ', number of open intervals is: ' num2str(sum(offen))])
     end
 
     % eliminate all stairs
-    steps_raw = steps_raw(steps_raw>0);
+    steps_raw = steps_raw(1:N);
     if length(steps_raw)>2
         steps = eliminate_stairs(trace,steps_raw);
         tmp = length(steps);

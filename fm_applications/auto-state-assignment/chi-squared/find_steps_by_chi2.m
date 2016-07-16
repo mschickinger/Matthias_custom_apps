@@ -65,7 +65,7 @@ function [steps, steps_in_order, chi2, counter_chi2, levels, step_trace] = find_
         countersteps(1) = find_mps(trace(1:steps(1)-1));
         for i = 1:length(steps)-1
             [tmp, ~] = find_mps(trace(steps(i)+1:steps(i+1)-1));
-            countersteps(i) = steps(i) + tmp;
+            countersteps(i+1) = steps(i) + tmp;
         end
 
         % calculate chi2 for fit and counter fit
