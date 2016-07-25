@@ -55,7 +55,29 @@ for m = 1:6
         [f_E1E2zero_2{m}{s},xi_E1E2zero_2{m}{s}] = ksdensity(E1E2zero_2{m}{s}.rms10,'Kernel','box');
     end
 end
-    
+   
+
+%% 
+%zusammenfügen der Wahrscheinlichkeitsdichten und sortieren
+all_fxi_E1E2zero_1 = [];
+all_fxi_E1E2zero_2 = [];
+all_fxi_E1E2zero = [];
+for m = 1:8
+    for s = 1:size(traces_E1E2zero_1{m},2)
+        all_fxi_E1E2zero_1 = [all_fxi_E1E2zero_1; [f_E1E2zero_1{m}{s}(:),xi_E1E2zero_1{m}{s}(:)]];
+    end
+end
+for m = 1:6
+    for s = 1:size(traces_E1E2zero_2{m},2)
+        all_fxi_E1E2zero = [all_fxi_E1E2zero_1; [f_E1E2zero_2{m}{s}(:),xi_E1E2zero_2{m}{s}(:)]];
+    end
+end
+
+all_fxi_E1E2zero = sortrows(all_fxi_E1E2zero,2);
+all_fxi_E1E2zero(all_fxi_E1E2zero(:,1)<0.01,:)=[];
+
+plot(all_fxi_E1E2zero(:,2),all_fxi_E1E2zero(:,1))
+
 
 %%
 %best of E1fix
@@ -75,6 +97,21 @@ for m = 1:6
         [f_E1fix{m}{s},xi_E1fix{m}{s}] = ksdensity(E1fix{m}{s}.rms10,'Kernel','box');
     end
 end
+
+
+%% 
+%zusammenfügen der Wahrscheinlichkeitsdichten und sortieren
+all_fxi_E1fix = [];
+for m = 1:6
+    for s = 1:size(traces_E1fix{m},2)
+        all_fxi_E1fix = [all_fxi_E1fix; [f_E1fix{m}{s}(:),xi_E1fix{m}{s}(:)]];
+    end
+end
+
+all_fxi_E1fix = sortrows(all_fxi_E1fix,2);
+all_fxi_E1fix(all_fxi_E1fix(:,1)<0.01,:)=[];
+
+plot(all_fxi_E1fix(:,2),all_fxi_E1fix(:,1))
 
 
 %%
@@ -229,16 +266,16 @@ hold on
 %    end
 %end
 
-plot(all_fxi_E3zero(:,2),all_fxi_E3zero(:,1),'Linewidth',1)
-plot(all_fxi_E3fix(:,2),all_fxi_E3fix(:,1),'Linewidth',1)
+plot(all_fxi_E1E2zero(:,2),all_fxi_E1E2zero(:,1),'Linewidth',1)
+plot(all_fxi_E1fix(:,2),all_fxi_E1fix(:,1),'Linewidth',1)
 
 xlabel('rms10','Linewidth',30)
 ylabel('f','Linewidth',30)
-title('Wahrscheinlichkeitsdichten E3')
+title('Wahrscheinlichkeitsdichten E1')
 %legend('m1s10','m1s12','m1s14','m1s15','m1s17','m1s4','m1s40','m1s46','m1s47','m1s5','m1s54')
 
 %%
 %Dateien und Grafiken abspeichern
 
-savefig('E3fixzero_mean.fig')
-print('-dpng','E3fixzero_mean.png')
+savefig('E1fixzero_mean.fig')
+print('-dpng','E1fixzero_mean.png')
