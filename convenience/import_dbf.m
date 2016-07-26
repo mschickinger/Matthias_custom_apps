@@ -13,7 +13,7 @@ startRow = 3;
 formatSpec = '%s';
 
 %% Open the text file.
-fileID = fopen(filename,'r');
+fileID = fopen([pathname filename],'r');
 
 %% Read columns of data according to format string.
 dataArray = textscan(fileID, '%s', 'Delimiter', delimiter, 'MultipleDelimsAsOne', true, 'HeaderLines' ,startRow-1, 'ReturnOnError', false);
@@ -58,8 +58,8 @@ if strcmp(questdlg('Show temperatures in figure?',''), 'Yes')
     PointsPerDay = tmp - FirstMidnight;
     LastMidnight = FirstMidnight + PointsPerDay*floor((length(T)-FirstMidnight)/PointsPerDay);
     for i = FirstMidnight:PointsPerDay:length(dtimes)
-        plot([i i], YLIM + [-.1 .1], 'k--')
-        plot([i i]+720, YLIM + [-.1 .1], 'r--')   
+        plot([i i], YLIM + [-.5 .5], 'k--')
+        plot([i i]+720, YLIM + [-.5 .5], 'r--')   
     end
     set(gca, 'Xlim', [0 length(T)], 'Ylim', YLIM, 'XTick', [FirstMidnight LastMidnight], ...
         'XTickLabel', {datestr(dtimes(FirstMidnight),'mmm dd, HH:MM') ; datestr(dtimes(LastMidnight),'mmm dd, HH:MM')}, ...
@@ -77,5 +77,5 @@ if strcmp(questdlg('Show temperatures in figure?',''), 'Yes')
 end
 
 %% Save variables
-save temperature_log.mat times T dtimes FirstMidnight LastMidnight PointsPerDay
+save([pathname 'temperature_log.mat'], 'times', 'T', 'dtimes', 'FirstMidnight', 'LastMidnight', 'PointsPerDay')
 end
