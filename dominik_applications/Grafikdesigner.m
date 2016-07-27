@@ -58,9 +58,9 @@ end
    
 
 %% 
+%E1/E2 zero 1 und 2
 %zusammenfügen der Wahrscheinlichkeitsdichten und sortieren
 all_fxi_E1E2zero_1 = [];
-all_fxi_E1E2zero_2 = [];
 all_fxi_E1E2zero = [];
 for m = 1:8
     for s = 1:size(traces_E1E2zero_1{m},2)
@@ -76,7 +76,7 @@ end
 all_fxi_E1E2zero = sortrows(all_fxi_E1E2zero,2);
 all_fxi_E1E2zero(all_fxi_E1E2zero(:,1)<0.01,:)=[];
 
-plot(all_fxi_E1E2zero(:,2),all_fxi_E1E2zero(:,1))
+%plot(all_fxi_E1E2zero(:,2),all_fxi_E1E2zero(:,1))
 
 
 %%
@@ -99,7 +99,8 @@ for m = 1:6
 end
 
 
-%% 
+%%
+%E1 fix
 %zusammenfügen der Wahrscheinlichkeitsdichten und sortieren
 all_fxi_E1fix = [];
 for m = 1:6
@@ -111,7 +112,7 @@ end
 all_fxi_E1fix = sortrows(all_fxi_E1fix,2);
 all_fxi_E1fix(all_fxi_E1fix(:,1)<0.01,:)=[];
 
-plot(all_fxi_E1fix(:,2),all_fxi_E1fix(:,1))
+%plot(all_fxi_E1fix(:,2),all_fxi_E1fix(:,1))
 
 
 %%
@@ -151,7 +152,8 @@ for m = 1:4
 end
 
 
-%% 
+%%
+%E3 fix
 %zusammenfügen der Wahrscheinlichkeitsdichten und sortieren
 all_fxi_E3fix = [];
 for m = 1:4
@@ -184,7 +186,8 @@ for m = 1:4
 end
 
 
-%% 
+%%
+%E3 zero
 %zusammenfügen der Wahrscheinlichkeitsdichten und sortieren
 all_fxi_E3zero = [];
 for m = 1:4
@@ -196,7 +199,7 @@ end
 all_fxi_E3zero = sortrows(all_fxi_E3zero,2);
 all_fxi_E3zero(all_fxi_E3zero(:,1)<0.01,:)=[];
 
-plot(all_fxi_E3zero(:,2),all_fxi_E3zero(:,1))
+%plot(all_fxi_E3zero(:,2),all_fxi_E3zero(:,1))
 
 
 %%
@@ -256,7 +259,7 @@ end
 
 %%
 %erstellen der Grafen
-figure('Units','normalized','Position',[0 0 1 1],'PaperPositionMode','auto')
+%figure('Units','normalized','Position',[0 0 1 1],'PaperPositionMode','auto')
 hold on
 
 % !!! m und s anpassen !!!
@@ -266,16 +269,17 @@ hold on
 %    end
 %end
 
-plot(all_fxi_E1E2zero(:,2),all_fxi_E1E2zero(:,1),'Linewidth',1)
-plot(all_fxi_E1fix(:,2),all_fxi_E1fix(:,1),'Linewidth',1)
+%plot(all_fxi_E3zero(:,2),all_fxi_E3zero(:,1),'Linewidth',0.5)
+%plot(all_fxi_E3fix(:,2),all_fxi_E3fix(:,1),'Linewidth',0.5)
 
 xlabel('rms10','Linewidth',30)
 ylabel('f','Linewidth',30)
-title('Wahrscheinlichkeitsdichten E1')
-%legend('m1s10','m1s12','m1s14','m1s15','m1s17','m1s4','m1s40','m1s46','m1s47','m1s5','m1s54')
+%axis([0 4 0 3])
+title('Wahrscheinlichkeitsdichten E1 fix/zero und E3 fix/zero')
+%legend('E1zero','E1fix','E3zero','E3fix')
 
 %%
 %Dateien und Grafiken abspeichern
 
-savefig('E1fixzero_mean.fig')
-print('-dpng','E1fixzero_mean.png')
+savefig('E1fixzero_E3fixzero.fig')
+print('-dpng','E1fixzero_E3fixzero.png')
