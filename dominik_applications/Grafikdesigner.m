@@ -305,8 +305,8 @@ hold on
 %    end
 %end
 
-plot(pts_E1E2zero_1,f_all_E1E2zero,'-r','Linewidth',1)
-plot(pts_E1fix,f_all_E1fix,'-b','Linewidth',1)
+%plot(pts_E1E2zero_1,f_all_E1E2zero,'-r','Linewidth',1)
+%plot(pts_E1fix,f_all_E1fix,'-b','Linewidth',1)
 
 %plot(pts_E1E2zero_1,f_all_E1E2zero,'-r','Linewidth',1)
 %plot(pts_E2fix,f_all_E2fix,'-b','Linewidth',1)
@@ -314,14 +314,37 @@ plot(pts_E1fix,f_all_E1fix,'-b','Linewidth',1)
 %plot(pts_E3zero,f_all_E3zero,'-r','Linewidth',1)
 %plot(pts_E3fix,f_all_E3fix,'-b','Linewidth',1)
 
-%plot(pts_E4zero,f_all_E4zero,'-r','Linewidth',1)
-%plot(pts_E4fix,f_all_E4fix,'-b','Linewidth',1)
+plot(pts_E4zero,f_all_E4zero,'-r','Linewidth',1)
+plot(pts_E4fix,f_all_E4fix,'-b','Linewidth',1)
 
 xlabel('rms10','Linewidth',50)
 ylabel('Wahrscheinlichkeitsdichte','Linewidth',50)
 axis([0 4 0 3])
-title('E1 Kontrollexperimente')
-legend('E1zero','E1fix')
+title('E4 Kontrollexperimente')
+legend('E4zero','E4fix')
+
+
+%%
+%FWHM
+%Pfeile in der figure-Bearbeitung anpassen!!!
+%E1
+%plot([1.0500 1.5050],[0.9877 0.9877],'-k','Linewidth',0.5)
+%plot([1.5100 2.1850],[0.6843 0.6843],'-k','Linewidth',0.5)
+%E2
+%plot([0.9500 1.3700],[1.0793 1.0793],'-k','Linewidth',0.5)
+%plot([1.5100 2.1850],[0.6843 0.6843],'-k','Linewidth',0.5)
+%E3
+%plot([1.4600 2.0900],[0.7262 0.7262],'-k','Linewidth',0.5)
+%plot([1.8600 2.6850],[0.5659 0.5659],'-k','Linewidth',0.5)
+%area([1.8600 2.0900],[3 3],'FaceColor',[0.5 1 1],'EdgeColor',[0.5 0.5 0.5])
+%annotation('textarrow',[0.3 0.4],[0.5 0.6],'String','Überlapp = 0.230','FontSize',20)
+%E4
+plot([0.6050 0.9800],[1.2114 1.2114],'-k','Linewidth',0.5)
+plot([1.2950 1.8500],[0.8150 0.8150],'-k','Linewidth',0.5)
+
+%Werte anpassen!!!
+annotation('textarrow',[0.25 0.33],[0.5 0.38],'String','FWHM = 0.375','FontSize',20)
+annotation('textarrow',[0.64 0.555],[0.5 0.3],'String','FWHM = 0.555','FontSize',20)
 
 
 %%
@@ -340,12 +363,6 @@ f = [f2;f1];
 hold on
 area(f(:,1),f(:,2),'FaceColor',[1 1 0.5],'EdgeColor',[0.5 0.5 0.5])
 legend('E1zero','E1fix','Überlapp')
-
-
-%%
-%E1 FWHM
-annotation('textarrow',[zw 0 und 1],[zw 0 und 1],'String','A = 7.34 %')
-
 
 
 %%
@@ -402,5 +419,5 @@ legend('E4zero','E4fix','Überlapp')
 %%
 %Dateien und Grafiken abspeichern
 
-savefig('E3fixzerooverlap.fig')
-print('-dpng','E3fixzerooverlap.png')
+savefig('E4fixzeroFWHM.fig')
+print('-dpng','E4fixzeroFWHM.png')

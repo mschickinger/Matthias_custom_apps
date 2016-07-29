@@ -39,7 +39,7 @@ function [steps, ex_int, arxv, GO_ON] = reduce_steptraces(trace, varargin)
     
     % create figure and user interface (later)
     close all
-    f = figure('Visible', 'on', 'Units', 'normalized', 'Position', [0 -1 1 1]);
+    f = figure('Visible', 'on', 'Units', 'normalized', 'Position', [0 0 1 1]);
     subplot('Position',[0.05 0.35 .9 .6])
     hold off
     plot(trace, 'Color', .7*[1 1 1])

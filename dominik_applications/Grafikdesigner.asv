@@ -308,20 +308,43 @@ hold on
 %plot(pts_E1E2zero_1,f_all_E1E2zero,'-r','Linewidth',1)
 %plot(pts_E1fix,f_all_E1fix,'-b','Linewidth',1)
 
-plot(pts_E1E2zero_1,f_all_E1E2zero,'-r','Linewidth',1)
-plot(pts_E2fix,f_all_E2fix,'-b','Linewidth',1)
+%plot(pts_E1E2zero_1,f_all_E1E2zero,'-r','Linewidth',1)
+%plot(pts_E2fix,f_all_E2fix,'-b','Linewidth',1)
 
 %plot(pts_E3zero,f_all_E3zero,'-r','Linewidth',1)
 %plot(pts_E3fix,f_all_E3fix,'-b','Linewidth',1)
 
-%plot(pts_E4zero,f_all_E4zero,'-r','Linewidth',1)
-%plot(pts_E4fix,f_all_E4fix,'-b','Linewidth',1)
+plot(pts_E4zero,f_all_E4zero,'-r','Linewidth',1)
+plot(pts_E4fix,f_all_E4fix,'-b','Linewidth',1)
 
 xlabel('rms10','Linewidth',50)
 ylabel('Wahrscheinlichkeitsdichte','Linewidth',50)
 axis([0 4 0 3])
-title('E1 Kontrollexperimente')
-legend('E1zero','E1fix')
+title('E4 Kontrollexperimente')
+legend('E4zero','E4fix')
+
+
+%%
+%FWHM
+%Pfeile in der figure-Bearbeitung anpassen!!!
+%E1
+%plot([1.0500 1.5050],[0.9877 0.9877],'-k','Linewidth',0.5)
+%plot([1.5100 2.1850],[0.6843 0.6843],'-k','Linewidth',0.5)
+%E2
+%plot([0.9500 1.3700],[1.0793 1.0793],'-k','Linewidth',0.5)
+%plot([1.5100 2.1850],[0.6843 0.6843],'-k','Linewidth',0.5)
+%E3
+%plot([1.4600 2.0900],[0.7262 0.7262],'-k','Linewidth',0.5)
+%plot([1.8600 2.6850],[0.5659 0.5659],'-k','Linewidth',0.5)
+%area([1.8600 2.0900],[3 3],'FaceColor',[0.5 1 1],'EdgeColor',[0.5 0.5 0.5])
+%annotation('textarrow',[0.3 0.4],[0.5 0.6],'String','Überlapp = 0.230','FontSize',20)
+%E4
+%plot([1.0500 1.5050],[0.9877 0.9877],'-k','Linewidth',0.5)
+%plot([1.5100 2.1850],[0.6843 0.6843],'-k','Linewidth',0.5)
+
+%Werte anpassen!!!
+annotation('textarrow',[0.25 0.33],[0.5 0.38],'String','FWHM = 0.630','FontSize',20)
+annotation('textarrow',[0.64 0.555],[0.5 0.3],'String','FWHM = 0.825','FontSize',20)
 
 
 %%
@@ -340,7 +363,6 @@ f = [f2;f1];
 hold on
 area(f(:,1),f(:,2),'FaceColor',[1 1 0.5],'EdgeColor',[0.5 0.5 0.5])
 legend('E1zero','E1fix','Überlapp')
-%annotation('textarrow',[%zw 0 und 1],[%zw 0 und 1],'String','A = 7.34 %')
 
 
 %%
@@ -352,28 +374,32 @@ f1 = f1(f1(:,1)>=pts_E2(1),:);
 f2 = [pts_E1E2zero_1' f_all_E1E2zero'];
 f2 = f2(f2(:,1)<=pts_E2(end),:);
 %Schnittpunkt ist ungefähr (1.461,0.572)
-f1 = f1(f1(:,1)>1.5,:);
-f2 = f2(f2(:,1)<1.544,:);
+f1 = f1(f1(:,1)>1.4651,:);
+f2 = f2(f2(:,1)<1.4651,:);
 f = [f2;f1];
 
 hold on
-area(pts_E2,f,'FaceColor',[1 1 0.5],'EdgeColor',[0.5 0.5 0.5])
-legend('E4zero','E4fix','Überlapp')
+area(f(:,1),f(:,2),'FaceColor',[1 1 0.5],'EdgeColor',[0.5 0.5 0.5])
+legend('E2zero','E2fix','Überlapp')
 %annotation('textarrow',[%zw 0 und 1],[%zw 0 und 1],'String','A = 7.34 %')
 
 
 %%
-%Überlapp für E4
-pts_E4 = 0.8:0.015:1.5950;
+%Überlapp für E3
+pts_E3 = 1.2:0.015:2.99;
 
-f1 = [pts_E4fix' f_all_E4fix'];
-f1 = f1(f1(:,1)>=pts_E4(1),:);
-f2 = [pts_E4zero' f_all_E4zero'];
-f2 = f2(f2(:,1)<=pts_E4(end),:);
-f = min(f1(:,2),f2(:,2));
+f1 = [pts_E3fix' f_all_E3fix'];
+f1 = f1(f1(:,1)>=pts_E3(1),:);
+f2 = [pts_E3zero' f_all_E3zero'];
+f2 = f2(f2(:,1)<=pts_E3(end),:);
+%Schnittpunkt ist ungefähr (2.035,0.908)
+f1 = f1(f1(:,1)>2.035,:);
+f2 = f2(f2(:,1)<2.035,:);
+f = [f2;f1];
+
 hold on
-area(pts_E4,f,'FaceColor',[1 1 0.5],'EdgeColor',[0.5 0.5 0.5])
-legend('E4zero','E4fix','Überlapp')
+area(f(:,1),f(:,2),'FaceColor',[1 1 0.5],'EdgeColor',[0.5 0.5 0.5])
+legend('E3zero','E3fix','Überlapp')
 %annotation('textarrow',[%zw 0 und 1],[%zw 0 und 1],'String','A = 7.34 %')
 
 
@@ -393,5 +419,5 @@ legend('E4zero','E4fix','Überlapp')
 %%
 %Dateien und Grafiken abspeichern
 
-savefig('E1fixzerooverlap.fig')
-print('-dpng','E1fixzerooverlap.png')
+savefig('E3fixzeroFWHM.fig')
+print('-dpng','E3fixzeroFWHM.png')
