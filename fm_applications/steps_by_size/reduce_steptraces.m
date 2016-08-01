@@ -25,7 +25,7 @@ function [steps, steptraces, ex_int, arxv, GO_ON] = reduce_steptraces(primary_tr
     
     % set variables and parameters
     steps = cell(N,1);
-    steptrace = cell(N,1);
+    steptraces = cell(N,1);
     arxv.threshs = zeros(N,1);
     ex_int = zeros(0,2);
     GO_ON = 1;
