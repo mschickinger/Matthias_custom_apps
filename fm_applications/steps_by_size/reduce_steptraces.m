@@ -164,7 +164,7 @@ function [steps, steptraces, ex_int, arxv, GO_ON] = reduce_steptraces(primary_tr
         if ~exist('ex_int','var')
             ex_int = zeros(0,2);
         end
-        hex = imrect(gca,[L/2 YLIM(1)+.2*(YLIM(2)-YLIM(1)) L/10 .6*(YLIM(2)-YLIM(1))]);
+        hex = imrect(gca,[L/2 YLIM(1)+.25*(YLIM(2)-YLIM(1)) L/10 .5*(YLIM(2)-YLIM(1))]);
         setResizable(hex, true);
         hexpos = round(wait(hex));
         if sum(hexpos)>0
