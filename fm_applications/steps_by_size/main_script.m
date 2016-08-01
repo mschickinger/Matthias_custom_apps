@@ -41,6 +41,7 @@ for m = 1:size(hop.results,1)
             hop.results{m}{s}.todo = 0;
         end
         if ~GO_ON
+            hop.results{m}{s}.todo = int8(~strcmp(questdlg('Also save last viewed trace?','Save last trace?'),'Yes'));
             uisave({'hop','rms_cell'}, 'hop.mat')
             return
         end
