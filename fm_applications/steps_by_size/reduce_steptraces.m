@@ -178,10 +178,12 @@ function [steps, steptraces, ex_int, arxv, GO_ON] = reduce_steptraces(primary_tr
 
     function reinclude(source, callbackdata)
         if exist('ex_int', 'var')
-            ex_int(end,:) = [];
-            kidz = get(ax, 'children');
-            if strcmp(kidz(end).Type,'area')
-                delete(kidz(end))
+            if size(ex_int,1)>0
+                ex_int(end,:) = [];
+                kidz = get(ax{1}, 'children');
+                if strcmp(kidz(end).Type,'area')
+                    delete(kidz(end))
+                end
             end
         end
         uiresume(gcbf);
