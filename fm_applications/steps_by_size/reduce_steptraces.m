@@ -3,7 +3,8 @@ function [steps, steptraces, ex_int, arxv, GO_ON] = reduce_steptraces(primary_tr
     % parse input
     p = inputParser;
     
-    addRequired(p, 'trace', @isnumeric)
+    addRequired(p, 'primary_trace', @isnumeric)
+    addRequired(p, 'secondary_trace', @isnumeric)
     addOptional(p, 'L', [], @isnumeric)
     addOptional(p, 'N', 20, @isnumeric)
     addParameter(p, 'steps_init', [], @isnumeric)
@@ -12,13 +13,13 @@ function [steps, steptraces, ex_int, arxv, GO_ON] = reduce_steptraces(primary_tr
     addParameter(p, 'spot', [], @isnumeric)
     %addParameter(p, 'MW', 'mean', @isstring)
     
-    parse(p, trace, varargin{:})
+    parse(p, primary_trace, secondary_trace, varargin{:})
     
-    trace = p.Results.trace;
+    primary_trace = p.Results.primary_trace;
     if ~isempty(p.Results.L)
         L = p.Results.L;
     else
-        L = length(trace);
+        L = length(primary_trace);
     end
     N = p.Results.N;
     
@@ -29,6 +30,7 @@ function [steps, steptraces, ex_int, arxv, GO_ON] = reduce_steptraces(primary_tr
     ex_int = zeros(0,2);
     GO_ON = 1;
     st_col = 'k';% [0 .5 .6];
+    ax = cell(1,2);
       
     % threshold progression:
     thresh_base = 10;
@@ -40,13 +42,21 @@ function [steps, steptraces, ex_int, arxv, GO_ON] = reduce_steptraces(primary_tr
     % create figure and user interface (later)
     close all
     f = figure('Visible', 'on', 'Units', 'normalized', 'Position', [0 0 1 1]);
-    subplot('Position',[0.05 0.35 .9 .6])
+    subplot('Position',[0.05 0.55 .9 .4])
     hold off
-    plot(trace, 'Color', .7*[1 1 1])
-    ax = gca;
-    set(ax, 'Xlim', [0 L])
-    YLIM = ylim;
-    title(['Movie ' num2str(p.Results.movie) ', spot ' num2str(p.Results.spot)], 'Fontsize', 18)
+    plot(primary_trace, 'Color', .7*[1 1 1])
+    ax{1} = gca;
+    YLIM = [0 3.5];
+    set(ax{1}, 'Xlim', [0 L], 'Ylim', YLIM)
+    title(['Movie ' num2str(p.Results.movie) ', spot ' num2str(p.Results.spot)], 'Fontsize', 14)
+    
+    subplot('Position',[0.05 0.35 .9 .15])
+    plot(p.Results.secondary_trace, 'Color', [.1 .2 .1])
+    ax{2} = gca;
+    set(ax{2}, 'Xlim', [0 L], 'Ylim', [0 2])
+    title('RMSD trace of green spot', 'Fontsize', 14)
+    
+    subplot(ax{1});
           
     actionlist = {'Reduce further'; 'One step back'; 'Proceed to next'; 'Finer >'; '< Coarser'; ...
         'Exclude'; 'Re-include'; 'Abort and save'};
@@ -83,13 +93,14 @@ function [steps, steptraces, ex_int, arxv, GO_ON] = reduce_steptraces(primary_tr
     % set max frame?
     set_max_frame = strcmp(questdlg('Set maximum frame?', 'Max frame?', 'No'), 'Yes');
     if set_max_frame
-        h = impoint(ax);
+        h = impoint(ax{1});
         max_frame = wait(h);
         arxv.max_frame = round(max_frame(1));
         delete(h)
         % re-define L
         L = arxv.max_frame;
-        set(ax, 'Xlim', [0 L])
+        set(ax{1}, 'Xlim', [0 L], 'Ylim', YLIM)
+        set(ax{2}, 'Xlim', [0 L])
     end
     
     if isempty(p.Results.steps_init)
@@ -99,11 +110,11 @@ function [steps, steptraces, ex_int, arxv, GO_ON] = reduce_steptraces(primary_tr
     end
     
     % first steptrace
-    steps{1} = rm_steps_to_hmin(trace,steps_init,arxv.threshs(1));
+    steps{1} = rm_steps_to_hmin(primary_trace,steps_init,arxv.threshs(1));
     [ ~ ... %levels{1}
         ,steptraces{1}] = get_levels(primary_trace,steps{1});
     hold on
-    str = plot(steptrace{1}, 'Color', st_col);
+    str = plot(steptraces{1}, 'Color', st_col);
     update_thresh(1)
     
     i=1;
@@ -116,7 +127,7 @@ function [steps, steptraces, ex_int, arxv, GO_ON] = reduce_steptraces(primary_tr
         i = i+1;
         weiter = 1;
         while weiter && length(steps{i-1})>2
-            steps{i} = rm_steps_to_hmin(trace,steps{i-1},next_thresh);
+            steps{i} = rm_steps_to_hmin(primary_trace,steps{i-1},next_thresh);
             weiter = length(steps{i})==length(steps{i-1});
             if ~weiter
                 [ ~ ... %levels{1}
@@ -190,7 +201,7 @@ function [steps, steptraces, ex_int, arxv, GO_ON] = reduce_steptraces(primary_tr
 
     function done(source, callbackdata)
         go_on = 0;
-        kidz = get(ax, 'children');
+        kidz = get(ax{1}, 'children');
         delete(kidz)
         uiresume(gcbf)
         steps = steps(1:i);
