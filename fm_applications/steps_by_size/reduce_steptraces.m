@@ -1,4 +1,4 @@
-function [steps, ex_int, arxv, GO_ON] = reduce_steptraces(trace, varargin)
+function [steps, steptraces, ex_int, arxv, GO_ON] = reduce_steptraces(primary_trace, secondary_trace, varargin)
 
     % parse input
     p = inputParser;
@@ -101,7 +101,7 @@ function [steps, ex_int, arxv, GO_ON] = reduce_steptraces(trace, varargin)
     % first steptrace
     steps{1} = rm_steps_to_hmin(trace,steps_init,arxv.threshs(1));
     [ ~ ... %levels{1}
-        ,steptrace{1}] = get_levels(trace,steps{1});
+        ,steptraces{1}] = get_levels(primary_trace,steps{1});
     hold on
     str = plot(steptrace{1}, 'Color', st_col);
     update_thresh(1)
@@ -120,7 +120,7 @@ function [steps, ex_int, arxv, GO_ON] = reduce_steptraces(trace, varargin)
             weiter = length(steps{i})==length(steps{i-1});
             if ~weiter
                 [ ~ ... %levels{1}
-                ,steptrace{i}] = get_levels(trace,steps{i});
+                ,steptraces{i}] = get_levels(primary_trace,steps{i});
                 update_plot(i)
                 arxv.threshs(i) = next_thresh;
             end
@@ -178,7 +178,7 @@ function [steps, ex_int, arxv, GO_ON] = reduce_steptraces(trace, varargin)
 
     function update_plot(index)
         delete(str)
-        str = plot(steptrace{index}, 'Color', st_col);
+        str = plot(steptraces{index}, 'Color', st_col);
     end
 
     function update_thresh(vz)
@@ -195,7 +195,7 @@ function [steps, ex_int, arxv, GO_ON] = reduce_steptraces(trace, varargin)
         uiresume(gcbf)
         steps = steps(1:i);
         arxv.threshs = arxv.threshs(1:i);
-        steptrace = steptrace(1:i);
+        steptraces = steptraces(1:i);
     end
 
     function abort(source, callbackdata)
