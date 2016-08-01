@@ -35,8 +35,9 @@ for m = 1:size(hop.results,1)
     end
     for s = 1:size(hop.results{m})
         if hop.results{m}{s}.todo
-            [hop.results{m}{s}.steps, hop.results{m}{s}.ex_int, hop.results{m}{s}.arxv, GO_ON] = ...
-                reduce_steptraces(rms_cell{m}{s}.rms10,'movie',m,'spot',hop.results{m}{s}.spotnum);
+            [hop.results{m}{s}.steps, hop.results{m}{s}.steptraces, hop.results{m}{s}.ex_int, hop.results{m}{s}.arxv, GO_ON] = ...
+                reduce_steptraces(rms_cell{m}{s}.rms10,rms_cell{m}{s}.rms10green, ...
+                'movie',m,'spot',hop.results{m}{s}.spotnum); 
             hop.results{m}{s}.todo = 0;
         end
         if ~GO_ON
