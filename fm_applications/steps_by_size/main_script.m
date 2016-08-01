@@ -51,8 +51,8 @@ display(['End of datasets for sample ' hop.sample ' from ' hop.date])
 close all
 %% Reset todo parameter in all result arrays
 
-% for m = 1:length(hop.results)
-%     for s = 1:length(hop.results{m})
-%         hop.results{m}{s}.todo = 1;
-%     end
-% end
+for m = 1:length(hop.results)
+    for s = 1:length(hop.results{m})
+        hop.results{m}{s}.todo = 1;
+    end
+end
