@@ -14,7 +14,6 @@ function [steps, steptraces, ex_int, arxv, GO_ON, ex_global] = reduce_steptraces
     addParameter(p, 'spot', [], @isnumeric)
     
     parse(p, primary_trace, secondary_trace, ex_int, varargin{:})
-    primary_trace = p.Results.primary_trace;
     N = p.Results.N;
     
     % set all variables
@@ -97,6 +96,7 @@ function [steps, steptraces, ex_int, arxv, GO_ON, ex_global] = reduce_steptraces
     end
     
     function f_startup
+        primary_trace = p.Results.primary_trace;
         % threshold progression:
         arxv.threshs = zeros(N,1);
         thresh_base = 10;
@@ -151,10 +151,11 @@ function [steps, steptraces, ex_int, arxv, GO_ON, ex_global] = reduce_steptraces
             max_frame = wait(h);
             arxv.max_frame = round(max_frame(1));
             delete(h)
-            % re-define L
+            % re-define L and trace
             L = arxv.max_frame;
             set(ax{1}, 'Xlim', [0 L], 'Ylim', YLIM)
             set(ax{2}, 'Xlim', [0 L])
+            primary_trace = primary_trace(1:L);
         end
     end
 
