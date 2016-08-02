@@ -1,10 +1,11 @@
-function [steps, steptraces, ex_int, arxv, GO_ON] = reduce_steptraces(primary_trace, secondary_trace, varargin)
+function [steps, steptraces, ex_int, arxv, GO_ON, ex_global] = reduce_steptraces(primary_trace, secondary_trace, ex_int, varargin)
 
     % parse input
     p = inputParser;
     
     addRequired(p, 'primary_trace', @isnumeric)
     addRequired(p, 'secondary_trace', @isnumeric)
+    addRequired(p, 'ex_int')
     addOptional(p, 'L', [], @isnumeric)
     addOptional(p, 'N', 20, @isnumeric)
     addParameter(p, 'steps_init', [], @isnumeric)
@@ -12,8 +13,7 @@ function [steps, steptraces, ex_int, arxv, GO_ON] = reduce_steptraces(primary_tr
     addParameter(p, 'movie', [], @isnumeric)
     addParameter(p, 'spot', [], @isnumeric)
     
-    parse(p, primary_trace, secondary_trace, varargin{:})
-    
+    parse(p, primary_trace, secondary_trace, ex_int, varargin{:})
     primary_trace = p.Results.primary_trace;
     if ~isempty(p.Results.L)
         L = p.Results.L;
