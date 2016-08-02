@@ -62,6 +62,5 @@ function [stremain, sequence] = rm_steps_to_hmin(trace, steps, h_min)
     
     function nh = get_new_height(a,b,c)
         %nh = abs(median(trace(max(a,b-100):b-1))-median(trace(b:min(b+100,c))));
-        nh = abs(median(trace(a:b-1))-median(trace(b:c)));
     end
 end
