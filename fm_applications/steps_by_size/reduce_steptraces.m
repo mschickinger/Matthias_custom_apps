@@ -11,7 +11,6 @@ function [steps, steptraces, ex_int, arxv, GO_ON] = reduce_steptraces(primary_tr
     addParameter(p, 'thresh_init', 0.1, @isnumeric)
     addParameter(p, 'movie', [], @isnumeric)
     addParameter(p, 'spot', [], @isnumeric)
-    %addParameter(p, 'MW', 'mean', @isstring)
     
     parse(p, primary_trace, secondary_trace, varargin{:})
     
