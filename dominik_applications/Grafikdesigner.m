@@ -10,6 +10,18 @@ end
 
 
 %%
+%mittel of E1
+
+for m = 1:4
+    for s = 1:size(traces_E1_mittel{m},2)
+        E1_mittel{m}{s}.itracered = data{m}{traces_E1_mittel{m}(s),1}.itrace;
+        E1_mittel{m}{s}.itracegreen = data{m}{traces_E1_mittel{m}(s),2}.itrace;
+        E1_mittel{m}{s}.rms10 = data{m}{traces_E1_mittel{m}(s),1}.vwcm.rms10;
+    end
+end
+
+
+%%
 %E1/E2 zero 1
 pts_E1E2zero_1 = 1:0.015:3;
 bw = 0.0750; %0.0750 entspricht 5mal delta pts 0.0150
@@ -222,6 +234,19 @@ for m = 1:4
         E4_1{m}{s}.rms10 = data{m}{traces_E4_1{m}(s),1}.vwcm.rms10;
     end
 end
+
+
+%%
+%mittel of E4_1
+
+for m = 1:4
+    for s = 1:size(traces_E4_1_mittel{m},2)
+        E4_1_mittel{m}{s}.itracered = data{m}{traces_E4_1_mittel{m}(s),1}.itrace;
+        E4_1_mittel{m}{s}.itracegreen = data{m}{traces_E4_1_mittel{m}(s),2}.itrace;
+        E4_1_mittel{m}{s}.rms10 = data{m}{traces_E4_1_mittel{m}(s),1}.vwcm.rms10;
+    end
+end
+
 
 %%
 %best of E4_2

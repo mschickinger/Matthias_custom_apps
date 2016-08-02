@@ -53,31 +53,31 @@ function [steps, ex_int, arxv, GO_ON] = reduce_steptraces(trace, varargin)
     bg = uibuttongroup('Position', [.1 .15 .8 .15], 'Visible', 'off');
 
     a1 = uicontrol(bg, 'Style', 'Pushbutton','Units', 'normalized', 'Position', [.02 .55 .08 .3],...
-        'String', actionlist{1}, 'Callback', @reduce, 'FontSize', 14);
+        'String', actionlist{1}, 'Callback', @reduce, 'FontSize', 10);
 
     a2 = uicontrol(bg, 'Style', 'Pushbutton','Units', 'normalized', 'Position', [.12 .55 .08 .3],...
-        'String', actionlist{2}, 'Callback', @go_back, 'FontSize', 14);
+        'String', actionlist{2}, 'Callback', @go_back, 'FontSize', 10);
 
     a3 = uicontrol(bg, 'Style', 'Pushbutton','Units', 'normalized', 'Position', [.86 .55 .12 .3],...
-        'String', actionlist{3}, 'Callback', @done, 'FontSize', 14);
+        'String', actionlist{3}, 'Callback', @done, 'FontSize', 10);
     
     a4 = uicontrol(bg, 'Style', 'Pushbutton','Units', 'normalized', 'Position', [.22 .55 .08 .3],...
-         'String', actionlist{4}, 'Callback', @finer, 'FontSize', 14);
+         'String', actionlist{4}, 'Callback', @finer, 'FontSize', 10);
      
     a5 = uicontrol(bg, 'Style', 'Pushbutton','Units', 'normalized', 'Position', [.42 .55 .08 .3],...
-         'String', actionlist{5}, 'Callback', @coarser, 'FontSize', 14);
+         'String', actionlist{5}, 'Callback', @coarser, 'FontSize', 10);
      
     a6 = uicontrol(bg, 'Style', 'Pushbutton','Units', 'normalized', 'Position', [.66 .55 .08 .3],...
-         'String', actionlist{6}, 'Callback', @exclude, 'FontSize', 14);
+         'String', actionlist{6}, 'Callback', @exclude, 'FontSize', 10);
     
     a7 = uicontrol(bg, 'Style', 'Pushbutton','Units', 'normalized', 'Position', [.76 .55 .08 .3], ...
-        'String', actionlist{7}, 'Callback', @reinclude, 'FontSize', 14);
+        'String', actionlist{7}, 'Callback', @reinclude, 'FontSize', 10);
     
     a8 = uicontrol(bg, 'Style', 'Pushbutton','Units', 'normalized', 'Position', [.86 .15 .12 .3],...
-        'String', actionlist{8}, 'Callback', @abort, 'FontSize', 14);
+        'String', actionlist{8}, 'Callback', @abort, 'FontSize', 10);
     
-    at = uicontrol(bg, 'Style', 'Text','Units', 'normalized', 'Position', [.32 .45 .08 .3], 'String', ...
-        ['Threshold for first reduction: ' num2str(arxv.threshs(1))], 'FontSize', 14);
+    at = uicontrol(bg, 'Style', 'Text','Units', 'normalized', 'Position', [.32 .2 .08 .6], 'String', ...
+        ['Threshold for first reduction: ' num2str(arxv.threshs(1))], 'FontSize', 10);
     set(bg, 'Visible', 'on')
     
     % set max frame?
