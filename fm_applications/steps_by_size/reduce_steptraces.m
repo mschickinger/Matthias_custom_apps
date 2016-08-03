@@ -56,19 +56,6 @@ function [steps, steptraces, ex_int, arxv, GO_ON, ex_global] = reduce_steptraces
     a5 = uicontrol(bg, 'Style', 'Pushbutton','Units', 'normalized', 'Position', [.42 .55 .08 .3],...
          'String', actionlist{5}, 'Callback', @coarser, 'FontSize', 10);
      
-<<<<<<< HEAD
-    a6 = uicontrol(bg, 'Style', 'Pushbutton','Units', 'normalized', 'Position', [.66 .55 .08 .3],...
-         'String', actionlist{6}, 'Callback', @exclude, 'FontSize', 10);
-    
-    a7 = uicontrol(bg, 'Style', 'Pushbutton','Units', 'normalized', 'Position', [.76 .55 .08 .3], ...
-        'String', actionlist{7}, 'Callback', @reinclude, 'FontSize', 10);
-    
-    a8 = uicontrol(bg, 'Style', 'Pushbutton','Units', 'normalized', 'Position', [.86 .15 .12 .3],...
-        'String', actionlist{8}, 'Callback', @abort, 'FontSize', 10);
-    
-    at = uicontrol(bg, 'Style', 'Text','Units', 'normalized', 'Position', [.32 .2 .08 .6], 'String', ...
-        ['Threshold for first reduction: ' num2str(arxv.threshs(1))], 'FontSize', 10);
-=======
     a6 = uicontrol(bg, 'Style', 'Pushbutton','Units', 'normalized', 'Position', [.52 .55 .08 .3],...
          'String', actionlist{6}, 'Callback', @exclude, 'FontSize', 10);
     
@@ -95,7 +82,6 @@ function [steps, steptraces, ex_int, arxv, GO_ON, ex_global] = reduce_steptraces
     at = uicontrol(bg, 'Style', 'Text','Units', 'normalized', 'Position', [.32 .45 .08 .3], 'String', ...
         ['Threshold for first reduction: ' num2str(arxv.threshs(1))], 'FontSize', 10);
     
->>>>>>> origin/Dominik
     set(bg, 'Visible', 'on')
     
     % set max frame?
