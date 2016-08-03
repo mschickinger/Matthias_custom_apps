@@ -232,6 +232,7 @@ for m = 1:4
         E4_1{m}{s}.itracered = data{m}{traces_E4_1{m}(s),1}.itrace;
         E4_1{m}{s}.itracegreen = data{m}{traces_E4_1{m}(s),2}.itrace;
         E4_1{m}{s}.rms10 = data{m}{traces_E4_1{m}(s),1}.vwcm.rms10;
+        E4_1{m}{s}.rms10green = data{m}{traces_E4_1{m}(s),2}.vwcm.rms10;
     end
 end
 
