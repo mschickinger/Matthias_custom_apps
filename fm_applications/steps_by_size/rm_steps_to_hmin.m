@@ -1,15 +1,22 @@
-function [stremain, sequence] = rm_steps_to_hmin(trace, steps, h_min)
+function [stremain, sequence] = rm_steps_to_hmin(trace, steps, h_min, varargin)
 
     % Parse input
     p = inputParser;
     addRequired(p, 'trace', @isnumeric)
     addRequired(p, 'steps', @isnumeric)
     addRequired(p, 'h_min', @isnumeric)
+    addParameter(p, 'ex_int', zeros(0,2), @isnumeric)
 
-    parse(p, trace, steps, h_min)
+    parse(p, trace, steps, h_min, varargin{:})
     trace = p.Results.trace;
     steps = p.Results.steps;
     h_min = p.Results.h_min;
+    ex_int = p.Results.ex_int;
+    
+    for i=1:size(ex_int,1)
+        trace(ex_int(i,1):ex_int(i,2)) = NaN;
+        steps(steps>=ex_int(1) & steps<=ex_int(2)) = [];
+    end
 
     % Get step heights (from mean values of trace in adjacent intervals)
     levels = get_levels(trace,steps);
@@ -62,6 +69,6 @@ function [stremain, sequence] = rm_steps_to_hmin(trace, steps, h_min)
     
     function nh = get_new_height(a,b,c)
         %nh = abs(median(trace(max(a,b-100):b-1))-median(trace(b:min(b+100,c))));
-        nh = abs(median(trace(a:b-1))-median(trace(b:c)));
+        nh = abs(nanmedian(trace(a:b-1))-nanmedian(trace(b:c)));
     end
 end
