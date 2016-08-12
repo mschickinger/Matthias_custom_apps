@@ -4,10 +4,10 @@
 % hop struct (if it already exists)
 
 % specify name of cell array containing the indices:
-spotnum_cell = traces_E3_2;
+spotnum_cell = traces_E2_mittel;
 
 % specify name of cell array containing the rms-traces:
-rms_cell = E3_2;
+rms_cell = E2_mittel;
 
 close all
 
