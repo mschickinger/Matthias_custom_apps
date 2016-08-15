@@ -284,8 +284,8 @@ function [steps, steptraces, ex_int, arxv, GO_ON, ex_global] = reduce_steptraces
         if sum(gexpos)>0
             ex_int = [ex_int; gexpos(1) gexpos(1)+gexpos(3)];
             ex_global = [ex_global; ex_int(end,:)];
-            sh = area(gexpos(1)+[0 gexpos(3)], YLIM(2)*[1 1], 'FaceColor', [.95 0.1 0.1], 'EdgeColor', [1 0.15 0.15], 'FaceAlpha', .4);
-            uistack(sh, 'bottom')
+            resh = area(gexpos(1)+[0 gexpos(3)], YLIM(2)*[1 1], 'FaceColor', [.95 0.1 0.1], 'EdgeColor', [1 0.15 0.15], 'FaceAlpha', .4);
+            uistack(resh, 'bottom')
             ylim(YLIM)
         end
         delete(gex)
