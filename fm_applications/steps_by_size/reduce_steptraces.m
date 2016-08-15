@@ -118,12 +118,7 @@ function [steps, steptraces, ex_int, arxv, GO_ON, ex_global] = reduce_steptraces
     function f_startup
         primary_trace = p.Results.primary_trace;
         % threshold progression:
-        arxv.threshs = zeros(N,1);
-        thresh_base = 10;
-        thresh_exp = -1;
-        thresh_incr = thresh_base^thresh_exp;
-        arxv.threshs(1) = p.Results.thresh_init;
-        next_thresh = arxv.threshs(1) + thresh_incr;
+        reset_thresh % see nested function for details
         % Inputs:
         if isempty(p.Results.ex_int)
             ex_int = zeros(0,2);
@@ -239,6 +234,15 @@ function [steps, steptraces, ex_int, arxv, GO_ON, ex_global] = reduce_steptraces
         thresh_exp = thresh_exp + 1;
         update_thresh(1)
         uiresume(gcbf)
+    end
+
+    function reset_thresh
+        arxv.threshs = zeros(N,1);
+        thresh_base = 10;
+        thresh_exp = -1;
+        thresh_incr = thresh_base^thresh_exp;
+        arxv.threshs(1) = p.Results.thresh_init;
+        next_thresh = arxv.threshs(1) + thresh_incr;
     end
 
     function exclude(source, callbackdata)
