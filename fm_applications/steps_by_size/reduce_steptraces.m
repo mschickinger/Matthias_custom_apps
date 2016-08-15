@@ -254,8 +254,8 @@ function [steps, steptraces, ex_int, arxv, GO_ON, ex_global] = reduce_steptraces
         hexpos = round(wait(hex));
         if sum(hexpos)>0
             ex_int = [ex_int; hexpos(1) hexpos(1)+hexpos(3)];
-            sh = area(hexpos(1)+[0 hexpos(3)], YLIM(2)*[1 1], 'FaceColor', [.95 0.1 0.1], 'EdgeColor', [1 0.15 0.15], 'FaceAlpha', .4);
-            uistack(sh, 'bottom')
+            resh = area(hexpos(1)+[0 hexpos(3)], YLIM(2)*[1 1], 'FaceColor', [.95 0.1 0.1], 'EdgeColor', [1 0.15 0.15], 'FaceAlpha', .4);
+            uistack(resh, 'bottom')
             ylim(YLIM)
         end
         delete(hex)
