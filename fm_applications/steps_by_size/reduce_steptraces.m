@@ -143,7 +143,7 @@ function [steps, steptraces, ex_int, arxv, GO_ON, ex_global] = reduce_steptraces
         figure(f)
         subplot('Position',[0.05 0.55 .9 .4])
         hold off
-        plot(primary_trace, 'Color', .7*[1 1 1])
+        plot(primary_trace, 'Color', .6*[1 1 1])
         hold on
         ax{1} = gca;
         for k = 1:size(ex_int,1)
@@ -356,7 +356,7 @@ function [steps, steptraces, ex_int, arxv, GO_ON, ex_global] = reduce_steptraces
         hint = imrect(gca);
         setResizable(hint, true);
         hintpos = round(wait(hint));
-        blush = area(hintpos(1)+[0 hintpos(3)], YLIM(2)*[1 1], 'FaceColor', [.1 0.1 0.95], 'EdgeColor', [0.15 0.15 1], 'FaceAlpha', .4);
+        blush = area(hintpos(1)+[0 hintpos(3)], YLIM(2)*[1 1], 'FaceColor', [.1 0.1 0.95], 'EdgeColor', [0.15 0.15 1], 'FaceAlpha', .2);
         uistack(blush, 'bottom')
         ylim(YLIM)
         tmpSt = hintpos(1);
