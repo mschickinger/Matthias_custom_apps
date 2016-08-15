@@ -5,6 +5,7 @@ for m = 1:4
         E1{m}{s}.itracered = data{m}{traces_E1{m}(s),1}.itrace;
         E1{m}{s}.itracegreen = data{m}{traces_E1{m}(s),2}.itrace;
         E1{m}{s}.rms10 = data{m}{traces_E1{m}(s),1}.vwcm.rms10;
+        E1{m}{s}.rms10green = data{m}{traces_E1{m}(s),2}.vwcm.rms10;
     end
 end
 
@@ -30,7 +31,7 @@ for m = 1:7
         E1E2zero_1{m}{s}.itracered = data{m}{traces_E1E2zero_1{m}(s),1}.itrace;
         E1E2zero_1{m}{s}.itracegreen = data{m}{traces_E1E2zero_1{m}(s),2}.itrace;
         E1E2zero_1{m}{s}.rms10 = data{m}{traces_E1E2zero_1{m}(s),1}.vwcm.rms10;
-    
+            
         [f_E1E2zero_1{m}{s}] = ksdensity(E1E2zero_1{m}{s}.rms10,pts_E1E2zero_1,'Kernel','box','Bandwidth',bw);
     end
 end
@@ -45,7 +46,7 @@ for m = 1:6
         E1E2zero_2{m}{s}.itracered = data{m}{traces_E1E2zero_2{m}(s),1}.itrace;
         E1E2zero_2{m}{s}.itracegreen = data{m}{traces_E1E2zero_2{m}(s),2}.itrace;
         E1E2zero_2{m}{s}.rms10 = data{m}{traces_E1E2zero_2{m}(s),1}.vwcm.rms10;
-    
+        
         [f_E1E2zero_2{m}{s}] = ksdensity(E1E2zero_2{m}{s}.rms10,pts_E1E2zero_2,'Kernel','box','Bandwidth',bw);
     end
 end
@@ -109,6 +110,20 @@ for m = 1:5
         E2{m}{s}.itracered = data{m}{traces_E2{m}(s),1}.itrace;
         E2{m}{s}.itracegreen = data{m}{traces_E2{m}(s),2}.itrace;
         E2{m}{s}.rms10 = data{m}{traces_E2{m}(s),1}.vwcm.rms10;
+        E2{m}{s}.rms10green = data{m}{traces_E2{m}(s),2}.vwcm.rms10;
+    end
+end
+
+
+%%
+%mittel of E2
+
+for m = 1:5
+    for s = 1:size(traces_E2_mittel{m},2)
+        E2_mittel{m}{s}.itracered = data{m}{traces_E2_mittel{m}(s),1}.itrace;
+        E2_mittel{m}{s}.itracegreen = data{m}{traces_E2_mittel{m}(s),2}.itrace;
+        E2_mittel{m}{s}.rms10 = data{m}{traces_E2_mittel{m}(s),1}.vwcm.rms10;
+        E2_mittel{m}{s}.rms10green = data{m}{traces_E2_mittel{m}(s),2}.vwcm.rms10;
     end
 end
 
@@ -151,7 +166,7 @@ for m = 1:4
         E3fix{m}{s}.itracered = data{m}{traces_E3fix{m}(s),1}.itrace;
         E3fix{m}{s}.itracegreen = data{m}{traces_E3fix{m}(s),2}.itrace;
         E3fix{m}{s}.rms10 = data{m}{traces_E3fix{m}(s),1}.vwcm.rms10;
-    
+     
         [f_E3fix{m}{s}] = ksdensity(E3fix{m}{s}.rms10,pts_E3fix,'Kernel','box','Bandwidth',bw);
     end
 end
@@ -208,6 +223,7 @@ for m = 1:6
         E3_1{m}{s}.itracered = data{m}{traces_E3_1{m}(s),1}.itrace;
         E3_1{m}{s}.itracegreen = data{m}{traces_E3_1{m}(s),2}.itrace;
         E3_1{m}{s}.rms10 = data{m}{traces_E3_1{m}(s),1}.vwcm.rms10;
+        E3_1{m}{s}.rms10green = data{m}{traces_E3_1{m}(s),2}.vwcm.rms10;
     end
 end
 
@@ -220,6 +236,7 @@ for m = 1:3
         E3_2{m}{s}.itracered = data{m}{traces_E3_2{m}(s),1}.itrace;
         E3_2{m}{s}.itracegreen = data{m}{traces_E3_2{m}(s),2}.itrace;
         E3_2{m}{s}.rms10 = data{m}{traces_E3_2{m}(s),1}.vwcm.rms10;
+        E3_2{m}{s}.rms10green = data{m}{traces_E3_2{m}(s),2}.vwcm.rms10;
     end
 end
 
@@ -245,6 +262,8 @@ for m = 1:4
         E4_1_mittel{m}{s}.itracered = data{m}{traces_E4_1_mittel{m}(s),1}.itrace;
         E4_1_mittel{m}{s}.itracegreen = data{m}{traces_E4_1_mittel{m}(s),2}.itrace;
         E4_1_mittel{m}{s}.rms10 = data{m}{traces_E4_1_mittel{m}(s),1}.vwcm.rms10;
+        %E4_1{m}{s}.rms10green = data{m}{traces_E4_1{m}(s),2}.vwcm.rms10;
+
     end
 end
 
@@ -257,6 +276,7 @@ for m = 1:8
         %E4_2{m}{s}.itracered = data{m}{traces_E4_2{m}(s),1}.itrace;
         %E4_2{m}{s}.itracegreen = data{m}{traces_E4_2{m}(s),2}.itrace;
         %E4_2{m}{s}.rms10 = data{m}{traces_E4_2{m}(s),1}.vwcm.rms10;
+        %E4_1{m}{s}.rms10green = data{m}{traces_E4_1{m}(s),2}.vwcm.rms10;
     end
 end
 

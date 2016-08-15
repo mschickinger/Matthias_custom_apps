@@ -233,7 +233,7 @@ while m <= N_movie
             'String', viewlist{1}, 'Callback', 'ok=1; uiresume(gcbf)');
         
         p2 = uicontrol(bg, 'Style', 'Pushbutton', 'Position', [80 70 150 30],...
-            'String', categorylist{6}, 'Callback', 'ok=0; uiresume(gcbf)');
+            'String', viewlist{2}, 'Callback', 'ok=0; uiresume(gcbf)');
         
         e1 = uicontrol(bg, 'Style', 'Pushbutton', 'Position', [80 30 150 30],...
             'String', 'Abort review', 'Callback', ['i=length(GiTSiK.behaviour{m})+1; m = N_movie;' ...
@@ -250,7 +250,7 @@ while m <= N_movie
                         i = 1;
                     else
                         m = m-1;
-                        i = length(find(GiTSiK.behaviour{m} == 2));
+                        i = sum(GiTSiK.behaviour{m} == 2);
                     end
                 end
             case 1

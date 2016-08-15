@@ -21,6 +21,8 @@ function [steps, steptraces, ex_int, arxv, GO_ON, ex_global] = reduce_steptraces
     st_col = 'k';% [0 .5 .6];
     ax = cell(1,2);
     L = 0;
+    tmpSt = 1;
+    tmpEn = 2;
     next_thresh = 0;
     YLIM = [0 3.5];
     thresh_incr = 0;
@@ -28,6 +30,7 @@ function [steps, steptraces, ex_int, arxv, GO_ON, ex_global] = reduce_steptraces
     thresh_exp = 0;
     LEX = zeros(0,2);
     str = {};
+    blush = {};
     
     close all
     f = figure('Visible', 'on', 'Units', 'normalized', 'Position', [0 0 1 1]);
@@ -37,48 +40,65 @@ function [steps, steptraces, ex_int, arxv, GO_ON, ex_global] = reduce_steptraces
     
     % create interface (later)
           
-    actionlist = {'Reduce further'; 'One step back'; 'Proceed to next'; 'Finer >'; '< Coarser'; ...
-        'Exclude'; 'Re-include'; 'Exclude in movie'; 'Discard'; 'Postpone'};
     bg = uibuttongroup('Position', [.1 .15 .8 .15], 'Visible', 'off');
 
-    a1 = uicontrol(bg, 'Style', 'Pushbutton','Units', 'normalized', 'Position', [.02 .55 .08 .3],...
-        'String', actionlist{1}, 'Callback', @reduce, 'FontSize', 10);
+    % reduce button
+    uicontrol(bg, 'Style', 'Pushbutton','Units', 'normalized', 'Position', [.02 .55 .08 .3],...
+        'String', 'Reduce further', 'Callback', @reduce, 'FontSize', 10);
+    
+    % step back button
+    uicontrol(bg, 'Style', 'Pushbutton','Units', 'normalized', 'Position', [.12 .55 .08 .3],...
+        'String', 'One step back', 'Callback', @go_back, 'FontSize', 10);
 
-    a2 = uicontrol(bg, 'Style', 'Pushbutton','Units', 'normalized', 'Position', [.12 .55 .08 .3],...
-        'String', actionlist{2}, 'Callback', @go_back, 'FontSize', 10);
-
-    a3 = uicontrol(bg, 'Style', 'Pushbutton','Units', 'normalized', 'Position', [.86 .55 .12 .3],...
-        'String', actionlist{3}, 'Callback', @done, 'FontSize', 10);
+    % next spot button
+    uicontrol(bg, 'Style', 'Pushbutton','Units', 'normalized', 'Position', [.86 .55 .12 .3],...
+        'String', 'Proceed to next', 'Callback', @done, 'FontSize', 10);
     
-    a4 = uicontrol(bg, 'Style', 'Pushbutton','Units', 'normalized', 'Position', [.22 .55 .08 .3],...
-         'String', actionlist{4}, 'Callback', @finer, 'FontSize', 10);
+    % finer button
+    uicontrol(bg, 'Style', 'Pushbutton','Units', 'normalized', 'Position', [.22 .55 .08 .3],...
+         'String', 'Finer', 'Callback', @finer, 'FontSize', 10);
      
-    a5 = uicontrol(bg, 'Style', 'Pushbutton','Units', 'normalized', 'Position', [.42 .55 .08 .3],...
-         'String', actionlist{5}, 'Callback', @coarser, 'FontSize', 10);
+    % coarser button
+    uicontrol(bg, 'Style', 'Pushbutton','Units', 'normalized', 'Position', [.42 .55 .08 .3],...
+         'String', 'Coarser', 'Callback', @coarser, 'FontSize', 10);
      
-    a6 = uicontrol(bg, 'Style', 'Pushbutton','Units', 'normalized', 'Position', [.52 .55 .08 .3],...
-         'String', actionlist{6}, 'Callback', @exclude, 'FontSize', 10);
+    % exclude button
+    uicontrol(bg, 'Style', 'Pushbutton','Units', 'normalized', 'Position', [.52 .55 .08 .3],...
+         'String', 'Exclude', 'Callback', @exclude, 'FontSize', 10);
     
-    a7 = uicontrol(bg, 'Style', 'Pushbutton','Units', 'normalized', 'Position', [.62 .55 .08 .3], ...
-        'String', actionlist{7}, 'Callback', @reinclude, 'FontSize', 10);
+    % re-include button
+    uicontrol(bg, 'Style', 'Pushbutton','Units', 'normalized', 'Position', [.62 .55 .08 .3], ...
+        'String', 'Re-include', 'Callback', @reinclude, 'FontSize', 10);
     
-    a8 = uicontrol(bg, 'Style', 'Pushbutton','Units', 'normalized', 'Position', [.5 .15 .12 .3],...
-         'String', actionlist{8}, 'Callback', @exclude_global, 'FontSize', 10);
-     
-    a9 = uicontrol(bg, 'Style', 'Pushbutton','Units', 'normalized', 'Position', [.76 .55 .08 .3],...
-         'String', actionlist{9}, 'Callback', @discard, 'FontSize', 10);
+    % exclude global button
+    uicontrol(bg, 'Style', 'Pushbutton','Units', 'normalized', 'Position', [.52 .15 .12 .3],...
+         'String', 'Exclude global', 'Callback', @exclude_global, 'FontSize', 10);
     
-    a10 = uicontrol(bg, 'Style', 'Pushbutton','Units', 'normalized', 'Position', [.76 .15 .08 .3],...
-         'String', actionlist{10}, 'Callback', @postpone, 'FontSize', 10);
+    % discard button 
+    uicontrol(bg, 'Style', 'Pushbutton','Units', 'normalized', 'Position', [.76 .55 .08 .3],...
+         'String', 'Discard', 'Callback', @discard, 'FontSize', 10);
+    
+    % postpone button 
+    uicontrol(bg, 'Style', 'Pushbutton','Units', 'normalized', 'Position', [.76 .15 .08 .3],...
+         'String', 'Postpone', 'Callback', @postpone, 'FontSize', 10);
     
     % abort button
     uicontrol(bg, 'Style', 'Pushbutton','Units', 'normalized', 'Position', [.86 .15 .12 .3],...
         'String', 'Abort and save', 'Callback', @abort, 'FontSize', 10);
     
-    % reset button
+    % reset everything button
     uicontrol(bg, 'Style', 'Pushbutton','Units', 'normalized', 'Position', [.02 .15 .08 .3],...
         'String', 'Reset', 'Callback', @reset, 'FontSize', 10);
     
+    % Set interval button
+    uicontrol(bg, 'Style', 'Pushbutton','Units', 'normalized', 'Position', [.12 .15 .08 .3],...
+        'String', 'Set interval', 'Callback', @set_interval, 'FontSize', 10);
+    
+    % Whole trace button
+    uicontrol(bg, 'Style', 'Pushbutton','Units', 'normalized', 'Position', [.22 .15 .08 .3],...
+        'String', 'Whole trace', 'Callback', @whole_trace, 'FontSize', 10);
+    
+    % next threshold display
     at = uicontrol(bg, 'Style', 'Text','Units', 'normalized', 'Position', [.32 .15 .08 .7], 'String', ...
         ['Threshold for first reduction: ' num2str(arxv.threshs(1))], 'FontSize', 10);
     
@@ -98,12 +118,7 @@ function [steps, steptraces, ex_int, arxv, GO_ON, ex_global] = reduce_steptraces
     function f_startup
         primary_trace = p.Results.primary_trace;
         % threshold progression:
-        arxv.threshs = zeros(N,1);
-        thresh_base = 10;
-        thresh_exp = -1;
-        thresh_incr = thresh_base^thresh_exp;
-        arxv.threshs(1) = p.Results.thresh_init;
-        next_thresh = arxv.threshs(1) + thresh_incr;
+        reset_thresh % see nested function for details
         % Inputs:
         if isempty(p.Results.ex_int)
             ex_int = zeros(0,2);
@@ -120,6 +135,8 @@ function [steps, steptraces, ex_int, arxv, GO_ON, ex_global] = reduce_steptraces
         steps = cell(N,1);
         steptraces = cell(N,1);
         arxv.max_frame = L;
+        tmpSt = 1;
+        tmpEn = L;
     end
 
     function reset_figure
@@ -156,6 +173,8 @@ function [steps, steptraces, ex_int, arxv, GO_ON, ex_global] = reduce_steptraces
             set(ax{1}, 'Xlim', [0 L], 'Ylim', YLIM)
             set(ax{2}, 'Xlim', [0 L])
             primary_trace = primary_trace(1:L);
+            tmpSt = 1;
+            tmpEn = L;
         end
     end
 
@@ -179,14 +198,15 @@ function [steps, steptraces, ex_int, arxv, GO_ON, ex_global] = reduce_steptraces
     function reduce(source, callbackdata)
         i = i+1;
         weiter = 1;
-        while weiter && length(steps{i-1})>2
-            steps{i} = rm_steps_to_hmin(primary_trace,steps{i-1},next_thresh);
-            steps{i} = eliminate_stairs(primary_trace,steps{i});
-            display(sprintf(['Eliminated stairs.\nNumber of steps remaining: ' num2str(length(steps{i}))]))
-            weiter = length(steps{i})==length(steps{i-1});
+        tmp_steps_in = steps{i-1}(steps{i-1}>tmpSt & steps{i-1}<tmpEn) - tmpSt + 1;
+        while weiter && length(tmp_steps_in)>2
+            tmp_steps_out = rm_steps_to_hmin(primary_trace(tmpSt:tmpEn),tmp_steps_in,next_thresh);
+            tmp_steps_out = eliminate_stairs(primary_trace(tmpSt:tmpEn),tmp_steps_out);
+            display(sprintf(['Eliminated stairs.\nNumber of steps remaining: ' num2str(length(tmp_steps_out))]))
+            weiter = length(tmp_steps_out)==length(tmp_steps_in);
             if ~weiter
-                [ ~ ... %levels{1}
-                ,steptraces{i}] = get_levels(primary_trace,steps{i});
+                steps{i} = sort([steps{i-1}(steps{i-1}<=tmpSt); (tmp_steps_out + tmpSt -1); steps{i-1}(steps{i-1}>=tmpEn)]);
+                [~,steptraces{i}] = get_levels(primary_trace,steps{i});
                 update_plot(i)
                 arxv.threshs(i) = next_thresh;
             end
@@ -209,23 +229,33 @@ function [steps, steptraces, ex_int, arxv, GO_ON, ex_global] = reduce_steptraces
         update_thresh(1)
         uiresume(gcbf)
     end
+
     function coarser(source, callbackdata)
         thresh_exp = thresh_exp + 1;
         update_thresh(1)
         uiresume(gcbf)
     end
 
+    function reset_thresh
+        arxv.threshs = zeros(N,1);
+        thresh_base = 10;
+        thresh_exp = -1;
+        thresh_incr = thresh_base^thresh_exp;
+        arxv.threshs(1) = p.Results.thresh_init;
+        next_thresh = arxv.threshs(1) + thresh_incr;
+    end
+
     function exclude(source, callbackdata)
         if ~exist('ex_int','var')
             ex_int = zeros(0,2);
         end
-        hex = imrect(gca,[L/2 YLIM(1)+.25*(YLIM(2)-YLIM(1)) L/10 .5*(YLIM(2)-YLIM(1))]);
+        hex = imrect(gca);%,[L/2 YLIM(1)+.25*(YLIM(2)-YLIM(1)) L/10 .5*(YLIM(2)-YLIM(1))]);
         setResizable(hex, true);
         hexpos = round(wait(hex));
         if sum(hexpos)>0
             ex_int = [ex_int; hexpos(1) hexpos(1)+hexpos(3)];
-            sh = area(hexpos(1)+[0 hexpos(3)], YLIM(2)*[1 1], 'FaceColor', [.95 0.1 0.1], 'EdgeColor', [1 0.15 0.15], 'FaceAlpha', .4);
-            uistack(sh, 'bottom')
+            resh = area(hexpos(1)+[0 hexpos(3)], YLIM(2)*[1 1], 'FaceColor', [.95 0.1 0.1], 'EdgeColor', [1 0.15 0.15], 'FaceAlpha', .4);
+            uistack(resh, 'bottom')
             ylim(YLIM)
         end
         delete(hex)
@@ -248,7 +278,7 @@ function [steps, steptraces, ex_int, arxv, GO_ON, ex_global] = reduce_steptraces
     end
 
     function exclude_global(source, callbackdata)
-        gex = imrect(gca,[L/2 YLIM(1)+.25*(YLIM(2)-YLIM(1)) L/10 .5*(YLIM(2)-YLIM(1))]);
+        gex = imrect(gca);%,[L/2 YLIM(1)+.25*(YLIM(2)-YLIM(1)) L/10 .5*(YLIM(2)-YLIM(1))]);
         setResizable(gex, true);
         gexpos = round(wait(gex));
         if sum(gexpos)>0
@@ -312,6 +342,39 @@ function [steps, steptraces, ex_int, arxv, GO_ON, ex_global] = reduce_steptraces
         set_max
         first_steptrace
         i = 1;
+        uiresume(gcbf)
+    end
+
+    function set_interval(source,callbackdata)
+        if exist('blush', 'var')
+            if ~isempty(blush)
+                delete(blush)
+                reset_thresh;
+                update_thresh(1);
+            end
+        end
+        hint = imrect(gca);
+        setResizable(hint, true);
+        hintpos = round(wait(hint));
+        blush = area(hintpos(1)+[0 hintpos(3)], YLIM(2)*[1 1], 'FaceColor', [.1 0.1 0.95], 'EdgeColor', [0.15 0.15 1], 'FaceAlpha', .4);
+        uistack(blush, 'bottom')
+        ylim(YLIM)
+        tmpSt = hintpos(1);
+        tmpEn = hintpos(1)+hintpos(3);
+        delete(hint)
+        uiresume(gcbf);
+    end
+
+    function whole_trace(source,callbackdata)
+        tmpSt = 1;
+        tmpEn = L;
+        if exist('blush', 'var')
+            if ~isempty(blush)
+                delete(blush)
+            end
+        end
+        reset_thresh;
+        update_thresh(1);
         uiresume(gcbf)
     end
 
