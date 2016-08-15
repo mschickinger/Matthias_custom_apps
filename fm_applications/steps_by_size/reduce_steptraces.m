@@ -21,6 +21,8 @@ function [steps, steptraces, ex_int, arxv, GO_ON, ex_global] = reduce_steptraces
     st_col = 'k';% [0 .5 .6];
     ax = cell(1,2);
     L = 0;
+    tmpSt = 1;
+    tmpEn = 2;
     next_thresh = 0;
     YLIM = [0 3.5];
     thresh_incr = 0;
@@ -28,6 +30,7 @@ function [steps, steptraces, ex_int, arxv, GO_ON, ex_global] = reduce_steptraces
     thresh_exp = 0;
     LEX = zeros(0,2);
     str = {};
+    blush = {};
     
     close all
     f = figure('Visible', 'on', 'Units', 'normalized', 'Position', [0 0 1 1]);
@@ -87,6 +90,15 @@ function [steps, steptraces, ex_int, arxv, GO_ON, ex_global] = reduce_steptraces
     uicontrol(bg, 'Style', 'Pushbutton','Units', 'normalized', 'Position', [.02 .15 .08 .3],...
         'String', 'Reset', 'Callback', @reset, 'FontSize', 10);
     
+    % Set interval button
+    uicontrol(bg, 'Style', 'Pushbutton','Units', 'normalized', 'Position', [.12 .15 .08 .3],...
+        'String', 'Set interval', 'Callback', @set_interval, 'FontSize', 10);
+    
+    % Whole trace button
+    uicontrol(bg, 'Style', 'Pushbutton','Units', 'normalized', 'Position', [.22 .15 .08 .3],...
+        'String', 'Whole trace', 'Callback', @whole_trace, 'FontSize', 10);
+    
+    % next threshold display
     at = uicontrol(bg, 'Style', 'Text','Units', 'normalized', 'Position', [.32 .15 .08 .7], 'String', ...
         ['Threshold for first reduction: ' num2str(arxv.threshs(1))], 'FontSize', 10);
     
@@ -128,6 +140,8 @@ function [steps, steptraces, ex_int, arxv, GO_ON, ex_global] = reduce_steptraces
         steps = cell(N,1);
         steptraces = cell(N,1);
         arxv.max_frame = L;
+        tmpSt = 1;
+        tmpEn = L;
     end
 
     function reset_figure
@@ -164,6 +178,8 @@ function [steps, steptraces, ex_int, arxv, GO_ON, ex_global] = reduce_steptraces
             set(ax{1}, 'Xlim', [0 L], 'Ylim', YLIM)
             set(ax{2}, 'Xlim', [0 L])
             primary_trace = primary_trace(1:L);
+            tmpSt = 1;
+            tmpEn = L;
         end
     end
 
@@ -187,14 +203,15 @@ function [steps, steptraces, ex_int, arxv, GO_ON, ex_global] = reduce_steptraces
     function reduce(source, callbackdata)
         i = i+1;
         weiter = 1;
-        while weiter && length(steps{i-1})>2
-            steps{i} = rm_steps_to_hmin(primary_trace,steps{i-1},next_thresh);
-            steps{i} = eliminate_stairs(primary_trace,steps{i});
-            display(sprintf(['Eliminated stairs.\nNumber of steps remaining: ' num2str(length(steps{i}))]))
-            weiter = length(steps{i})==length(steps{i-1});
+        tmp_steps_in = steps{i-1}(steps{i-1}>tmpSt & steps{i-1}<tmpEn) - tmpSt + 1;
+        while weiter && length(tmp_steps_in)>2
+            tmp_steps_out = rm_steps_to_hmin(primary_trace(tmpSt:tmpEn),tmp_steps_in,next_thresh);
+            tmp_steps_out = eliminate_stairs(primary_trace(tmpSt:tmpEn),tmp_steps_out);
+            display(sprintf(['Eliminated stairs.\nNumber of steps remaining: ' num2str(length(tmp_steps_out))]))
+            weiter = length(tmp_steps_out)==length(tmp_steps_in);
             if ~weiter
-                [ ~ ... %levels{1}
-                ,steptraces{i}] = get_levels(primary_trace,steps{i});
+                steps{i} = sort([steps{i-1}(steps{i-1}<=tmpSt); (tmp_steps_out + tmpSt -1); steps{i-1}(steps{i-1}>=tmpEn)]);
+                [~,steptraces{i}] = get_levels(primary_trace,steps{i});
                 update_plot(i)
                 arxv.threshs(i) = next_thresh;
             end
@@ -320,6 +337,39 @@ function [steps, steptraces, ex_int, arxv, GO_ON, ex_global] = reduce_steptraces
         set_max
         first_steptrace
         i = 1;
+        uiresume(gcbf)
+    end
+
+    function set_interval(source,callbackdata)
+        if exist('blush', 'var')
+            if ~isempty(blush)
+                delete(blush)
+                reset_thresh;
+                update_thresh(1);
+            end
+        end
+        hint = imrect(gca);
+        setResizable(hint, true);
+        hintpos = round(wait(hint));
+        blush = area(hintpos(1)+[0 hintpos(3)], YLIM(2)*[1 1], 'FaceColor', [.1 0.1 0.95], 'EdgeColor', [0.15 0.15 1], 'FaceAlpha', .4);
+        uistack(blush, 'bottom')
+        ylim(YLIM)
+        tmpSt = hintpos(1);
+        tmpEn = hintpos(1)+hintpos(3);
+        delete(hint)
+        uiresume(gcbf);
+    end
+
+    function whole_trace(source,callbackdata)
+        tmpSt = 1;
+        tmpEn = L;
+        if exist('blush', 'var')
+            if ~isempty(blush)
+                delete(blush)
+            end
+        end
+        reset_thresh;
+        update_thresh(1);
         uiresume(gcbf)
     end
 
