@@ -234,6 +234,7 @@ function [steps, steptraces, ex_int, arxv, GO_ON, ex_global] = reduce_steptraces
         update_thresh(1)
         uiresume(gcbf)
     end
+
     function coarser(source, callbackdata)
         thresh_exp = thresh_exp + 1;
         update_thresh(1)
