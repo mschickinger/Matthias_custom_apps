@@ -37,45 +37,53 @@ function [steps, steptraces, ex_int, arxv, GO_ON, ex_global] = reduce_steptraces
     
     % create interface (later)
           
-    actionlist = {'Reduce further'; 'One step back'; 'Proceed to next'; 'Finer >'; '< Coarser'; ...
-        'Exclude'; 'Re-include'; 'Exclude in movie'; 'Discard'; 'Postpone'};
     bg = uibuttongroup('Position', [.1 .15 .8 .15], 'Visible', 'off');
 
-    a1 = uicontrol(bg, 'Style', 'Pushbutton','Units', 'normalized', 'Position', [.02 .55 .08 .3],...
-        'String', actionlist{1}, 'Callback', @reduce, 'FontSize', 10);
+    % reduce button
+    uicontrol(bg, 'Style', 'Pushbutton','Units', 'normalized', 'Position', [.02 .55 .08 .3],...
+        'String', 'Reduce further', 'Callback', @reduce, 'FontSize', 10);
+    
+    % step back button
+    uicontrol(bg, 'Style', 'Pushbutton','Units', 'normalized', 'Position', [.12 .55 .08 .3],...
+        'String', 'One step back', 'Callback', @go_back, 'FontSize', 10);
 
-    a2 = uicontrol(bg, 'Style', 'Pushbutton','Units', 'normalized', 'Position', [.12 .55 .08 .3],...
-        'String', actionlist{2}, 'Callback', @go_back, 'FontSize', 10);
-
-    a3 = uicontrol(bg, 'Style', 'Pushbutton','Units', 'normalized', 'Position', [.86 .55 .12 .3],...
-        'String', actionlist{3}, 'Callback', @done, 'FontSize', 10);
+    % next spot button
+    uicontrol(bg, 'Style', 'Pushbutton','Units', 'normalized', 'Position', [.86 .55 .12 .3],...
+        'String', 'Proceed to next', 'Callback', @done, 'FontSize', 10);
     
-    a4 = uicontrol(bg, 'Style', 'Pushbutton','Units', 'normalized', 'Position', [.22 .55 .08 .3],...
-         'String', actionlist{4}, 'Callback', @finer, 'FontSize', 10);
+    % finer button
+    uicontrol(bg, 'Style', 'Pushbutton','Units', 'normalized', 'Position', [.22 .55 .08 .3],...
+         'String', 'Finer', 'Callback', @finer, 'FontSize', 10);
      
-    a5 = uicontrol(bg, 'Style', 'Pushbutton','Units', 'normalized', 'Position', [.42 .55 .08 .3],...
-         'String', actionlist{5}, 'Callback', @coarser, 'FontSize', 10);
+    % coarser button
+    uicontrol(bg, 'Style', 'Pushbutton','Units', 'normalized', 'Position', [.42 .55 .08 .3],...
+         'String', 'Coarser', 'Callback', @coarser, 'FontSize', 10);
      
-    a6 = uicontrol(bg, 'Style', 'Pushbutton','Units', 'normalized', 'Position', [.52 .55 .08 .3],...
-         'String', actionlist{6}, 'Callback', @exclude, 'FontSize', 10);
+    % exclude button
+    uicontrol(bg, 'Style', 'Pushbutton','Units', 'normalized', 'Position', [.52 .55 .08 .3],...
+         'String', 'Exclude', 'Callback', @exclude, 'FontSize', 10);
     
-    a7 = uicontrol(bg, 'Style', 'Pushbutton','Units', 'normalized', 'Position', [.62 .55 .08 .3], ...
-        'String', actionlist{7}, 'Callback', @reinclude, 'FontSize', 10);
+    % re-include button
+    uicontrol(bg, 'Style', 'Pushbutton','Units', 'normalized', 'Position', [.62 .55 .08 .3], ...
+        'String', 'Re-include', 'Callback', @reinclude, 'FontSize', 10);
     
-    a8 = uicontrol(bg, 'Style', 'Pushbutton','Units', 'normalized', 'Position', [.5 .15 .12 .3],...
-         'String', actionlist{8}, 'Callback', @exclude_global, 'FontSize', 10);
-     
-    a9 = uicontrol(bg, 'Style', 'Pushbutton','Units', 'normalized', 'Position', [.76 .55 .08 .3],...
-         'String', actionlist{9}, 'Callback', @discard, 'FontSize', 10);
+    % exclude global button
+    uicontrol(bg, 'Style', 'Pushbutton','Units', 'normalized', 'Position', [.52 .15 .12 .3],...
+         'String', 'Exclude global', 'Callback', @exclude_global, 'FontSize', 10);
     
-    a10 = uicontrol(bg, 'Style', 'Pushbutton','Units', 'normalized', 'Position', [.76 .15 .08 .3],...
-         'String', actionlist{10}, 'Callback', @postpone, 'FontSize', 10);
+    % discard button 
+    uicontrol(bg, 'Style', 'Pushbutton','Units', 'normalized', 'Position', [.76 .55 .08 .3],...
+         'String', 'Discard', 'Callback', @discard, 'FontSize', 10);
+    
+    % postpone button 
+    uicontrol(bg, 'Style', 'Pushbutton','Units', 'normalized', 'Position', [.76 .15 .08 .3],...
+         'String', 'Postpone', 'Callback', @postpone, 'FontSize', 10);
     
     % abort button
     uicontrol(bg, 'Style', 'Pushbutton','Units', 'normalized', 'Position', [.86 .15 .12 .3],...
         'String', 'Abort and save', 'Callback', @abort, 'FontSize', 10);
     
-    % reset button
+    % reset everything button
     uicontrol(bg, 'Style', 'Pushbutton','Units', 'normalized', 'Position', [.02 .15 .08 .3],...
         'String', 'Reset', 'Callback', @reset, 'FontSize', 10);
     
