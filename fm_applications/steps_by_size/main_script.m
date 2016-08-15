@@ -45,13 +45,14 @@ for m = 1:size(hop.results,1)
                 end
             end
             hop.results{m}{s}.todo = uint8(~GO_ON);
-        end
-        if GO_ON == 0
-            hop.results{m}{s}.todo = int8(~strcmp(questdlg('Also save last viewed trace?','Save last trace?'),'Yes'));
-            uisave({'hop','rms_cell'}, 'hop.mat')
-            return
-        elseif GO_ON == 2
-            hop.results{m}{s}.todo = uint8(2);
+            if GO_ON == 0
+                hop.results{m}{s}.todo = int8(~strcmp(questdlg('Also save last viewed trace?','Save last trace?'),'Yes'));
+                uisave({'hop','rms_cell'}, 'hop.mat')
+                return
+            elseif GO_ON == 2
+                hop.results{m}{s}.todo = uint8(2);
+                GO_ON = 1;
+            end
         end
     end
 end
