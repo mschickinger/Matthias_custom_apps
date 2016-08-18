@@ -198,12 +198,15 @@ function [steps, steptraces, ex_int, arxv, GO_ON, ex_global] = reduce_steptraces
     function reduce(source, callbackdata)
         i = i+1;
         weiter = 1;
-        tmp_steps_in = steps{i-1}(steps{i-1}>tmpSt & steps{i-1}<tmpEn) - tmpSt + 1;
-        while weiter && length(tmp_steps_in)>2
-            tmp_steps_out = rm_steps_to_hmin(primary_trace(tmpSt:tmpEn),tmp_steps_in,next_thresh);
-            tmp_steps_out = eliminate_stairs(primary_trace(tmpSt:tmpEn),tmp_steps_out);
-            display(sprintf(['Eliminated stairs.\nNumber of steps remaining: ' num2str(length(tmp_steps_out))]))
-            weiter = length(tmp_steps_out)==length(tmp_steps_in);
+        tmp_steps_out = steps{i-1}(steps{i-1}>tmpSt & steps{i-1}<tmpEn) - tmpSt + 1;
+        len_before = length(tmp_steps_out);
+        while weiter && length(tmp_steps_out)>2
+            for t = next_thresh %arxv.threshs(i-1):0.0001:next_thresh
+                tmp_steps_out = rm_steps_to_hmin(primary_trace(tmpSt:tmpEn),tmp_steps_out,t);
+                tmp_steps_out = eliminate_stairs(primary_trace(tmpSt:tmpEn),tmp_steps_out);
+                display(sprintf(['Eliminated stairs.\nNumber of steps remaining: ' num2str(length(tmp_steps_out))]))
+            end
+            weiter = length(tmp_steps_out)==len_before;
             if ~weiter
                 steps{i} = sort([steps{i-1}(steps{i-1}<=tmpSt); (tmp_steps_out + tmpSt -1); steps{i-1}(steps{i-1}>=tmpEn)]);
                 [~,steptraces{i}] = get_levels(primary_trace,steps{i});
