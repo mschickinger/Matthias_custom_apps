@@ -1,5 +1,5 @@
 
-hop.tpf = [50;100;50;100;50;100;50;50];
+hop.tpf = [100;100;100;100];
 
 for m = 1:length(hop.results)
     for s = 1:length(hop.results{m})
