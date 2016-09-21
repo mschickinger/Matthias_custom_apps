@@ -1,7 +1,7 @@
 for g = 1:length(lanes)
     lanes{g}.doubleBand = cell(size(lanes{g}.profiles));
     l = 1;
-    while l<=length(lanes{m}.profiles)
+    while l<=length(lanes{g}.profiles)
         prfl = lanes{g}.profiles{l};
         fig = figure('Units', 'normalized', 'Position', [0 .5 1 .5]);
         plot(prfl)
@@ -13,7 +13,7 @@ for g = 1:length(lanes)
                 pos = round(wait(h));
                 lanes{g}.doubleBand{l} = fitDoubleBand(prfl, pos(1), pos(3));
         elseif strcmp(action, 'One-by-one')
-                lanes{g}.doubleBand{l} = fitBands_obo(prfl);
+                lanes{g}.doubleBand{l} = fitDoubleBand_obo(prfl);
         end
         if ~strcmp(action, 'Skip')
             plot(prfl, 'o', 'MarkerSize', 8)

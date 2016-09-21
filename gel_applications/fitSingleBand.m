@@ -1,7 +1,7 @@
-function output = fitMainBand(profile, lower, width)     
+function output = fitSingleBand(profile, lower, width)     
     % peak
-    [pk, loc] = max(profile);
-    
+    [pk, loc] = max(profile(lower+(1:width)));
+    loc = loc+lower;
     hm = profile(loc:end);
     hm = find(hm<pk/2,1);
     c_start = 1.2*hm;
