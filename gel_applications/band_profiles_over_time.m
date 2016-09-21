@@ -13,14 +13,14 @@ if ~exist('gelData', 'var')
 end
 %}
 %% load gel data
-gelData_raw = load_gel_image('data_dir', 'C:\', 'n_images', n_images);
+gelData_raw = load_gel_image('data_dir', gel_dir, 'n_images', n_images);
 
 %%
 [gelData_raw] = check_gel_saturation(gelData_raw);
 close all
 
 %% background correct data
-gelData = background_correct_gel_image(gelData_raw, 'numberOfAreas', 4);
+gelData = background_correct_gel_image(gelData_raw, 'numberOfAreas', 1);
 
 %{
 %% adjust of unequal image size
@@ -39,7 +39,7 @@ for i = 1:n_images
     times{i} = ['Time ' num2str(i)];
 end
 
-default_times = {'1:30','3:00','4:30','6:00'};
+default_times = {'2:00','3:00','5:00','6:00'};
 default_times = default_times(1:n_images);
 times = inputdlg(times, 'Enter gel run times', 1, default_times);
 
@@ -55,12 +55,12 @@ single_gelData{i}.pathnames = {gelData.pathnames{i}};
 single_gelData{i}.filenames = {gelData.filenames{i}};
 single_gelData{i}.nrImages = 1;
 single_gelData{i}.saturation = gelData.saturation(i);
-single_gelData{i}.background = {gelData.background{i}};
+%single_gelData{i}.background = {gelData.background{i}};
 end
 
 %% get lanes
 lanes = cell(size(single_gelData));
-for i = 2:length(lanes)
+for i = 1:length(lanes)
     lanes{i} = get_gel_lanes(single_gelData{i});
 end
 n_lanes = length(lanes{1}.profiles);
