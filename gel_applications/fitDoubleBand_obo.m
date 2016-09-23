@@ -1,4 +1,4 @@
-function output = fitBands_obo( prfl )
+function output = fitDoubleBand_obo( prfl )
 % Fit a not-well-separated double-band one-by-one: first dominant band,
 % then the smaller band, then both with starting values from the first two
 % fits.
