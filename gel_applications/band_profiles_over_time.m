@@ -20,7 +20,7 @@ gelData_raw = load_gel_image('data_dir', gel_dir, 'n_images', n_images);
 close all
 
 %% background correct data
-gelData = background_correct_gel_image(gelData_raw, 'numberOfAreas', 1);
+gelData = custom_background_correction(gelData_raw,'offset',true);
 
 %{
 %% adjust of unequal image size
