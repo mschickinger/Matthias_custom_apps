@@ -12,7 +12,7 @@ if ~exist('gelData', 'var')
     gelData = tmp.gelData;
 end
 %}
-%% load gel data
+%% load gel scans
 gelData_raw = load_gel_image('data_dir', gel_dir, 'n_images', n_images);
 
 %%
@@ -109,4 +109,4 @@ for i = 1:n_lanes
     %suplabel(prefix_out, 't');
     print('-dpng', '-r96', [path_out 'profile_over_time_lane' num2str(i) '.png'])
 end
-    
+display('Done. End of program.')
