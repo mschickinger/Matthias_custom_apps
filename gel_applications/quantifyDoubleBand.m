@@ -14,6 +14,7 @@ for g = 1:length(lanes)
                 lanes{g}.doubleBand{l} = fitDoubleBand(prfl, pos(1), pos(3));
         elseif strcmp(action, 'One-by-one')
                 lanes{g}.doubleBand{l} = fitDoubleBand_obo(prfl);
+                figure(fig)
         end
         if ~strcmp(action, 'Skip')
             plot(prfl, 'o', 'MarkerSize', 8)
