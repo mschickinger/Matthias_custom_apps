@@ -15,6 +15,9 @@ end
 %% load gel scans
 gelData_raw = load_gel_image('data_dir', gel_dir, 'n_images', n_images);
 
+%% select areas to be analyzed
+gelData_raw.images = crop_gel_areas(gelData_raw.images);
+
 %%
 [gelData_raw] = check_gel_saturation(gelData_raw);
 close all
