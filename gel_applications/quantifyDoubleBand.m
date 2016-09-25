@@ -1,3 +1,10 @@
+%% LOAD DATA
+clear lanes
+[FileName, PathName] = uigetfile([gel_dir filesep '*.mat'], 'Pick a data file');
+tmp = load([PathName FileName], 'lanes');
+lanes = tmp.lanes;
+
+%%
 for g = 1:length(lanes)
     lanes{g}.doubleBand = cell(size(lanes{g}.profiles));
     l = 1;
@@ -43,3 +50,8 @@ for g = 1:length(lanes)
         close(fig)        
     end
 end
+display('Done.')
+%% Save data
+save([PathName FileName], 'lanes', '-append')
+display('Data saved.')
+display('End of program.')
