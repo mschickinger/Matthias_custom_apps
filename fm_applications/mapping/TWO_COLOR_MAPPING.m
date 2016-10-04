@@ -140,9 +140,9 @@ close(h)
 %% SORT OUT #1
 
 criteria = ones(N_peaks_raw,4 );
-criteria(:,1:2) = filter_spots(ch1_fit_raw(:,3:4), [0.8 1.2], [1 1]);
-criteria(:,3:4) = filter_spots(ch2_fit_raw(:,3:4), [0.8 1.2], [1 1]);
 accepted = [criteria(:,1) & criteria(:,2) & criteria(:,3) & criteria(:,4)];
+criteria(:,1:2) = filter_spots(ch1_fit_raw(:,3:4), [0.8 1.25], [1 1]);
+criteria(:,3:4) = filter_spots(ch2_fit_raw(:,3:4), [0.8 1.25], [1 1]);
 
 %remove not-accepted spots
 ch1_fit = ch1_fit_raw(accepted==1, :);
