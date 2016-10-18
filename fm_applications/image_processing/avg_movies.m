@@ -4,16 +4,23 @@ run('my_prefs')
 
 %% select file(s)
 cd(data_dir)
-[fname, pname]=uigetfile('*.fits','Select any .fits file(s)', 'MultiSelect', 'on');
+[fname, pname]=uigetfile('*.fits','Select .fits file(s) with same sequence', 'MultiSelect', 'on');
 
 %% generate movie file(s)
+tmp = inputdlg('Enter sequence (e.g. 10)', 'Sequence', 1, {'10'});
+sequence = zeros(1, size(tmp{1},2));
+for i=1:size(tmp{1},2)
+    if(tmp{1}(i) == '1')
+        sequence(1,i)=1;
+    end
+end
 if iscell(fname)
     mov_in = cell(size(fname));
     for m = 1:length(mov_in)
-        mov_in{m} = movie(pname, fname{m}, 1, -1, 1); % pname, fname, first=1, last=all, sequence=all
+        mov_in{m} = movie(pname, fname{m}, 1, -1, sequence); % pname, fname, first=1, last=all, sequence=all
     end
 else
-    mov_in = movie(pname, fname, 1, -1, 1);
+    mov_in = movie(pname, fname, 1, -1, sequence);
 end
 
 %% loop through movie(s), average and transform it/them
