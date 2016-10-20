@@ -546,15 +546,18 @@ print(cur_fig, '-dtiff', '-r150',  [path_out filesep 'NN_test_6to50_' num2str(N_
 
 %}
 %% Mapping using fitgeotrans
-
+peaks_in_range = peaks;
+for i = 1:4
+    peaks_in_range(peaks_in_range(:,i)<1 | peaks_in_range(:,i)>512,:) = [];
+end
+N_peaks = size(peaks_in_range,1);
 %subset = round(rand(N_peaks,1)*1);
 subset = ones(N_peaks,1);
 
-xy_1 = peaks(subset==1,1:2); % red coord
-xy_2 = peaks(subset==1,3:4);% green coord
-n_mov = peaks(subset==1,5);
+xy_1 = peaks_in_range(subset==1,1:2); % red coord
+xy_2 = peaks_in_range(subset==1,3:4);% green coord
+n_mov = peaks_in_range(subset==1,5);
 N_sel=length(xy_1);
-
 
 %%
 nn=40;
