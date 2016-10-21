@@ -41,9 +41,9 @@ end
 
 
 %% loop through movie(s), average and transform it/them
-h = waitbar(0,'Transforming movie(s)... please wait');
+h = waitbar(0,'Processing movie(s)... please wait');
 for m = 1:length(mov_in)
-    waitbar( (m-1)/length(mov_in), h, ['Transforming movie ' num2str(m) ' of ' num2str(length(mov_in))]) % update waitbar
+    waitbar( (m-1)/length(mov_in), h, ['Processing movie ' num2str(m) ' of ' num2str(length(mov_in))]) % update waitbar
     A_out = int16(average_image(mov_in{m},-1));
     if ismember(mode, [1 3])
         floc_out = [mov_in{m}.pname mov_in{m}.fname{1}(1:end-5) '_avg.fits'];
