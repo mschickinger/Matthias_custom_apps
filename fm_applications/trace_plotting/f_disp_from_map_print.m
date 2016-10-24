@@ -10,7 +10,7 @@ p = inputParser;
 addRequired(p, 'path_out', @isdir);
 %addParameter(p, 'filter', 'RMS', @ischar);
 %addParameter(p, 'method', 'vwcm', @ischar);
-addParameter(p, 'YLIM', [0 3], @isvector);
+addParameter(p, 'YLIM', [-3 3], @isvector);
 %addParameter(p, 'horzAx', 'frames', @ischar);
 
 parse(p, path_out, varargin{:});
@@ -37,7 +37,7 @@ end
 
 % subplot parameters
 lower = 0.125;
-upper = 0.575; 
+upper = 0.525; 
 
 %% Get and plot displacement traces
 for m=1:size(data,1)
@@ -57,44 +57,44 @@ for m=1:size(data,1)
         L = min([length(data{m}{s,chm}.vwcm.pos) length(data{m}{s,chb}.vwcm.pos_map)]);
         % determine displacements
         disp_from_map = data{m}{s,chm}.vwcm.pos(1:L,:)-data{m}{s,chb}.vwcm.pos_map(1:L,:);
-        disp_median_from_map = data{m}{s,chm}.vwcm.medians101(1:L,:)-data{m}{s,chb}.vwcm.pos_map(1:L,:);
+        disp_median_from_map = data{m}{s,chm}.vwcm.medians101(1:L,:)-[medfilt1_trunc(data{m}{s,chb}.vwcm.pos_map(1:L,1),101) medfilt1_trunc(data{m}{s,chb}.vwcm.pos_map(1:L,2),101)];
 
-        abs_disp_from_map = sqrt(disp_from_map(:,1).^2+disp_from_map(:,2).^2);
-        abs_disp_mean_from_map = sqrt(disp_median_from_map(:,1).^2+disp_median_from_map(:,2).^2);
+        %abs_disp_from_map = sqrt(disp_from_map(:,1).^2+disp_from_map(:,2).^2);
+        %abs_disp_mean_from_map = sqrt(disp_median_from_map(:,1).^2+disp_median_from_map(:,2).^2);
         
-        med_abs_disp_from_map = medfilt1(abs_disp_from_map,20);
-        med_abs_disp_mean_from_map = medfilt1(abs_disp_mean_from_map,20);
+        %med_abs_disp_from_map = medfilt1(abs_disp_from_map,20);
+        %med_abs_disp_mean_from_map = medfilt1(abs_disp_mean_from_map,20);
 
         % make plots
         figure('Visible','off', 'PaperPositionMode', 'manual','PaperUnits',...
         'centimeters', 'PaperPosition', [0 0 29.7 9.9]);
         
-        % displacement subplot
-        subplot('Position', [0.035 upper 0.65 0.35])
+        % x-displacement subplot
+        subplot('Position', [0.035 upper 0.65 0.4])
         hold off
-        plot(abs_disp_from_map(:), '.', 'MarkerSize', 5)
+        plot(disp_from_map(:,1), '.', 'MarkerSize', 5)
         hold on
-        plot(med_abs_disp_from_map(:), 'Color', 'c', 'LineWidth', .2)
+        plot(disp_median_from_map(:,1), 'Color', 'c', 'LineWidth', .2)
         set(gca, 'Ylim', YLIM, 'YTick', YLIM(1):YLIM(2), 'Xlim',[0 size(data{m}{s,1}.pos0,1)], ...
                 'XTick', 0:XTickDiv:size(data{m}{s,1}.pos0,1), 'XTickLabel', {},...
                 'TickDir', 'in', 'Layer', 'top');    
-        ylabel('Delta')
+        ylabel('DeltaX/medX')
         grid on
-        title(['Absolute displacements of mobile spot from mapped fixed spot position. ' ...
+        title(['XY-displacements of mobile spot from mapped fixed spot position. ' ...
             'Spot pair # ' num2str(s) ' of ' num2str(size(data{m},1)) ' / movie: ' num2str(m)])
         
-        % mean100 displacement subplot
-        subplot('Position', [0.035 lower 0.65 0.35])
+        % y-displacement subplot
+        subplot('Position', [0.035 lower 0.65 0.4])
         hold off
-        plot(abs_disp_mean_from_map(:), '.', 'MarkerSize', 5)
+        plot(disp_from_map(:,2), '.', 'MarkerSize', 5)
         hold on
-        plot(med_abs_disp_mean_from_map(:), 'Color', 'c', 'LineWidth', .2)
+        plot(disp_median_from_map(:,2), 'Color', 'c', 'LineWidth', .2)
         set(gca, 'Ylim', YLIM, 'YTick', YLIM(1):YLIM(2), 'Xlim',[0 size(data{m}{s,1}.pos0,1)], ...
                 'XTick', 0:XTickDiv:size(data{m}{s,1}.pos0,1), 'XTickLabel', XTC,...
                 'TickDir', 'in', 'Layer', 'top');
-        ylabel('Delta'), xlabel('Frame #')
+        ylabel('DeltaY/medY'), xlabel('Frame #')
         grid on
-        title('Median101 displacements of mobile spot from mapped fixed spot position')
+        %title('Y-displacements of mobile spot from mapped fixed spot position')
         
         % displacement scatter plot
         subplot('Position',[0.8, lower - 0.05, 0.19, 0.57])   
@@ -107,7 +107,7 @@ for m=1:size(data,1)
         %title('X/Y-displacements')
         
         % x-displacement distribution
-        subplot('Position', [0.8, upper + 0.1, 0.19, 0.24])      
+        subplot('Position', [0.8, upper + 0.15, 0.19, 0.24])      
         hx = histogram(disp_from_map(:,1),-5:.5:5,'Normalization', 'probability');
         hx.FaceColor = [0 0.4470 0.7410];
         hx.EdgeColor = [0 0.4470 0.7410];
