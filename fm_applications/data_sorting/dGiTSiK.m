@@ -40,7 +40,7 @@ end
 
 %% set display settings
 scrsz = get(groot,'ScreenSize');
-vert = [10 165 218 380 420 560 615 760 5 166 190 360];
+vert = [10 165 218 380 420 560 615 760 25 166 167 345];
 %figure('OuterPosition', [0 scrsz(4)./10 scrsz(3).*.65 scrsz(4).*9/10])
 %figure('OuterPosition', [scrsz(3).*.6 scrsz(2) scrsz(3).*.4 scrsz(3)./3])
 %% Show images and assign spot (pair) category
