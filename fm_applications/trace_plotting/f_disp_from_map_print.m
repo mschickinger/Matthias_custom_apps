@@ -10,11 +10,11 @@ p = inputParser;
 addRequired(p, 'path_out', @isdir);
 %addParameter(p, 'filter', 'RMS', @ischar);
 %addParameter(p, 'method', 'vwcm', @ischar);
-addParameter(p, 'YLIM', [-3 3], @isvector);
+addParameter(p, 'YLIM', 3, @isscalar);
 %addParameter(p, 'horzAx', 'frames', @ischar);
 
 parse(p, path_out, varargin{:});
-YLIM = p.Results.YLIM;
+YLIM = p.Results.YLIM*[-1 1];
 
 %% Load data
 clear channel chb cut fit_cutoff data
