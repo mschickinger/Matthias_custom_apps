@@ -213,10 +213,10 @@ display('End of program.')
 close all
 m = 1;
 f = figure('Visible', 'off', 'Units', 'normalized', 'Position', [0 0 1 1]);
-while m <= N_movie
+while m <= length(GiTSiK.behaviour)
+    behaved = find(GiTSiK.behaviour{m}==2);
     i = 1;
-    while i <= length(find(GiTSiK.behaviour{m} == 2))
-        behaved = find(GiTSiK.behaviour{m} == 2);
+    while i <= length(behaved)
         s = behaved(i);
         tmp_vwcm = imread([data_path filesep 'vwcm_traces' filesep 'traces_RMS_hist_m' num2str(m) '_s' num2str(s) '.png']);
         tmp_pos = imread([data_path filesep 'positions' filesep 'positions_m' num2str(m) '_s' num2str(s) '.png']);
