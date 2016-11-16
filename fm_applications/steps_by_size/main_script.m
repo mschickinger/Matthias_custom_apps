@@ -35,9 +35,9 @@ for m = 1:size(hop.results,1)
         return
     end
     for s = 1:size(hop.results{m})
-        if hop.results{m}{s}.todo
+        if hop.results{m}{s}.todo == 1
             [hop.results{m}{s}.steps, hop.results{m}{s}.steptraces, hop.results{m}{s}.ex_int, hop.results{m}{s}.arxv, GO_ON, ex_global] = ...
-                reduce_steptraces(rms_cell{m}{s}.rms10,rms_cell{m}{s}.rms10green,hop.results{m}{s}.ex_int, ...
+                reduce_steptraces(rms_cell{m}{s}.rms10red,rms_cell{m}{s}.rms10green,hop.results{m}{s}.ex_int, ...
                 'movie',m,'spot',hop.results{m}{s}.spotnum);
             if ~isempty(ex_global)
                 for g = 1:size(hop.results{m})
@@ -64,4 +64,12 @@ for m = 1:length(hop.results)
     for s = 1:length(hop.results{m})
         hop.results{m}{s}.todo = 1;
     end
+endend
+
+%% Count analyzed spot pairs
+counter = 0;
+for m = 1:3
+for s = 1:length(hop.results{m})
+counter = counter + isfield(hop.results{m}{s}, 'steps');
+end
 end
