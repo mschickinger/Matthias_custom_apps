@@ -65,7 +65,7 @@ for m = 1:length(indices)
         counter = counter + nFrames{m}(s);
     end
 end
-intervals_comb = intervals_comb(intervals_comb(:,1)>0,:); % alle Null-Eintraege werden wieder entfernt (keine Ahnung woher diese kommen)
+intervals_comb = intervals_comb(prod(intervals_comb,2)>0,:); % alle Null-Eintraege werden wieder entfernt (keine Ahnung woher diese kommen)
 
 %% intervals
 midpoints = 5100:200:13900; % 45 Mittelpunkte entsprechen 45 Intervallen
