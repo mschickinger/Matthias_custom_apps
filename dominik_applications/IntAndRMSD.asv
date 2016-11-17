@@ -1,8 +1,11 @@
-function [output] = IntAndRMSD(data,vector)
+function [output] = IntAndRMSD(data,vector,midpoints)
 %IntAndRMSD: Intensitaet und RMSD Werte von ausgesuchten traces
 
 % input:    data        Daten des Experiments
 %           vector      Ausgewaehlten traces angibt, mit [movie spot; movie spot; ...]
+%           midpoints   Mittelpunkte der Intervalle, die untersucht werden
+%                       sollen (z.B.: midpoints=[5000;5200] -> intervals:
+%                       [4900:5100[ und [5100:5300[ )
 
 % output:   struct mit folgenden Unterpunkten:
 %           .interval   enthaelt die Intensitaets- und RMSD-Werte des Intervals
