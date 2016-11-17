@@ -1,8 +1,11 @@
-function [output] = IntAndRMSD(data,vector)
+function [output] = IntAndRMSD(data,vector, varargin)
 %IntAndRMSD: Intensitaet und RMSD Werte von ausgesuchten traces
 
+%{
 % input:    data        Daten des Experiments
 %           vector      Ausgewaehlten traces angibt, mit [movie spot; movie spot; ...]
+            fit_cutoff  Maximaler frame bei der Positionsbestimmung am Cluster
+            chm         Index des "mobilen Kanals" (Standard ist 1 bzw. Rot)
 
 % output:   struct mit folgenden Unterpunkten:
 %           .interval   enthaelt die Intensitaets- und RMSD-Werte des Intervalls
@@ -16,18 +19,33 @@ function [output] = IntAndRMSD(data,vector)
 %                       jeweiligen Intervals
 %           .midpoint   enthaelt den jeweiligen
 %                       Intensitaetintervallmittelpunkte
+%}
+
+p = inputParser;
+addRequired(p, 'data')
+addRequired(p, 'vector')
+addOptional(p, 'fit_cutoff', [])
+addParameter(p, 'chm', 1)
+
+parse(p, data, vector, varargin{:})
+data = p.Results.data;
+vector = p.Results.vector;
+fit_cutoff = p.Results.fit_cutoff;
+chm = p.Results.chm;
 
 %% parameters
-chm = 1; % mobile channel: Rot
 indices = cell(size(data)); % data aus data_spot_pairs
 nFrames = cell(size(indices));
 for m = 1:length(indices)
     indices{m} = vector(vector(:,1)==m,2); % hier die spot indices fuer diesen Film angeben
     nFrames{m} = zeros(length(indices{m}),1);
     for s = 1:length(nFrames{m})
-        %nFrames{m}(s) = min(floor(fit_cutoff{m,chm}(indices{m}(s))),length(data{m}{indices{m}(s),chm}.med_itrace));
-        nFrames{m}(s) = length(data{m}{indices{m}(s),chm}.med_itrace);
-    end % bin mir nicht sicher, ob das fuer deine Daten noetig ist... braucht man nur fuer traces, die nicht ueber die volle Laenge gehen.
+        if ~isempty(fit_cutoff)
+            nFrames{m}(s) = min(floor(fit_cutoff{m,chm}(indices{m}(s))),length(data{m}{indices{m}(s),chm}.itrace));
+        else
+            nFrames{m}(s) = length(data{m}{indices{m}(s),chm}.itrace);
+        end
+    end
 end
 
 %% arrays
