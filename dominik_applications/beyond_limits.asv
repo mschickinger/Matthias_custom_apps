@@ -39,21 +39,22 @@ for i = 1:length(midpoints) % this deltas (100 and 99) implies that each interva
     output_under = output_under + (itrace >= (midpoints(i)-delta) & itrace < (midpoints(i)+delta) & rms < minimum(i));
 end
 over = find(output_over);
+%over = find(output_over==1);
 under = find(output_under);
+%under = find(output_under==1);
 
 if sum(output_over)>0
     output_overdensity = [zeros(5,1); output_overdensity; zeros(5,1)];
     for i = 1:length(over) 
         output_overdensity(over(i):(over(i)+10)) = output_overdensity(over(i):(over(i)+10)) + 1;
     end
-    output_overdensity = output_overdensity(6:(end-5));
+
+    
 end
-if sum(output_under)>0
-    output_underdensity = [zeros(5,1); output_underdensity; zeros(5,1)];
+if sum(output_under)>0 && under(1)>4 && under(end)<(nFrame-5)
     for i = 1:length(under)
-        output_underdensity(under(i):(under(i)+10)) = output_underdensity(under(i):(under(i)+10)) + 1;
+        output_underdensity((under(i)):(under(i)+10)) = output_underdensity((under(i)-5):(under(i)+5)) + 1;
     end
-    output_underdensity = output_underdensity(6:(end-5));
 end
 
 %% output
