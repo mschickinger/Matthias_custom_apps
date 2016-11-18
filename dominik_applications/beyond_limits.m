@@ -26,11 +26,11 @@ maximum = limits(2,:);
 %maximum = limits(2,:)*1.05;
     
 %% traces
-nFrames = min(length(itrace),length(rms));
-output_over = zeros(1,nFrames);
-output_under = zeros(1,nFrames);
-output_overdensity = zeros(1,nFrames);
-output_underdensity = zeros(1,nFrames);
+nFrames = length(itrace);
+output_over = zeros(nFrames,1);
+output_under = zeros(nFrames,1);
+output_overdensity = zeros(nFrames,1);
+output_underdensity = zeros(nFrames,1);
 delta = 0.5*(midpoints(2)-midpoints(1));
 tic
 for i = 1:length(midpoints) % this deltas (100 and 99) implies that each interval has width 200 frames
