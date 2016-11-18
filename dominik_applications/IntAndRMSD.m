@@ -81,11 +81,17 @@ output.median = zeros(1,length(midpoints));
 output.minmax = zeros(2,length(midpoints));
 output.iqr = zeros(1,length(midpoints));
 output.center95 = zeros(2,length(midpoints));
+output.percentile99 = zeros(1,length(midpoints));
+output.percentile1 = zeros(1,length(midpoints));
 for i = 1:length(midpoints)
     output.median(i) = median(output_intervals{i}(:,2)); % median
-    output.minmax(:,i) = [min(output_intervals{i}(:,2));max(output_intervals{i}(:,2))]; % minimum und maximum
+    if ~isempty(output_intervals{i})
+        output.minmax(:,i) = [min(output_intervals{i}(:,2));max(output_intervals{i}(:,2))]; % minimum und maximum
+    end
     output.iqr(i) = iqr(output_intervals{i}(:,2)); % interquartils-Abstand
     output.center95(:,i) = [prctile(output_intervals{i}(:,2),97.5);prctile(output_intervals{i}(:,2),2.5)]; % zentrale 95 Prozent der RMSD-Werte, obere und untere Grenze
+    output.percentile99(i) = prctile(output_intervals{i}(:,2),99);
+    output.percentile1(i) = prctile(output_intervals{i}(:,2),1);
 end
 
 end
