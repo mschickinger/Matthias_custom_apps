@@ -1,75 +1,64 @@
-function [ output ] = beyond_limits( data_E4, vector, data_E4_zero, vec_E4_zero,data_E4_fix, vec_E4_fix)
-%UNTITLED3 Summary of this function goes here
-%   Detailed explanation goes here
+function [ output ] = beyond_limits( itrace,rms,midpoints,limits,varargin )
+% beyond_limits: this function finds RMSD values over or under defined
+% limits in a trace an outputs the frame number
+%{
 
-%% parameter
-intervals = 5000:200:14000;
-variable_zero = IntAndRMSD(data_E4_zero,vec_E4_zero,intervals); % get the data for limits of different intensity by other function
-variable_fix = IntAndRMSD(data_E4_fix,vec_E4_fix,intervals);
+input. minmax = [min; max]
+%}
+
+p = inputParser;
+addRequired(p, 'itrace')
+addRequired(p, 'rms')
+addRequired(p, 'midpoints')
+addRequired(p, 'limits')
+
+parse(p,itrace,rms,midpoints,limits, varargin{:})
+itrace = p.Results.itrace;
+rms = p.Results.rms;
+midpoints = p.Results.midpoints;
+limits = p.Results.limits;
 
 %% maximum and minimum
-maximum = zeros(1,length(variable_zero.minmax));
-minimum = cell(1,length(variable_fix.minmax));
-
-%HIER IF ISEMPTY ABFRAGE; SONST DEFAULT WERTE MAX=5 UND MIN=0.4
-for i = 1:length(variable_zero.minmax) %RICHTIGE KLAMMERN?!
-    %maximum(i) = variable_zero.minmax{i}(2)*1.05; % maximum of each intensity interval times 1.05
-    %minimum{i} = variable_fix.minmax{i}(1)*0.95; % minimum of each intensity interval times 0.95
-end
-
+minimum = limits(1,:);
+%minimum = limits(1,:)*0.95; % in the first email of tasks (10.11.2016)
+%were this factors mentioned; but i think we don't need them
+maximum = limits(2,:);
+%maximum = limits(2,:)*1.05;
+    
 %% traces
-output_over = cell(1,length(data_E4));
-output_under = cell(1,length(data_E4));
-output_overdensity = cell(1,length(data_E4));
-output_underdensity = cell(1,length(data_E4));
-for h = 1:size(vector,1) % search through every spot 
-    m = vector(h,1);
-    s = vector(h,2);
-    output_over{m} = cell(1,length(data_E4{m})); % create empty cells in the same size as data cells
-    output_under{m} = cell(1,length(data_E4{m}));
-    output_overdensity{m} = cell(1,length(data_E4{m}));
-    output_underdensity{m} = cell(1,length(data_E4{m}));
-    for j = 1:length(data_E4{m}{s,1}.itrace) % search through every frame
-        member = [];
-        over = [];
-        under = [];
-        %numb = [];
-        if data_E4{m}{s,1}.itrace<intervals(1) % is the intensity lower than the first interval
-            member(1) = 1;
-        elseif data_E4{m}{s,1}.itrace>intervals(end) % is the intensity higher than the largest interval
-            member(length(intervals)+1) = 1;
-        else
-            for i = 2:length(intervals) % in which interval is the value of intensity of this frame
-                member(i) = ismember(data_E4{m}{s,1}.itrace(j),intervals(i-1):intervals(i));
-            end
-        end
-        numb = find(member==1); % number of interval to get the corresponding max or min
-     %   if data_E4{m}{s,1}.vwcm.rms10(j)>maximum(numb) %RICHTIGE KLAMMERN?!
-      %      over = [over; j]; % frames over the maximum RMSD of the corresponding interval
-     %   elseif data_E4{m}{s,1}.vwcm.rms10(j)<minimum{numb}
-     %       under = [under; j]; % frames under the minimum RMSD of the corresponding interval
-     %   end
-        output_over{m}{s} = over;
-        output_under{m}{s} = under;
-        %counter_over = [];
-        %counter_under = [];
-        if j>5 && j<(length(data_E4{m}{s,1})-4)
-            output_overdensity{m}{s}(j) = sum(ismember(j-5:j+5,over))/11;
-            output_underdensity{m}{s}(j) = sum(ismember(j-5:j+5,under))/11;
-        elseif j<=5
-            output_overdensity{m}{s}(j) = 0;
-            
-        else
-            output_overdensity{m}{s}(j) = 0;
-            output_underdensity{m}{s}(j) = 0;
-        end
-        
+nFrames = min(length(itrace),length(rms));
+output_over = zeros(1,nFrames);
+output_under = zeros(1,nFrames);
+output_overdensity = zeros(1,nFrames);
+output_underdensity = zeros(1,nFrames);
+delta = 0.5*(midpoints(2)-midpoints(1));
+tic
+for i = 1:length(midpoints) % this deltas (100 and 99) implies that each interval has width 200 frames
+    %output_over = output_over + (itrace >= (midpoints(i)-100) & itrace <= (midpoints(i)+99) & rms > maximum);
+    output_over = output_over + (itrace >= (midpoints(i)-delta) & itrace < (midpoints(i)+delta) & rms > maximum); %fehler: maximum ist vektor!
+    toc
+    %output_under = output_under + (itrace >= (midpoints(i)-100) & itrace <= (midpoints(i)+99) & rms < minimum);
+    output_under = output_under + (itrace >= (midpoints(i)-delta) & itrace < (midpoints(i)+delta) & rms < minimum);
+    toc
+    disp(i)
+end
+over = find(output_over==1);
+under = find(output_under==1);
+
+if sum(output_over)>0
+    for i = 1:length(over) %fehler bei over = {4}...
+        output_overdensity((over(i)-5):(over(i)+5)) = output_overdensity((over(i)-5):(over(i)+5)) + 1;
+    end
+end
+if sum(output_under)>0
+    for i = 1:length(output_under==1)
+        output_underdensity((under(i)-5):(under(i)+5)) = output_underdensity((under(i)-5):(under(i)+5)) + 1;
     end
 end
 
 %% output
-output.over = output_over;
-output.under = output_under;
+output.over = over;
+output.under = under;
 output.overdensity = output_overdensity;
 output.underdensity = output_underdensity;
 
