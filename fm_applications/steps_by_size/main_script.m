@@ -4,11 +4,20 @@
 % hop struct (if it already exists)
 
 % specify name of cell array containing the indices:
-spotnum_cell = traces_E1;
+spotnum_cell = cell(size(data));
+for m = 1:length(spotnum_cell)
+    spotnum_cell{m} = find(GiTSiK.behaviour{m}==2);
+end
 
 % specify name of cell array containing the rms-traces:
-rms_cell = E1;
-
+rms_cell = cell(size(data));
+for m = 1:length(rms_cell)
+    rms_cell{m} = cell(size(spotnum_cell{m}));
+    for s = 1:length(rms_cell{m})
+        rms_cell{m}{s}.rms10red = data{m}{spotnum_cell{m}(s),1}.vwcm.rms10;
+        rms_cell{m}{s}.rms10green = data{m}{spotnum_cell{m}(s),2}.vwcm.rms10;
+    end
+end
 close all
 
 %% Create hop structure
@@ -64,7 +73,7 @@ for m = 1:length(hop.results)
     for s = 1:length(hop.results{m})
         hop.results{m}{s}.todo = 1;
     end
-endend
+end
 
 %% Count analyzed spot pairs
 counter = 0;
