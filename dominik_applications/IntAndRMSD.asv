@@ -2,24 +2,27 @@ function [output] = IntAndRMSD(data, vector, varargin)
 %IntAndRMSD: Intensitaet und RMSD Werte von ausgesuchten traces
 
 %{
-% input:    data        Daten des Experiments
-%           vector      Ausgewaehlten traces angibt, mit [movie spot; movie spot; ...]
-            fit_cutoff  Maximaler frame bei der Positionsbestimmung am Cluster
-            midpoint_range ...
-            chm         Index des "mobilen Kanals" (Standard ist 1 bzw. Rot)
+% input:    data            Daten des Experiments
+%           vector          Ausgewaehlten traces angibt, mit [movie spot; movie spot; ...]
+                            'all' gibt alle Spots des Datensatzes aus
+            fit_cutoff      Maximaler frame bei der Positionsbestimmung am Cluster
+            midpoint_range  Spannweite der Intervallmittelpunkte
+                            Default:    Intervallmittelpunkte werden auf alle
+                                        Punkte des Datensatzes angepasst
+            chm             Index des "mobilen Kanals" (Standard ist 1 bzw. Rot)
 
 % output:   struct mit folgenden Unterpunkten:
-%           .interval   enthaelt die Intensitaets- und RMSD-Werte des Intervalls
-%                       sortiert nach Intensitaet
-%           .median     enthaelt den Medianwert des jeweiligen Intervals
-%           .minmax     enthaelt zwei Eintraege, oben min und unten max des
-%                       jeweiligen Intervals
-%           .iqr        enthaelt den Interquartilsabstand des jeweiligen
-%                       Intervals, also den Abstand zweischen Q_25 und Q_75
-%           .center     enthaelt die mittleren 95 Prozent der RMSD-Werte des
-%                       jeweiligen Intervals
-%           .midpoint   enthaelt den jeweiligen
-%                       Intensitaetintervallmittelpunkte
+%           .interval       enthaelt die Intensitaets- und RMSD-Werte des Intervalls
+%                           sortiert nach Intensitaet
+%           .median         enthaelt den Medianwert des jeweiligen Intervals
+%           .minmax         enthaelt zwei Eintraege, oben min und unten max des
+%                           jeweiligen Intervals
+%           .iqr            enthaelt den Interquartilsabstand des jeweiligen
+%                           Intervals, also den Abstand zweischen Q_25 und Q_75
+%           .center         enthaelt die mittleren 95 Prozent der RMSD-Werte des
+%                           jeweiligen Intervals
+%           .midpoint       enthaelt den jeweiligen
+%                           Intensitaetintervallmittelpunkte
 %}
 
 p = inputParser;
@@ -37,7 +40,6 @@ midpoint_range = p.Results.midpoint_range;
 chm = p.Results.chm;
 
 %% vector
-vector
 if vector=='all'
     vector = zeros(size(vertcat(data{:})));
     counter = 1;
@@ -90,15 +92,19 @@ if isempty(midpoint_range) % default
     range_max = 10;
     for m = 1:length(indices)
         for s = 1:length(indices{m}) % find the lowest and highest itrace of all vector entries
-            range_min = min(range_min,min(data{m}{indices{m}(s),chm}.itrace)); 
+            range_min = min(range_min,min(data{m}{indices{m}(s),chm}.itrace));
             range_max = max(range_max,max(data{m}{indices{m}(s),chm}.itrace));
         end
     end       
     range_min = round(range_min,-2);
-    if mod(range_min/200,1)==0
+    if mod(range_min/200,1)==0 && range_min~=0
         range_min = range_min-100;
+    elseif range_min==0
+        range_min = 100;
     end
     midpoints = range_min:200:range_max; % could lead to very high range_max for bad traces !?
+    %range_min
+    %range_max
 else
 midpoint_range = sort(midpoint_range); % set range in form: [low_limit; high_limit]
 tmp = round(midpoint_range(1),-2); % round low_limit on hundreds
