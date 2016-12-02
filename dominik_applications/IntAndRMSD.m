@@ -1,37 +1,55 @@
-function [output] = IntAndRMSD(data,vector, varargin)
+function [output] = IntAndRMSD(data, vector, varargin)
 %IntAndRMSD: Intensitaet und RMSD Werte von ausgesuchten traces
 
 %{
-% input:    data        Daten des Experiments
-%           vector      Ausgewaehlten traces angibt, mit [movie spot; movie spot; ...]
-            fit_cutoff  Maximaler frame bei der Positionsbestimmung am Cluster
-            chm         Index des "mobilen Kanals" (Standard ist 1 bzw. Rot)
+% input:    data            Daten des Experiments
+%           vector          Ausgewaehlten traces angibt, mit [movie spot; movie spot; ...]
+                            'all' gibt alle Spots des Datensatzes aus
+            fit_cutoff      Maximaler frame bei der Positionsbestimmung am Cluster
+            midpoint_range  Spannweite der Intervallmittelpunkte
+                            Default:    Intervallmittelpunkte werden auf alle
+                                        Punkte des Datensatzes angepasst
+            chm             Index des "mobilen Kanals" (Standard ist 1 bzw. Rot)
 
 % output:   struct mit folgenden Unterpunkten:
-%           .interval   enthaelt die Intensitaets- und RMSD-Werte des Intervalls
-%                       sortiert nach Intensitaet
-%           .median     enthaelt den Medianwert des jeweiligen Intervals
-%           .minmax     enthaelt zwei Eintraege, oben min und unten max des
-%                       jeweiligen Intervals
-%           .iqr        enthaelt den Interquartilsabstand des jeweiligen
-%                       Intervals, also den Abstand zweischen Q_25 und Q_75
-%           .center     enthaelt die mittleren 95 Prozent der RMSD-Werte des
-%                       jeweiligen Intervals
-%           .midpoint   enthaelt den jeweiligen
-%                       Intensitaetintervallmittelpunkte
+%           .interval       enthaelt die Intensitaets- und RMSD-Werte des Intervalls
+%                           sortiert nach Intensitaet
+%           .median         enthaelt den Medianwert des jeweiligen Intervals
+%           .minmax         enthaelt zwei Eintraege, oben min und unten max des
+%                           jeweiligen Intervals
+%           .iqr            enthaelt den Interquartilsabstand des jeweiligen
+%                           Intervals, also den Abstand zweischen Q_25 und Q_75
+%           .center         enthaelt die mittleren 95 Prozent der RMSD-Werte des
+%                           jeweiligen Intervals
+%           .midpoint       enthaelt den jeweiligen
+%                           Intensitaetintervallmittelpunkte
 %}
 
 p = inputParser;
 addRequired(p, 'data')
 addRequired(p, 'vector')
 addOptional(p, 'fit_cutoff', [])
+addOptional(p, 'midpoint_range', [])
 addParameter(p, 'chm', 1)
 
 parse(p, data, vector, varargin{:})
 data = p.Results.data;
 vector = p.Results.vector;
 fit_cutoff = p.Results.fit_cutoff;
+midpoint_range = p.Results.midpoint_range;
 chm = p.Results.chm;
+
+%% vector
+if vector=='all'
+    vector = zeros(size(vertcat(data{:})));
+    counter = 1;
+    for m = 1:size(data,1) 
+        for i = 1:size(data{m},1)
+            vector(counter,:) = [m i];
+            counter = counter+1;
+        end
+    end
+end
 
 %% parameters
 indices = cell(size(data)); % data aus data_spot_pairs
@@ -68,13 +86,36 @@ end
 intervals_comb = intervals_comb(prod(intervals_comb,2)>0,:); % alle Null-Eintraege werden wieder entfernt (keine Ahnung woher diese kommen)
 
 %% intervals
-midpoints = 5100:200:13900; % 45 Mittelpunkte entsprechen 45 Intervallen
+
+if isempty(midpoint_range) % default
+    range_min = round((min(intervals_comb(:,1))-100)/200)*200+100;
+    range_max = round((max(intervals_comb(:,1))+100)/200)*200+100;
+else
+    midpoint_range = sort(midpoint_range); % set range in form: [low_limit; high_limit]
+    range_min = round((midpoint_range(1)-100)/200)*200+100;
+    range_max = round((midpoint_range(2)+100)/200)*200+100;
+end  
+midpoints = range_min:200:range_max; % could lead to very high range_max for bad traces !?
+
 output_intervals = cell(1,length(midpoints));
 for i = 1:length(midpoints) % z.B.: Intervall 1 entspricht 5000 bis 5199
     output_intervals{i} = intervals_comb(intervals_comb(:,1) >= (midpoints(i)-100) & intervals_comb(:,1) <= (midpoints(i)+99),:);
 end
+go_on = 1;
+j = 0;
+k = length(midpoints)+1;
+while go_on==1
+    j = j+1;
+    go_on = length(output_intervals{j})<=10;
+end
+go_on = 1;
+while go_on==1
+    k = k-1;
+    go_on = length(output_intervals{k})<=10;
+end
+midpoints = midpoints(j:k);
 output.midpoints = midpoints;
-output.intervals = output_intervals;
+output.intervals = output_intervals(j:k);
 
 %% Median, Min und Max, Interquartils-distance
 output.median = zeros(1,length(midpoints));
