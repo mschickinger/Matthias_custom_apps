@@ -88,42 +88,25 @@ intervals_comb = intervals_comb(prod(intervals_comb,2)>0,:); % alle Null-Eintrae
 %% intervals
 
 if isempty(midpoint_range) % default
-    range_min = 10000;
-    range_max = 10;
-    for m = 1:length(indices)
-        for s = 1:length(indices{m}) % find the lowest and highest itrace of all vector entries
-            range_min = min(range_min,min(data{m}{indices{m}(s),chm}.itrace));
-            range_max = max(range_max,max(data{m}{indices{m}(s),chm}.itrace));
-        end
-    end       
-    range_min = round(range_min,-2);
-    if mod(range_min/200,1)==0 && range_min~=0
-        range_min = range_min-100;
-    elseif range_min==0
-        range_min = 100;
-    end
-    midpoints = range_min:200:range_max; % could lead to very high range_max for bad traces !?
-    %range_min
-    %range_max
+    range_min = round((min(intervals_comb(:,1))-100)/200)*200+100;
+    range_max = round((max(intervals_comb(:,1))+100)/200)*200+100;
 else
-midpoint_range = sort(midpoint_range); % set range in form: [low_limit; high_limit]
-tmp = round(midpoint_range(1),-2); % round low_limit on hundreds
-if mod(tmp/200,1)==0 % the standard midpoints have to be always on X100,X300,X500,X700 and X900
-    tmp = tmp+100;
-end
-midpoints = tmp:200:midpoint_range(2);
-if tmp < midpoint_range(1) % if the round step was downwards the first value gets deleted
-    midpoints = midpoints(2:end);
-end
+    midpoint_range = sort(midpoint_range); % set range in form: [low_limit; high_limit]
+    range_min = round((midpoint_range(1)-100)/200)*200+100;
+    range_max = round((midpoint_range(2)+100)/200)*200+100;
 end  
+midpoints = range_min:200:range_max; % could lead to very high range_max for bad traces !?
 
-
-%midpoints = interval_limits(1):200:interval_limits(2);
-%midpoints = 5100:200:13900; % 45 Mittelpunkte entsprechen 45 Intervallen
 output_intervals = cell(1,length(midpoints));
 for i = 1:length(midpoints) % z.B.: Intervall 1 entspricht 5000 bis 5199
     output_intervals{i} = intervals_comb(intervals_comb(:,1) >= (midpoints(i)-100) & intervals_comb(:,1) <= (midpoints(i)+99),:);
 end
+go_on = 1;
+j = 1;
+while go_on==1
+    go_on = length(output_intervals{j})<=10;
+
+
 output.midpoints = midpoints;
 output.intervals = output_intervals;
 
@@ -135,6 +118,7 @@ output.center95 = zeros(2,length(midpoints));
 output.percentile99 = zeros(1,length(midpoints));
 output.percentile1 = zeros(1,length(midpoints));
 for i = 1:length(midpoints)
+    i
     output.median(i) = median(output_intervals{i}(:,2)); % median
     if ~isempty(output_intervals{i})
         output.minmax(:,i) = [min(output_intervals{i}(:,2));max(output_intervals{i}(:,2))]; % minimum und maximum
