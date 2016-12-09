@@ -43,6 +43,20 @@ output.I_mean = I_mean;
 output.I_median = I_median;
 output.N = N;
 
+%%
+D = zeros(length(1:N:length(itrace)),2,2);
+D_mean = zeros(length(D));
+D_median = zeros(length(D));
+for i = 1:N:length(itrace)
+   D(i,:,:) = cov(x(i:i+N),y(i:i+N));
+   D_mean = mean(itrace(i:i+N));
+   D_median = median(itrace(i:i+N));
+end
+
+output.D = D;
+output.D_mean = D_mean;
+output.D_median = D_median;
+
 
 end
 
