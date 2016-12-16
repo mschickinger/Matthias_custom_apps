@@ -44,13 +44,13 @@ output.I_median = I_median;
 output.N = N;
 
 %%
-D = zeros(length(1:N:length(itrace)),2,2);
-D_mean = zeros(length(D));
-D_median = zeros(length(D));
-for i = 1:N:length(itrace)
-   D(i,:,:) = cov(x(i:i+N),y(i:i+N));
-   D_mean = mean(itrace(i:i+N));
-   D_median = median(itrace(i:i+N));
+D = zeros(floor(length(itrace)/N),2,2);
+D_mean = zeros(length(D),1);
+D_median = zeros(length(D),1);
+for i = 1:length(D)
+   D(i,:,:) = cov(x((i-1)*N+(1:N)),y((i-1)*N+(1:N)));
+   D_mean(i) = mean(itrace((i-1)*N+(1:N)));
+   D_median(i) = median(itrace((i-1)*N+(1:N)));
 end
 
 output.D = D;
