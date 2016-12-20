@@ -4,7 +4,7 @@ function [ output ] = medfilt1_trunc_2d( input, order )
 %   Truncates windows for median at start and end of the trace
 sizeIn = size(input);
 input = reshape(input,[length(input),2]);
-output = medfilt1(input, order);
+output = [medfilt1(input(:,1),order) , medfilt1(input(:,2),order)];
 for d = 1:2
     for i = 1:ceil((order-1)/2)
         output(i,d) = median(input(1:i+ceil((order-1)/2),d));
