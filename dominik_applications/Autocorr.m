@@ -8,7 +8,6 @@ acorrmean = cell(length(movies),2);
 acorrparted = cell(length(movies),2);
 XY = cell(length(movies),2);
 XYmean = cell(length(movies),2);
-XYparted = cell(length(movies),2);
 
 Fs = 10; % fft example from help
 T = 1/Fs;
@@ -36,6 +35,10 @@ for c = 1:2
         FFT{m,c} = zeros(frames,length(movies{m}));
         P2{m,c} = zeros(frames,length(movies{m}));
         P1{m,c} = zeros((frames/2)+1,length(movies{m}));
+        FFTparted{m,c} = zeros(interval,length(movies{m}),length(1:interval:frames));
+        P2parted{m,c} = zeros(interval,length(movies{m}),length(1:interval:frames));
+        P1parted{m,c} = zeros((interval/2)+1,length(movies{m}),length(1:interval:frames));
+        
         for i = 1:length(movies{m})
             XY{m,c}(:,i) = data{m}{movies{m}(i),chm}.vwcm.disp100(:,c);
             acorr{m,c}(:,i) = xcorr(XY{m,c}(:,i),lags,'coeff');
@@ -44,10 +47,7 @@ for c = 1:2
             P2{m,c}(:,i) = abs(FFT{m,c}(:,i)./L);
             P1{m,c}(:,i) = P2{m,c}(1:(L/2+1),i);
             P1{m,c}(2:end-1,i) = 2.*P1{m,c}(2:end-1,i);
-            
-            FFTparted{m,c} = zeros(interval,length(movies{m}),length(1:interval:frames));
-            P2parted{m,c} = zeros(interval,length(movies{m}),length(1:interval:frames));
-            P1parted{m,c} = zeros((interval/2)+1,length(movies{m}),length(1:interval:frames));
+                        
             j = 1;
             for p = 1:interval:frames
                 acorrparted{m,c}(:,i,j) = xcorr(XY{m,c}(p:p+interval-1,i),lags,'coeff');
@@ -61,7 +61,7 @@ for c = 1:2
         XYmean{m,c} = mean(XY{m,c},2);
         acorrmean{m,c} = xcorr(XYmean{m,c},lags,'coeff');
         
-        FFTmean{m,c} = fft(XY{m,c});
+        FFTmean{m,c} = fft(XYmean{m,c});
         P2mean{m,c} = abs(FFTmean{m,c}./L);
         P1mean{m,c} = P2mean{m,c}(1:(L/2+1));
         P1mean{m,c}(2:end-1) = 2.*P1mean{m,c}(2:end-1);
