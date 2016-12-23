@@ -7,7 +7,7 @@ acorr = cell(length(movie),2); % always first column x and second column y
 acorrmean = cell(length(movie),2);
 XY = cell(length(movie),2);
 
-Fs = 1000; % fft example from help
+Fs = 10; % fft example from help
 T = 1/Fs;
 L = frames;
 t = (0:L-1)*T;
@@ -37,16 +37,16 @@ end
 figure
 for m = 1:length(movie)
     subplot(2,2,1)
-    plot(acorrmean{m,1},'k-')
+    plot(-lags:lags,acorrmean{m,1},'k-')
     ylim([-1.1 1.1])
-    xlim([0 2*lags])
+    %xlim([0 2*lags])
     title('x','FontSize',15)
     str = ['chm = ',int2str(chm),'; lags = ',int2str(lags),'; number of spots = ',int2str(length(movie{m}))];
     xlabel(str,'FontSize',15)
     subplot(2,2,3)
-    plot(acorrmean{m,2},'k-')
+    plot(-lags:lags,acorrmean{m,2},'k-')
     ylim([-1.1 1.1])
-    xlim([0 2*lags])
+    %xlim([0 2*lags])
     title('y','FontSize',15)
     
     subplot(2,2,2)
