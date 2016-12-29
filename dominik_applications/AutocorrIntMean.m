@@ -1,6 +1,6 @@
-function [ autocorr ] = AutocorrIntervals( data, indices, chm, varargin )
-% AutocorrIntervals:
-
+function [ autocorr ] = AutocorrIntMean( data, indices, chm, varargin )
+% AutocorrIntMean: 
+ 
 p = inputParser;
 addRequired(p, 'data')
 addRequired(p, 'indices')
@@ -20,21 +20,20 @@ autocorr = cell(length(indices),1); % number of movies
     for m = 1:length(indices)
         tmp_x = zeros(frames,length(indices{m}));
         tmp_y = zeros(size(tmp_x));
-        autocorr{m} = cell(length(indices{m}),1);
+        
+        autocorr{m}.sum_spots = length(indices{m});
+        autocorr{m}.intervals = cell(length(1:interval:frames),1);
         for s = 1:length(indices{m})
             tmp_x(:,s) = data{m}{indices{m}(s),chm}.vwcm.disp100(:,1); % 1 = x
             tmp_y(:,s) = data{m}{indices{m}(s),chm}.vwcm.disp100(:,2); % 2 = y
-            
-            autocorr{m}{s}.spot_numb = indices{m}(s);
-            autocorr{m}{s}.intervals = cell(length(1:interval:frames),1);
-            
+ 
             j = 1;
             for p = 1:interval:frames
-                autocorr{m}{s}.intervals{j}.frames = [p min(p+interval-1,frames)];
-                autocorr{m}{s}.intervals{j}.acorr_x = xcorr(tmp_x(p:min(p+interval-1,frames),s),lags,'coeff');
-                autocorr{m}{s}.intervals{j}.spectrum_x = singlesidedspectrum(tmp_x(p:min(p+interval-1,frames),s));
-                autocorr{m}{s}.intervals{j}.acorr_y = xcorr(tmp_y(p:min(p+interval-1,frames),s),lags,'coeff');
-                autocorr{m}{s}.intervals{j}.spectrum_y = singlesidedspectrum(tmp_y(p:min(p+interval-1,frames),s));
+                autocorr{m}.intervals{j}.frames = [p min(p+interval-1,frames)];
+                autocorr{m}.intervals{j}.acorr_x = xcorr(tmp_x(p:min(p+interval-1,frames),s),lags,'coeff');
+                autocorr{m}.intervals{j}.spectrum_x = singlesidedspectrum(tmp_x(p:min(p+interval-1,frames),s));
+                autocorr{m}.intervals{j}.acorr_y = xcorr(tmp_y(p:min(p+interval-1,frames),s),lags,'coeff');
+                autocorr{m}.intervals{j}.spectrum_y = singlesidedspectrum(tmp_y(p:min(p+interval-1,frames),s));
                 j = j+1;
             end
         end
@@ -46,4 +45,3 @@ autocorr = cell(length(indices),1); % number of movies
         P1(2:end-1) = 2.*P1(2:end-1);        
     end
 end
-    

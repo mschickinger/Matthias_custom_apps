@@ -1,6 +1,6 @@
 function [ autocorr ] = AutocorrData( data, indices, chm, varargin )
-% AutocorrData
-%  
+% AutocorrData:
+
 p = inputParser;
 addRequired(p, 'data')
 addRequired(p, 'indices')

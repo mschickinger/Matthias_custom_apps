@@ -1,6 +1,6 @@
 function [ traces ] = AutocorrPlotSingleSpot( AutocorrData, varargin )
-% AutocorrData
-%  
+% AutocorrPlotSingleSpot: to plot a traces compared to the mean 
+
 p = inputParser;
 addRequired(p, 'AutocorrData')
 addOptional(p, 'Fs', 10, @isscalar)

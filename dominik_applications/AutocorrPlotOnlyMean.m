@@ -1,6 +1,6 @@
 function [ traces ] = AutocorrPlotOnlyMean( AutocorrData, varargin )
-% AutocorrData
-%  
+% AutocorrPlotOnlyMean: plot only the mean 
+ 
 p = inputParser;
 addRequired(p, 'AutocorrData')
 addOptional(p, 'Fs', 10, @isscalar)
