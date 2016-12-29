@@ -40,7 +40,7 @@ midpoint_range = p.Results.midpoint_range;
 chm = p.Results.chm;
 
 %% vector
-if vector=='all'
+if strcmp(vector,'all') 
     vector = zeros(size(vertcat(data{:})));
     counter = 1;
     for m = 1:size(data,1) 
