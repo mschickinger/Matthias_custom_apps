@@ -19,17 +19,17 @@ autocorr = cell(length(indices),1); % number of movies
         tmp_x = zeros(frames,length(indices{m}));
         tmp_y = zeros(size(tmp_x));
         autocorr{m}.spots = cell(length(indices{m}),1);
-        for i = 1:length(indices{m})
-            tmp_x(:,i) = data{m}{indices{m}(i),chm}.vwcm.disp100(:,1); % 1 = x
-            tmp_y(:,i) = data{m}{indices{m}(i),chm}.vwcm.disp100(:,2); % 2 = y
+        for s = 1:length(indices{m})
+            tmp_x(:,s) = data{m}{indices{m}(s),chm}.vwcm.disp100(:,1); % 1 = x
+            tmp_y(:,s) = data{m}{indices{m}(s),chm}.vwcm.disp100(:,2); % 2 = y
 
-            autocorr{m}.spots{i}.spot_numb = indices{m}(i);
-            autocorr{m}.spots{i}.pos_x = tmp_x(:,i);
-            autocorr{m}.spots{i}.acorr_x = xcorr(tmp_x(:,i),lags,'coeff');
-            autocorr{m}.spots{i}.spectrum_x = singlesidedspectrum(tmp_x(:,i));
-            autocorr{m}.spots{i}.pos_y = tmp_y(:,i);
-            autocorr{m}.spots{i}.acorr_y = xcorr(tmp_y(:,i),lags,'coeff');
-            autocorr{m}.spots{i}.spectrum_y = singlesidedspectrum(tmp_y(:,i));
+            autocorr{m}.spots{s}.spot_numb = indices{m}(s);
+            autocorr{m}.spots{s}.pos_x = tmp_x(:,s);
+            autocorr{m}.spots{s}.acorr_x = xcorr(tmp_x(:,s),lags,'coeff');
+            autocorr{m}.spots{s}.spectrum_x = singlesidedspectrum(tmp_x(:,s));
+            autocorr{m}.spots{s}.pos_y = tmp_y(:,s);
+            autocorr{m}.spots{s}.acorr_y = xcorr(tmp_y(:,s),lags,'coeff');
+            autocorr{m}.spots{s}.spectrum_y = singlesidedspectrum(tmp_y(:,s));
         end
         autocorr{m}.pos_mean_x = mean(tmp_x,2);
         autocorr{m}.acorr_mean_x = xcorr(autocorr{m}.pos_mean_x,lags,'coeff');
