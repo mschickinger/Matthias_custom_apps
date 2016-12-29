@@ -24,8 +24,10 @@ autocorr = cell(length(indices),1); % number of movies
             tmp_y(:,i) = data{m}{indices{m}(i),chm}.vwcm.disp100(:,2); % 2 = y
 
             autocorr{m}.spots{i}.spot_numb = indices{m}(i);
+            autocorr{m}.spots{i}.pos_x = tmp_x(:,i);
             autocorr{m}.spots{i}.acorr_x = xcorr(tmp_x(:,i),lags,'coeff');
             autocorr{m}.spots{i}.spectrum_x = singlesidedspectrum(tmp_x(:,i));
+            autocorr{m}.spots{i}.pos_y = tmp_y(:,i);
             autocorr{m}.spots{i}.acorr_y = xcorr(tmp_y(:,i),lags,'coeff');
             autocorr{m}.spots{i}.spectrum_y = singlesidedspectrum(tmp_y(:,i));
         end

@@ -45,13 +45,13 @@ traces = figure('units','normalized','outerposition',[0 0 1 1]);
         title('single-sided amplitude spectrum of x','FontSize',15)
         xlabel('f [Hz]','FontSize',15)
         limity = max(max(AutocorrData{m}.spectrum_mean_x),max(AutocorrData{m}.spectrum_mean_y(:)));
-        ylim([0 limity])
+        ylim([0 limity*1.05])
 
         subplot(3,2,6)
         plot(f,AutocorrData{m}.spectrum_mean_y)
         title('single-sided amplitude spectrum of y','FontSize',15)
         xlabel('f [Hz]','FontSize',15)
-        ylim([0 limity])
+        ylim([0 limity*1.05])
 
         pause
     end
