@@ -21,45 +21,50 @@ ylim([0 10])
 set(gca,'Xdir','reverse')
 set(gcf,'Units','normalized','Position',[0,0,1,0.9])
 
-%% reduction
-midpoints = testAll.midpoints;
+%% reduction, upper limit:
+vector_red = vector_qs;
+testAll_red = testAll_qs;
+%midpoints = testAll.midpoints;
+midpoints = testAll_red.midpoints;
 delta = 0.5*(midpoints(2)-midpoints(1));
-vector_red = vectorAll;
+
 % FACTORS
-max_factor = 1; 
-% obere Grenze:
-maximum1 = max_factor*testAll.percentile99; 
-maximum2 = max_factor*testAll.percentile99;%testAll.center95(1,:);
-loop_vector = vectorAll;
+max_factor = 1.5; 
+%maximum1 = max_factor*testAll.center98(1,:);
+%maximum1 = max_factor*testAll_red.center98(1,:);
+maximum1 = 4.0*ones(size(midpoints));
+loop_vector = vector_red;
 for m = 1:length(loop_vector)
     itrace = data{loop_vector(m,1)}{loop_vector(m,2),1}.itrace;
     rms = data{loop_vector(m,1)}{loop_vector(m,2),1}.vwcm.rms10;
-    i = 1;
+    i = find(midpoints == 5300);
     go_on = 1; 
-    % two different criterions: 1 to 25 more stringent, 26 to 45 normal
-    while i < length(midpoints)-20 && go_on % criterion 1: intervals 1:25
+    while i < find(midpoints == 14100) && go_on % criterion 1: intervals 1:25
         if any(itrace >= (midpoints(i)-delta) & itrace < (midpoints(i)+delta) & rms > maximum1(i))   
             vector_red(vector_red(:,1)==loop_vector(m,1) & vector_red(:,2)==loop_vector(m,2),:) = [];
             go_on = 0;
         end
         i=i+1;
     end
-    while i < length(midpoints) && go_on % criterion 2: intervals 26:45
-        if any(itrace >= (midpoints(i)-delta) & itrace < (midpoints(i)+delta) & rms > maximum2(i))   
-            vector_red(vector_red(:,1)==loop_vector(m,1) & vector_red(:,2)==loop_vector(m,2),:) = [];
-            go_on = 0;
-        end
-        i=i+1;
-    end
+%     while i < length(midpoints) && go_on % criterion 2: intervals 26:45
+%         if any(itrace >= (midpoints(i)-delta) & itrace < (midpoints(i)+delta) & rms > maximum2(i))   
+%             vector_red(vector_red(:,1)==loop_vector(m,1) & vector_red(:,2)==loop_vector(m,2),:) = [];
+%             go_on = 0;
+%         end
+%         i=i+1;
+%     end
 end
-% unter Grenze:
+
+%% lower limit
+midpoints = testAll_red.midpoints;
+delta = 0.5*(midpoints(2)-midpoints(1));
 min_factor = 1;
-minimum = min_factor*testAll.percentile1;
+minimum = 0.5*ones(size(midpoints));%min_factor*testAll_red.center98(2,:);
 loop_vector = vector_red;
 for m = 1:length(loop_vector)
     itrace = data{loop_vector(m,1)}{loop_vector(m,2),1}.itrace;
     rms = data{loop_vector(m,1)}{loop_vector(m,2),1}.vwcm.rms10;
-    i = 1; % criterion 1: starts at interval 35
+    i = find(midpoints==5500); % INPUT!
     go_on = 1;
     while i < length(midpoints) && go_on
         if any(itrace >= (midpoints(i)-delta) & itrace < (midpoints(i)+delta) & rms < minimum(i))   
