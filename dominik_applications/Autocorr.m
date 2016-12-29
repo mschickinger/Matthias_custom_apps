@@ -1,4 +1,4 @@
-data = data_E4zero;
+data = data;%data_E4zero;
 movies = traces_E4zero;
 chm = 2; % 1 = red; 2 = green;
 lags = 200;
@@ -9,10 +9,10 @@ acorrparted = cell(length(movies),2);
 XY = cell(length(movies),2);
 XYmean = cell(length(movies),2);
 
-Fs = 10; % fft example from help
+Fs = 10;
 T = 1/Fs;
 L = frames;
-t = (0:L-1).*T;
+t = (0:L-1).*T;  
 f = Fs.*(0:(L/2))/L;
 FFT = cell(length(movies),2);
 P1 = cell(length(movies),2);
