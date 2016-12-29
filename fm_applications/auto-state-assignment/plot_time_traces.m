@@ -10,7 +10,7 @@ function [ traces, primary_ax ] = plot_time_traces(spot_pair_data, varargin)
     %   INPUT
     %   spot_pair_data: data from both channels of one spot pair (1x2 cell)
     %   YLIM: 1x2 vector, y-axis limits for r/rms10-trace (default: [0 2])
-    %   cl: true/false, determines if all open figures are closes at start
+    %   cl: true/false, determines if all open figures are closed at start
     
     %   OUTPUT
     %   traces: figure handle
