@@ -21,13 +21,13 @@ t = (0:frames-1).*(1/Fs);
 data = cell(length(frequency),1);
 fac = cell(length(frequency),1);
 for m = 1:length(frequency)
-    data{m} = cell(size(frequency,2),2); % 1 = red, 2 = green
+    data{m} = cell(size(frequency,2)+1,2); % 1 = red, 2 = green
     data{m}{1,1}.itrace = zeros(frames,1); % AutocorrData.m use the length of this struct to get number of frames
     fac{m} = perms(factor(m,:));
     for s = 1:size(frequency,2)
         S = zeros(frames,1);
         for p = 1:size(frequency,2)
-            S = S + fac{m}(s,p).*sin(2*pi*t*frequency(m,s))';
+            S = S + fac{m}(s,p).*sin(2*pi*t*frequency(m,p))';
         end
         if noise==1
             X = S + 2.*randn(frames,1);
@@ -40,4 +40,9 @@ for m = 1:length(frequency)
         end
     end
 end
+data{1}{end,2}.vwcm.disp100 = [data{1}{1,2}.vwcm.disp100(1:13500,:);data{1}{2,2}.vwcm.disp100(13501:27000,:)];
+data{2}{end,2}.vwcm.disp100 = [data{2}{1,2}.vwcm.disp100(1:9000,:);data{2}{2,2}.vwcm.disp100(9001:18000,:);data{2}{3,2}.vwcm.disp100(18001:27000,:)];
+data{3}{end,2}.vwcm.disp100 = [data{3}{1,2}.vwcm.disp100(1:6000,:);data{3}{2,2}.vwcm.disp100(6001:12000,:);data{3}{3,2}.vwcm.disp100(12001:18000,:);data{3}{2,2}.vwcm.disp100(18001:24000);data{3}{1,2}.vwcm.disp100(24001:27000)];
+end
+
 
