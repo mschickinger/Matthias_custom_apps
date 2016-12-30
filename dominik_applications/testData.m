@@ -5,7 +5,7 @@ function [ data, X ] = testData( varargin )
 
 p = inputParser;
 addOptional(p, 'frequency', [5 3 0;4 3 2;2 2 1;1 0 0]);
-addOptional(p, 'factor', [1.0 0.3 0.2;0.4 0.4 0.5;0.1 0.2 0.0;1.0 0.0 0.0]);
+addOptional(p, 'factor', [1.0 0.3 0.2;0.4 0.4 0.5;0.1 0.2 0.0;1.0 0.4 0.2]);
 addOptional(p, 'frames', 27000, @isscalar);
 addOptional(p, 'noise', false, @islogical);
 addOptional(p, 'Fs', 10, @isscalar)
@@ -34,7 +34,7 @@ for m = 1:length(frequency)
             data{m}{s,2}.vwcm.disp100(:,1) = X;
             data{m}{s,2}.vwcm.disp100(:,2) = flipud(X); % no symmetrie
         else
-            X = S;
+            X = S; 
             data{m}{s,2}.vwcm.disp100(:,1) = S;
             data{m}{s,2}.vwcm.disp100(:,2) = flipud(S); % no symmetrie
         end

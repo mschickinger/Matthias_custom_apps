@@ -43,13 +43,13 @@ traces = figure('units','normalized','outerposition',[0 0 1 1]);
 
             limity = max(max(AutocorrData{m}.spots{s}.spectrum_x),max(AutocorrData{m}.spectrum_mean_x));
             subplot(3,4,7)
-            plot(f,AutocorrData{m}.spots{s}.spectrum_x)
+            plot(f(1:length(AutocorrData{m}.spots{s}.spectrum_x)),AutocorrData{m}.spots{s}.spectrum_x)
             ylim([0 limity*1.05])
             xlabel('f [Hz]','FontSize',15)
             title('of x','FontSize',15)
 
             subplot(3,4,8)
-            plot(f,AutocorrData{m}.spectrum_mean_x)
+            plot(f(1:length(AutocorrData{m}.spectrum_mean_x)),AutocorrData{m}.spectrum_mean_x)
             ylim([0 limity*1.05])
             xlabel('f [Hz]','FontSize',15)
             title('of mean x','FontSize',15)
@@ -66,13 +66,13 @@ traces = figure('units','normalized','outerposition',[0 0 1 1]);
 
             limityy = max(max(AutocorrData{m}.spots{s}.spectrum_y),max(AutocorrData{m}.spectrum_mean_y));
             subplot(3,4,11)
-            plot(f,AutocorrData{m}.spots{s}.spectrum_y)
+            plot(f(1:length(AutocorrData{m}.spots{s}.spectrum_y)),AutocorrData{m}.spots{s}.spectrum_y)
             ylim([0 limityy*1.05])
             xlabel('f [Hz]','FontSize',15)
             title('of y','FontSize',15)
 
             subplot(3,4,12)
-            plot(f,AutocorrData{m}.spectrum_mean_y)
+            plot(f(1:length(AutocorrData{m}.spectrum_mean_x)),AutocorrData{m}.spectrum_mean_y)
             ylim([0 limityy*1.05])
             xlabel('f [Hz]','FontSize',15)
             title('of mean y','FontSize',15)

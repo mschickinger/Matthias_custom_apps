@@ -26,8 +26,8 @@ for m = 1:length(AutocorrData)
         plot((AutocorrData{m}.pos_mean_x+1))
         hold on
         plot((AutocorrData{m}.pos_mean_y-1),'k-')
-        plot(p:min(p+interval-1,frames),(AutocorrData{m}.pos_mean_x(p:min(p+interval-1,frames))+1),'r-')
-        plot(p:min(p+interval-1,frames),(AutocorrData{m}.pos_mean_y(p:min(p+interval-1,frames))-1),'r-')
+        plot(p:min(min(p+interval-1,frames),length(AutocorrData{m}.pos_mean_x)),(AutocorrData{m}.pos_mean_x(p:min(min(p+interval-1,frames),length(AutocorrData{m}.pos_mean_x)))+1),'r-')
+        plot(p:min(min(p+interval-1,frames),length(AutocorrData{m}.pos_mean_y)),(AutocorrData{m}.pos_mean_y(p:min(min(p+interval-1,frames),length(AutocorrData{m}.pos_mean_y)))-1),'r-')
         hold off
         legend('mean x coordinate +1','mean y coordinate -1','interval')
         xlim([0 frames]);
@@ -51,13 +51,13 @@ for m = 1:length(AutocorrData)
 
         limity = max(max(AutocorrIntMean{m}.intervals{j}.spectrum_x),max(AutocorrData{m}.spectrum_mean_x));
         subplot(3,4,7)
-        plot(fp,AutocorrIntMean{m}.intervals{j}.spectrum_x)
+        plot(fp(1:length(AutocorrIntMean{m}.intervals{j}.spectrum_x)),AutocorrIntMean{m}.intervals{j}.spectrum_x)
         ylim([0 limity*1.05])
         xlabel('f [Hz]','FontSize',15)
         title('of interval of mean x','FontSize',15)
 
         subplot(3,4,8)
-        plot(f,AutocorrData{m}.spectrum_mean_x)
+        plot(f(1:length(AutocorrData{m}.spectrum_mean_x)),AutocorrData{m}.spectrum_mean_x)
         ylim([0 limity*1.05])
         xlabel('f [Hz]','FontSize',15)
         title('of mean x','FontSize',15)
@@ -74,13 +74,13 @@ for m = 1:length(AutocorrData)
 
         limityy = max(max(AutocorrIntMean{m}.intervals{j}.spectrum_y),max(AutocorrData{m}.spectrum_mean_y));
         subplot(3,4,11)
-        plot(fp,AutocorrIntMean{m}.intervals{j}.spectrum_y)
+        plot(fp(1:length(AutocorrIntMean{m}.intervals{j}.spectrum_y)),AutocorrIntMean{m}.intervals{j}.spectrum_y)
         ylim([0 limityy*1.05])
         xlabel('f [Hz]','FontSize',15)
         title('of interval of mean y','FontSize',15)
 
         subplot(3,4,12)
-        plot(f,AutocorrData{m}.spectrum_mean_y)
+        plot(f(1:length(AutocorrData{m}.spectrum_mean_y)),AutocorrData{m}.spectrum_mean_y)
         ylim([0 limityy*1.05])
         xlabel('f [Hz]','FontSize',15)
         title('of mean y','FontSize',15)

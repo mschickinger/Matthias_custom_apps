@@ -19,7 +19,7 @@ interval = AutocorrIntervals{1}{1}.intervals{1}.frames(2); % interval length
 fp = Fs.*(0:(interval/2))/interval;
 
 traces = figure('units','normalized','outerposition',[0 0 1 1]);
-    for m = 1:length(AutocorrData)  
+    for m = 1:length(AutocorrData)
         for s = 1:length(AutocorrData{m}.spots)
             j = 1;
             for p = 1:interval:frames
@@ -52,13 +52,13 @@ traces = figure('units','normalized','outerposition',[0 0 1 1]);
 
                 limity = max(max(AutocorrIntervals{m}{s}.intervals{j}.spectrum_x),max(AutocorrData{m}.spots{s}.spectrum_x));
                 subplot(3,4,7)
-                plot(fp,AutocorrIntervals{m}{s}.intervals{j}.spectrum_x)
+                plot(fp(1:length(AutocorrIntervals{m}{s}.intervals{j}.spectrum_x)),AutocorrIntervals{m}{s}.intervals{j}.spectrum_x)
                 ylim([0 limity*1.05])
                 xlabel('f [Hz]','FontSize',15)
                 title('of interval of x','FontSize',15)
 
                 subplot(3,4,8)
-                plot(f,AutocorrData{m}.spots{s}.spectrum_x)
+                plot(f(1:length(AutocorrData{m}.spots{s}.spectrum_x)),AutocorrData{m}.spots{s}.spectrum_x)
                 ylim([0 limity*1.05])
                 xlabel('f [Hz]','FontSize',15)
                 title('of total spot x','FontSize',15)
@@ -75,13 +75,13 @@ traces = figure('units','normalized','outerposition',[0 0 1 1]);
 
                 limityy = max(max(AutocorrIntervals{m}{s}.intervals{j}.spectrum_y),max(AutocorrData{m}.spots{s}.spectrum_y));
                 subplot(3,4,11)
-                plot(fp,AutocorrIntervals{m}{s}.intervals{j}.spectrum_y)
+                plot(fp(1:length(AutocorrIntervals{m}{s}.intervals{j}.spectrum_y)),AutocorrIntervals{m}{s}.intervals{j}.spectrum_y)
                 ylim([0 limityy*1.05])
                 xlabel('f [Hz]','FontSize',15)
                 title('of interval of y','FontSize',15)
 
                 subplot(3,4,12)
-                plot(f,AutocorrData{m}.spots{s}.spectrum_y)
+                plot(f(1:length(AutocorrData{m}.spots{s}.spectrum_y)),AutocorrData{m}.spots{s}.spectrum_y)
                 ylim([0 limityy*1.05])
                 xlabel('f [Hz]','FontSize',15)
                 title('of total spot y','FontSize',15)

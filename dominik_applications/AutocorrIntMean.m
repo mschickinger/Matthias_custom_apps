@@ -24,8 +24,8 @@ autocorr = cell(length(indices),1); % number of movies
         autocorr{m}.sum_spots = length(indices{m});
         autocorr{m}.intervals = cell(length(1:interval:frames),1);
         for s = 1:length(indices{m})
-            tmp_x(:,s) = data{m}{indices{m}(s),chm}.vwcm.disp100(:,1); % 1 = x
-            tmp_y(:,s) = data{m}{indices{m}(s),chm}.vwcm.disp100(:,2); % 2 = y
+            tmp_x(:,s) = data{m}{indices{m}(s),chm}.vwcm.disp100(1:frames,1); % 1 = x
+            tmp_y(:,s) = data{m}{indices{m}(s),chm}.vwcm.disp100(1:frames,2); % 2 = y
  
             j = 1;
             for p = 1:interval:frames
