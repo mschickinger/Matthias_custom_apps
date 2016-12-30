@@ -14,10 +14,10 @@ indices = p.Results.indices; % form of cell for movies including vector of spot 
 chm = p.Results.chm;
 lags = p.Results.lags;
 interval = p.Results.interval;
-frames = length(data{1}{1,1}.itrace); % should be 27000
 
 autocorr = cell(length(indices),1); % number of movies
     for m = 1:length(indices)
+        frames = 2*floor(length(data{m}{1,1}.itrace)/2); % should be 27000
         tmp_x = zeros(frames,length(indices{m}));
         tmp_y = zeros(size(tmp_x));
         

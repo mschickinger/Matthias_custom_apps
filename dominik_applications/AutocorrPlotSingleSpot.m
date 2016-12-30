@@ -10,12 +10,12 @@ parse(p, AutocorrData, varargin{:})
 AutocorrData = p.Results.AutocorrData;
 Fs = p.Results.Fs;
 chm = p.Results.chm;
-frames = length(AutocorrData{1}.pos_mean_x); % should be 27000
-f = Fs.*(0:(frames/2))/frames;
 lags = (length(AutocorrData{1}.acorr_mean_x)-1)/2;
 
 traces = figure('units','normalized','outerposition',[0 0 1 1]);
-    for m = 1:length(AutocorrData)  
+    for m = 1:length(AutocorrData)
+        frames = length(AutocorrData{m}.pos_mean_x);
+        f = Fs.*(0:(frames/2))/frames;
         for s = 1:length(AutocorrData{m}.spots)
             subplot(3,4,1:4)
             plot((AutocorrData{m}.spots{s}.pos_x+1))
