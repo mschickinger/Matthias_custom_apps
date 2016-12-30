@@ -17,13 +17,14 @@ for i = 1:size(testAll.intervals,2)
     plot(testAll.intervals{i}(:,1),testAll.intervals{i}(:,2),'.','MarkerSize',8)
     hold on
 end
-ylim([0 10])
+%ylim([0 10])
 set(gca,'Xdir','reverse')
 set(gcf,'Units','normalized','Position',[0,0,1,0.9])
-
+plot(testAll.midpoints,testAll.center98,'k--')
 %% reduction, upper limit:
-vector_red = vector_qs;
-testAll_red = testAll_qs;
+%vector_red = vector_qs;
+%vector_red = vectorAll;
+%testAll_red = testAll_qs;
 %midpoints = testAll.midpoints;
 midpoints = testAll_red.midpoints;
 delta = 0.5*(midpoints(2)-midpoints(1));
@@ -32,12 +33,12 @@ delta = 0.5*(midpoints(2)-midpoints(1));
 max_factor = 1.5; 
 %maximum1 = max_factor*testAll.center98(1,:);
 %maximum1 = max_factor*testAll_red.center98(1,:);
-maximum1 = 4.0*ones(size(midpoints));
+maximum1 = 3.0*ones(size(midpoints));
 loop_vector = vector_red;
 for m = 1:length(loop_vector)
     itrace = data{loop_vector(m,1)}{loop_vector(m,2),1}.itrace;
     rms = data{loop_vector(m,1)}{loop_vector(m,2),1}.vwcm.rms10;
-    i = find(midpoints == 5300);
+    i = find(midpoints == 6500); % INPUT!!
     go_on = 1; 
     while i < find(midpoints == 14100) && go_on % criterion 1: intervals 1:25
         if any(itrace >= (midpoints(i)-delta) & itrace < (midpoints(i)+delta) & rms > maximum1(i))   
@@ -82,6 +83,7 @@ for i = 1:size(testAll_red.intervals,2)
     plot(testAll_red.intervals{i}(:,1),testAll_red.intervals{i}(:,2),'.','MarkerSize',8)
     hold on
 end
-ylim([0 5])
+%ylim([0 5])
 set(gca,'Xdir','reverse')
 set(gcf,'Units','normalized','Position',[0,0,1,0.9])
+plot(testAll_red.midpoints,testAll_red.center98,'k--')
