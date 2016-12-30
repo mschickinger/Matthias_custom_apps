@@ -4,7 +4,7 @@ function [ traces ] = AutocorrPlotIntervals( AutocorrData, AutocorrIntervals, va
 p = inputParser;
 addRequired(p, 'AutocorrData')
 addRequired(p, 'AutocorrIntervals')
-addOptional(p, 'Fs', 27000, @isscalar)
+addOptional(p, 'Fs', 10, @isscalar)
 addOptional(p, 'chm', 2, @isscalar)
 
 parse(p, AutocorrData, AutocorrIntervals, varargin{:})

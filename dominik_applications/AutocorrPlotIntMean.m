@@ -4,7 +4,7 @@ function [ traces ] = AutocorrPlotIntMean( AutocorrData, AutocorrIntMean, vararg
 p = inputParser;
 addRequired(p, 'AutocorrData')
 addRequired(p, 'AutocorrIntMean')
-addOptional(p, 'Fs', 27000, @isscalar)
+addOptional(p, 'Fs', 10, @isscalar)
 addOptional(p, 'chm', 2, @isscalar)
 
 parse(p, AutocorrData, AutocorrIntMean, varargin{:})

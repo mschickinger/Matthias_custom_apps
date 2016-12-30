@@ -3,7 +3,7 @@ function [ traces ] = AutocorrPlotOnlyMean( AutocorrData, varargin )
  
 p = inputParser;
 addRequired(p, 'AutocorrData')
-addOptional(p, 'Fs', 27000, @isscalar)
+addOptional(p, 'Fs', 10, @isscalar)
 addOptional(p, 'chm', 2, @isscalar)
 
 parse(p, AutocorrData, varargin{:})

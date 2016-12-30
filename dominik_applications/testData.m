@@ -1,36 +1,44 @@
-function [ data, X ] = testData( frequency, varargin )
+function [ data, X ] = testData( frequency, factor, varargin )
 % testData: 
+% frequency = (m x f)-matrix: m movies with f different frequencies
+% factor has to be same size than frequency
 
 p = inputParser;
 addRequired(p, 'frequency');
+addRequired(p, 'factor');
 addOptional(p, 'frames', 27000, @isscalar);
 addOptional(p, 'noise', false, @islogical);
+addOptional(p, 'Fs', 10, @isscalar)
 
-parse(p, frequency, varargin{:})
+parse(p, frequency, factor, varargin{:})
 frequency = p.Results.frequency;
+factor = p.Results.factor;
 frames = p.Results.frames;
 noise = p.Results.noise;
-Fs = 27000;
+Fs = p.Results.Fs;
 t = (0:frames-1).*(1/Fs);
-data = cell(1);
-data{1} = cell(1,2); % 1 = red, 2 = green
-for c = 1:2
-    data{1}{1,c}.itrace = zeros(frames,1); % AutocorrData.m use the length of this struct to get number of frames
-    data{1}{1,c}.vwcm.disp100 = zeros(frames,2); % 1 = x, 2 = y
-    S = zeros(length(t),1);
-    factor = 1;
-    for f = 1:length(frequency)
-        S = S + factor.*0.5.*sin(2*pi*t*frequency(f))';
-        factor = factor - min(0.1*f,0.9);
-    end
-    if noise==1
-        X = S + 2*randn(length(t),1);
-        data{1}{1,c}.vwcm.disp100(:,1) = X;
-        data{1}{1,c}.vwcm.disp100(:,2) = X;
-    else
-        X = S;
-        data{1}{1,c}.vwcm.disp100(:,1) = S;
-        data{1}{1,c}.vwcm.disp100(:,2) = S;
+
+data = cell(length(frequency),1);
+fac = cell(length(frequency),1);
+for m = 1:length(frequency)
+    data{m} = cell(size(frequency,2),2); % 1 = red, 2 = green
+    data{m}{1,1}.itrace = zeros(frames,1); % AutocorrData.m use the length of this struct to get number of frames
+    data{m}{1:size(frequency,2),2}.vwcm.disp100 = zeros(frames,2); 
+    fac{m} = perms(factor(m,:));
+    for s = 1:size(frequency,2)
+        S = zeros(frames,1);
+        for p = 1:size(frequency,2)
+            S = S + fac{m}(s,p).*sin(2*pi*t*frequency(m,s))';
+        end
+        if noise==1
+            X = S + 2.*randn(frames,1);
+            data{m}{s,2}.vwcm.disp100(:,1) = X;
+            data{m}{s,2}.vwcm.disp100(:,2) = flipud(X); % no symmetrie
+        else
+            X = S;
+            data{m}{s,2}.vwcm.disp100(:,1) = S;
+            data{m}{s,2}.vwcm.disp100(:,2) = flipud(S); % no symmetrie
+        end
     end
 end
 
