@@ -3,7 +3,7 @@ function [ traces ] = AutocorrPlotOnlyMean( AutocorrData, varargin )
  
 p = inputParser;
 addRequired(p, 'AutocorrData')
-addOptional(p, 'Fs', 10, @isscalar)
+addOptional(p, 'Fs', 27000, @isscalar)
 addOptional(p, 'chm', 2, @isscalar)
 
 parse(p, AutocorrData, varargin{:})
@@ -23,7 +23,7 @@ traces = figure('units','normalized','outerposition',[0 0 1 1]);
         hold off
         legend('mean x +1','mean y -1')
         xlim([0 frames]);
-        ylim([-2 2]);
+        %ylim([-2 2]);
         str1 = ['movie ',int2str(m)];
         title(str1,'FontSize',15)
         xlabel('frames','FontSize',10)

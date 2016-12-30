@@ -4,7 +4,7 @@ function [ traces ] = AutocorrPlotIntMean( AutocorrData, AutocorrIntMean, vararg
 p = inputParser;
 addRequired(p, 'AutocorrData')
 addRequired(p, 'AutocorrIntMean')
-addOptional(p, 'Fs', 10, @isscalar)
+addOptional(p, 'Fs', 27000, @isscalar)
 addOptional(p, 'chm', 2, @isscalar)
 
 parse(p, AutocorrData, AutocorrIntMean, varargin{:})
@@ -31,7 +31,7 @@ for m = 1:length(AutocorrData)
         hold off
         legend('mean x coordinate +1','mean y coordinate -1','interval')
         xlim([0 frames]);
-        ylim([-2 2]);
+        %ylim([-2 2]);
         str1 = ['movie ',int2str(m)];
         title(str1,'FontSize',15)
         str2 = ['interval ',int2str(p),':',int2str(min(p+interval-1,frames))];

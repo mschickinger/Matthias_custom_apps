@@ -4,7 +4,7 @@ function [ traces ] = AutocorrPlotIntervals( AutocorrData, AutocorrIntervals, va
 p = inputParser;
 addRequired(p, 'AutocorrData')
 addRequired(p, 'AutocorrIntervals')
-addOptional(p, 'Fs', 10, @isscalar)
+addOptional(p, 'Fs', 27000, @isscalar)
 addOptional(p, 'chm', 2, @isscalar)
 
 parse(p, AutocorrData, AutocorrIntervals, varargin{:})
@@ -32,7 +32,7 @@ traces = figure('units','normalized','outerposition',[0 0 1 1]);
                 hold off
                 legend('x coordinate +1','y coordinate -1','interval')
                 xlim([0 frames]);
-                ylim([-2 2]);
+                %ylim([-2 2]);
                 str1 = ['movie ',int2str(m),'; spot ',int2str(AutocorrData{m}.spots{s}.spot_numb)];
                 title(str1,'FontSize',15)
                 str2 = ['interval ',int2str(p),':',int2str(min(p+interval-1,frames))];
