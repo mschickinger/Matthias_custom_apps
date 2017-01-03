@@ -1,4 +1,15 @@
-function plot_twostate(X, Y, R, S)
+function plot_twostate(XY, S, w, R)
+
+XY = reshape(XY,2,length(XY));
+X = XY(1,:);
+Y = XY(2,:);
+
+if nargin < 4
+    R = sqrt(X.^2+Y.^2);
+    if nargin < 3
+        w = 2;
+    end
+end
 
 T{2} = 1:length(X);
 T{1} = T{2};
@@ -24,7 +35,7 @@ c = {'red','blue'};
 mSize = 5;
 
 % median filtered R-vector
-w = 11;
+%w = 11;
 mR = medfilt1_trunc(R,w);
 
 subplot(4,1,1)
