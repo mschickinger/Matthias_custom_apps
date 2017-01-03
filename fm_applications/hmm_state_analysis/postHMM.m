@@ -1,5 +1,14 @@
 function [hop, scatterStats, allSpotStats] = postHMM(model, spotdata)
 
+% Inputs:
+%   'model' is the output hidden markov model from mlhmm estimator,
+%   including state trajectories for every XY trajectory.
+%   
+%   'spotdata' is a struct with fields:
+%       'indices' (array  of movie and spot indices)
+%       'XYred'...
+%       'medIred'...
+
 % Create hop structure
 sample_ident = inputdlg({'Date:', 'Sample:', 'Number of movies:'}, 'Identify');
 hop.date = sample_ident{1};
