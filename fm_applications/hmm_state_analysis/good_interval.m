@@ -9,7 +9,7 @@ function interval = good_interval(XY,thr1,thr2)
 Lmin = 10000;
 
 % first round
-I = [0 find(max(XY,[],1) > thr1) size(XY,1)+1];
+I = [0 find(max(XY,[],1) > thr1) size(XY,2)+1];
 L = diff(I) - 1;
 
 I = I(L>=Lmin) + 1;
