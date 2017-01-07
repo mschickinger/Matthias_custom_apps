@@ -6,8 +6,8 @@ function [hop, scatterStats, allSpotStats] = postHMM(model, spotdata)
 %   
 %   'spotdata' is a struct with fields:
 %       'indices' (array  of movie and spot indices)
-%       'XYred'...
-%       'medIred'...
+%       'XY'...
+%       'medI'...
 
 % Create hop structure
 sample_ident = inputdlg({'Date:', 'Sample:', 'Number of movies:'}, 'Identify');
@@ -82,23 +82,23 @@ for m = 1:N_movies
         tmpHi = zeros(tmpNhi,5);
         for n = 1:tmpNhi
             tmp_frames = hop.results{m}{s}.hi(n,1)+(0:hop.results{m}{s}.hi(n,2));
-            tmp_XY = spotdata.XYred{counter}(:,tmp_frames);
+            tmp_XY = spotdata.XY{counter}(:,tmp_frames);
             tmpHi(n,1) = mean(tmp_XY(1,:));
             tmpHi(n,2) = std(tmp_XY(1,:));
             tmpHi(n,3) = mean(tmp_XY(2,:));
             tmpHi(n,4) = std(tmp_XY(2,:));
-            tmpHi(n,5) = mean(spotdata.medIred{counter}(tmp_frames));
+            tmpHi(n,5) = mean(spotdata.medI{counter}(tmp_frames));
         end
         allSpotStats.hi(counterHi+(1:tmpNhi),6:10) = tmpHi;      
         tmpLo = zeros(tmpNlo,5);
         for n = 1:tmpNlo
             tmp_frames = hop.results{m}{s}.lo(n,1)+(0:hop.results{m}{s}.lo(n,2));
-            tmp_XY = spotdata.XYred{counter}(:,tmp_frames);
+            tmp_XY = spotdata.XY{counter}(:,tmp_frames);
             tmpLo(n,1) = mean(tmp_XY(1,:));
             tmpLo(n,2) = std(tmp_XY(1,:));
             tmpLo(n,3) = mean(tmp_XY(2,:));
             tmpLo(n,4) = std(tmp_XY(2,:));
-            tmpLo(n,5) = mean(spotdata.medIred{counter}(tmp_frames));
+            tmpLo(n,5) = mean(spotdata.medI{counter}(tmp_frames));
         end
         allSpotStats.lo(counterLo+(1:tmpNlo),6:10) = tmpLo;
         

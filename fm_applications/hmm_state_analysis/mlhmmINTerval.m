@@ -1,56 +1,93 @@
-function [ mlmodel, spotdata ] = mlhmmINTerval( Selection, hiLim, loLim )
+function [ mlmodel, arxv ] = mlhmmINTerval( Selection, iLims, varargin)
 %UNTITLED2 Summary of this function goes here
-%   Detailed explanation goes here
+%   Input:
+%   'Selection' is a struct with fields 'indices','XY','medI'
 
-mlhmmOptions.verbosity = 10;
-mlhmmOptions.convergenceTolerance = 1e-4;
-mlhmmOptions.reversible = 1;
-mlhmmOptions.maximumIterations = 1000;
-mlhmmOptions.equilibrium = 1;
-mlhmmOptions.use_java = 1;
-mlhmmOptions.tau = 0.1;
+%% parse input
+p = inputParser;
+addRequired(p,'Selection');
+addRequired(p, 'iLims');
+addOptional(p, 'xyLims', [Inf Inf]);
+addParameter(p, 'options', []);
+parse(p, Selection, iLims, varargin{:})
 
-spotdata.N_in_range = 0;
-spotdata.N_all = 0;
-spotdata.range = zeros(size(Selection.indices));
-spotdata.XYred = cell(size(Selection.XYred));
-spotdata.medIred = cell(size(Selection.medIred));
-for i = 1:length(Selection.medIred)
-    tmpLo = find(Selection.medIred{i}>loLim,1,'last');
+Selection = p.Results.Selection;
+hiLim = max(p.Results.iLims);
+loLim = min(p.Results.iLims);
+Dmax = max(p.Results.xyLims);
+THR = min(p.Results.xyLims);
+if ~isempty(p.Results.options)
+    mlhmmOptions = p.Results.options;
+else
+    mlhmmOptions.verbosity = 10;
+    mlhmmOptions.convergenceTolerance = 1e-4;
+    mlhmmOptions.reversible = 1;
+    mlhmmOptions.maximumIterations = 1000;
+    mlhmmOptions.equilibrium = 1;
+    mlhmmOptions.use_java = 1;
+    mlhmmOptions.tau = 0.1;
+    mlhmmOptions.assign_states = 1;
+end
+
+%% crop to intensity intervals
+arxv.nINT = 0;
+arxv.nALL = 0;
+tmpRange = zeros(size(Selection.indices));
+tmpXY = cell(size(Selection.XY));
+for i = 1:length(Selection.medI)
+    tmpLo = find(Selection.medI{i}>loLim,1,'last');
     if ~isempty(tmpLo)
-        tmpLo = min(tmpLo, length(Selection.XYred{i}));
-        tmpHi = find(Selection.medIred{i}>hiLim,1,'last');
+        tmpLo = min(tmpLo, length(Selection.XY{i}));
+        tmpHi = find(Selection.medI{i}>hiLim,1,'last');
         if isempty(tmpHi)
             tmpHi = 0;
         end
-        spotdata.range(i,:) = [tmpHi+1 tmpLo];        
-        spotdata.XYred{i} = Selection.XYred{i}(:,tmpHi+1:tmpLo);
-        spotdata.medIred{i} = Selection.medIred{i}(tmpHi+1:tmpLo);      
+        arxv.nINT = arxv.nINT + tmpLo-tmpHi;
+        tmpRange(i,:) = [tmpHi+1 tmpLo];        
+        tmpXY{i} = Selection.XY{i}(:,tmpHi+1:tmpLo);
+        arxv.medI{i} = Selection.medI{i}(tmpHi+1:tmpLo);      
     end
-    spotdata.N_all = spotdata.N_all + nnz(Selection.medIred{i});
-end
-
-L = 100;
-aboveL = zeros(size(spotdata.medIred));
-for i = 1:length(aboveL)
-    if spotdata.range(i,2)-spotdata.range(i,1)>=L;
-        aboveL(i) = 1;
-        spotdata.N_in_range = spotdata.N_in_range + length(spotdata.XYred{i});
-    end
+    arxv.nALL = arxv.nALL + nnz(Selection.medI{i});
 end
 
 if mlhmmOptions.verbosity>2
     fprintf(['Total number of frames: %2.2e '...
     '\nNumber in range between %d and %d: %2.2e'...
-    '\nThat is %3.1f percent.\n'], ... 
-    spotdata.N_all, hiLim, loLim, spotdata.N_in_range, 100*spotdata.N_in_range/spotdata.N_all)
+    '\nThat is %3.1f percent of all frames.\n'], ... 
+    arxv.nALL, hiLim, loLim, arxv.nINT, 100*arxv.nINT/arxv.nALL)
 end
 
-spotdata.XYred = spotdata.XYred(aboveL==1);
-spotdata.medIred = spotdata.medIred(aboveL==1);
-spotdata.indices = Selection.indices(aboveL==1,:);
-spotdata.range = spotdata.range(aboveL==1,:);
+keep = find(tmpRange(:,1)>0);
+arxv.INTrange = tmpRange(keep,:);
+arxv.indicesINT = Selection.indices(keep,:);
+xyINT = tmpXY(keep);
 
-mlmodel = mlhmmXY(spotdata.XYred,2,mlhmmOptions);
+%% Pick best-suited interval of each trace for HMM evaluation:
+arxv.nHMM = 0;
+tmpRange = zeros(size(arxv.INTrange));
+tmpXY = cell(size(xyINT));
+for i = 1:length(tmpXY)
+    tmpI = best_interval(xyINT{i},Dmax,THR);
+    if ~isempty(tmpI)
+        tmpRange(i,:) = tmpI;
+        tmpXY{i} = xyINT{i}(:,tmpI(1):tmpI(2));
+        arxv.nHMM = arxv.nHMM + diff(tmpI) + 1;
+    end
+end
+
+if mlhmmOptions.verbosity>2
+    fprintf(['Number of frames used for HMM analysis: %2.2e'...
+    '\nThat is %3.1f percent of all frames' ...
+    '\nand %3.1f percent of the frames in intensity range.\n'], ... 
+    arxv.nHMM, 100*arxv.nHMM/arxv.nALL, 100*arxv.nHMM/arxv.nINT)
+end
+
+keep = find(tmpRange(:,1)>0);
+arxv.HMMrange = tmpRange(keep,:);
+arxv.indicesHMM = arxv.indicesINT(keep,:);
+arxv.xyHMM = tmpXY(keep);
+
+%% start HMM analysis
+mlmodel = mlhmmXY(arxv.xyHMM,2,mlhmmOptions);
 end
 
