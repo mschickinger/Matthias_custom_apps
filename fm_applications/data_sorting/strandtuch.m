@@ -20,11 +20,12 @@ end
 %ylim([0 10])
 set(gca,'Xdir','reverse')
 set(gcf,'Units','normalized','Position',[0,0,1,0.9])
-plot(testAll.midpoints,testAll.center98,'k--')
+%plot(testAll.midpoints,testAll.center98,'k--')
 %% reduction, upper limit:
 %vector_red = vector_qs;
-%vector_red = vectorAll;
+vector_red = vectorAll;
 %testAll_red = testAll_qs;
+testAll_red = testAll;
 %midpoints = testAll.midpoints;
 midpoints = testAll_red.midpoints;
 delta = 0.5*(midpoints(2)-midpoints(1));
@@ -86,4 +87,4 @@ end
 %ylim([0 5])
 set(gca,'Xdir','reverse')
 set(gcf,'Units','normalized','Position',[0,0,1,0.9])
-plot(testAll_red.midpoints,testAll_red.center98,'k--')
+%plot(testAll_red.midpoints,testAll_red.center98,'k--')
