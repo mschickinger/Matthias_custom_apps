@@ -1,0 +1,16 @@
+%dataE4 = dataE4;
+indices = indicesE4;
+for m = 1:length(indices)
+    mean_x = [];
+    mean_y = [];
+    for s = 1:length(indices{m})
+    mean_x(:,s) = data{m}{indices{m}(s),2}.vwcm.disp100(:,1);
+    mean_y(:,s) = data{m}{indices{m}(s),2}.vwcm.disp100(:,2);
+    end
+    mean_x = mean(mean_x,2);
+    mean_y = mean(mean_y,2);
+    
+    
+end
+
+
