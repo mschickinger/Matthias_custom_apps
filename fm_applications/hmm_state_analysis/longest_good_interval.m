@@ -1,4 +1,4 @@
-function interval = best_interval(XY,thr1,thr2)
+function interval = longest_good_interval(XY,thr1,thr2)
 %   Find the best suited interval for HMM analysis in a XY-time-tracjectory
 
 %   Input:  (1) XY: 2xN trajectory of X- and Y-coordinates
