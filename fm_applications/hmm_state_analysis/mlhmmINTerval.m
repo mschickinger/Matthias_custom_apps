@@ -1,5 +1,7 @@
 function [ mlmodel, arxv ] = mlhmmINTerval( Selection, iLims, varargin)
-%UNTITLED2 Summary of this function goes here
+%mlhmmINTerval: Maximum-likelihood Hidden Markov Model Analyis of a
+%selection of data within an intensity interval defined by iLims.
+
 %   Input:
 %   'Selection' is a struct with fields 'indices','XY','medI'
 
@@ -67,7 +69,7 @@ arxv.nHMM = 0;
 tmpRange = zeros(size(arxv.INTrange));
 tmpXY = cell(size(xyINT));
 for i = 1:length(tmpXY)
-    tmpI = best_interval(xyINT{i},Dmax,THR);
+    tmpI = longest_good_interval(xyINT{i},Dmax,THR);
     if ~isempty(tmpI)
         tmpRange(i,:) = tmpI;
         tmpXY{i} = xyINT{i}(:,tmpI(1):tmpI(2));
