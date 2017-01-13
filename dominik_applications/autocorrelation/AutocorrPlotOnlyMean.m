@@ -17,7 +17,7 @@ lags = (length(AutocorrData{1}.acorr_mean_x)-1)/2;
 traces = figure('units','normalized','outerposition',[0 0 1 1]);
     for m = 1:length(AutocorrData)
         subplot(3,2,1:2)
-        level = ceil(prctile(AutocorrData{m}.spots{s}.pos_x,99));
+        level = max(ceil(prctile(AutocorrData{m}.pos_mean_x,99)),ceil(prctile(AutocorrData{m}.pos_mean_y,99)));
         plot(AutocorrData{m}.pos_mean_x+level)
         hold on
         plot(AutocorrData{m}.pos_mean_y-level,'k-')

@@ -23,7 +23,7 @@ for m = 1:length(AutocorrData)
     j = 1;
     for p = 1:interval:frames
         subplot(3,4,1:4)
-        level = ceil(prctile(AutocorrData{m}.spots{s}.pos_x,99));
+        level = max(ceil(prctile(AutocorrData{m}.pos_mean_x,99)),ceil(prctile(AutocorrData{m}.pos_mean_y,99)));
         plot((AutocorrData{m}.pos_mean_x+level))
         hold on
         plot((AutocorrData{m}.pos_mean_y-level),'k-')
