@@ -31,7 +31,7 @@ hop.tpf = str2double(inputdlg(input_lines, 'Times per frame', 1, def_ans));
 
 % hop.results, scatterStats and allStats
 hop.results = cell(N_movies,1);
-hop.noStep = zeros(0,2);
+hop.noStep = zeros(0,3);
 scatterStats = zeros(size(INPUT.indices,1),6); % mTb mTu sDb sDu Nb Nu;
 counter = 1;
 N_hi = 0;
@@ -46,7 +46,7 @@ for m = 1:N_movies
         hop.results{m}{s}.state_trajectory = INPUT.state_trajectories{counter};
         [tmp_hi, tmp_lo] = get_hilo(hop.results{m}{s}.state_trajectory, start_offset);
         if isempty(tmp_hi) && isempty(tmp_lo)
-            hop.noStep = [hop.noStep; m tmp_spotnums(s)];
+            hop.noStep = [hop.noStep; m tmp_spotnums(s) counter];
             tmp_remove = [tmp_remove s];
         else
             hop.results{m}{s}.lo = tmp_lo;
