@@ -24,15 +24,16 @@ traces = figure('units','normalized','outerposition',[0 0 1 1]);
             j = 1;
             for p = 1:interval:frames
                 subplot(3,4,1:4)
-                plot((AutocorrData{m}.spots{s}.pos_x+1))
+                level = ceil(prctile(AutocorrData{m}.spots{s}.pos_x,99));
+                plot((AutocorrData{m}.spots{s}.pos_x+level))
                 hold on
-                plot((AutocorrData{m}.spots{s}.pos_y-1),'k-')
+                plot((AutocorrData{m}.spots{s}.pos_y-level),'k-')
                 plot(p:min(p+interval-1,frames),(AutocorrData{m}.spots{s}.pos_x(p:min(p+interval-1,frames))+1),'r-')
                 plot(p:min(p+interval-1,frames),(AutocorrData{m}.spots{s}.pos_y(p:min(p+interval-1,frames))-1),'r-')
                 hold off
                 legend('x coordinate +1','y coordinate -1','interval')
                 xlim([0 frames]);
-                %ylim([-2 2]);
+                ylim([-2.5*level 2.5*level]);
                 str1 = ['movie ',int2str(m),'; spot ',int2str(AutocorrData{m}.spots{s}.spot_numb)];
                 title(str1,'FontSize',15)
                 str2 = ['interval ',int2str(p),':',int2str(min(p+interval-1,frames))];

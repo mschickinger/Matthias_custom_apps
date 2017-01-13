@@ -1,5 +1,5 @@
 function [ traces ] = AutocorrPlotIntMean( AutocorrData, AutocorrIntMean, varargin )
-% AutocorrPlotIntervals: to plot parts of traces compared to the whole trace 
+% AutocorrPlotIntervals: to plot parts of movie compared to the whole movie 
   
 p = inputParser;
 addRequired(p, 'AutocorrData')
@@ -23,15 +23,16 @@ for m = 1:length(AutocorrData)
     j = 1;
     for p = 1:interval:frames
         subplot(3,4,1:4)
-        plot((AutocorrData{m}.pos_mean_x+1))
+        level = ceil(prctile(AutocorrData{m}.spots{s}.pos_x,99));
+        plot((AutocorrData{m}.pos_mean_x+level))
         hold on
-        plot((AutocorrData{m}.pos_mean_y-1),'k-')
+        plot((AutocorrData{m}.pos_mean_y-level),'k-')
         plot(p:min(min(p+interval-1,frames),length(AutocorrData{m}.pos_mean_x)),(AutocorrData{m}.pos_mean_x(p:min(min(p+interval-1,frames),length(AutocorrData{m}.pos_mean_x)))+1),'r-')
         plot(p:min(min(p+interval-1,frames),length(AutocorrData{m}.pos_mean_y)),(AutocorrData{m}.pos_mean_y(p:min(min(p+interval-1,frames),length(AutocorrData{m}.pos_mean_y)))-1),'r-')
         hold off
         legend('mean x coordinate +1','mean y coordinate -1','interval')
         xlim([0 frames]);
-        %ylim([-2 2]);
+        ylim([-2.5*level 2.5*level]);
         str1 = ['movie ',int2str(m)];
         title(str1,'FontSize',15)
         str2 = ['interval ',int2str(p),':',int2str(min(p+interval-1,frames))];

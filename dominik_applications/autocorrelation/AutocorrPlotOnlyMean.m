@@ -1,5 +1,5 @@
 function [ traces ] = AutocorrPlotOnlyMean( AutocorrData, varargin )
-% AutocorrPlotOnlyMean: plot only the mean 
+% AutocorrPlotOnlyMean: plot only the mean of movies
  
 p = inputParser;
 addRequired(p, 'AutocorrData')
@@ -17,13 +17,14 @@ lags = (length(AutocorrData{1}.acorr_mean_x)-1)/2;
 traces = figure('units','normalized','outerposition',[0 0 1 1]);
     for m = 1:length(AutocorrData)
         subplot(3,2,1:2)
-        plot(AutocorrData{m}.pos_mean_x+1)
+        level = ceil(prctile(AutocorrData{m}.spots{s}.pos_x,99));
+        plot(AutocorrData{m}.pos_mean_x+level)
         hold on
-        plot(AutocorrData{m}.pos_mean_y-1,'k-')
+        plot(AutocorrData{m}.pos_mean_y-level,'k-')
         hold off
         legend('mean x +1','mean y -1')
         xlim([0 frames]);
-        %ylim([-2 2]);
+        ylim([-2.5*level 2.5*level]);
         str1 = ['movie ',int2str(m)];
         title(str1,'FontSize',15)
         xlabel('frames','FontSize',10)
