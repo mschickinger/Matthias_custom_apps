@@ -13,12 +13,28 @@ end
 
 T{2} = 1:length(X);
 T{1} = T{2};
-mT = T;
-s = S(1);
+
+% median filtered R-vector
+%w = 11;
+mR = medfilt1_trunc(R,w);
+
+transitions = find(diff(S)~=0)+1;
+interS = S(transitions);
+interT = transitions - 0.5;
+interR = (mR(transitions)+mR(transitions-1))./2;
+
+[mT{2}, IDX] = sort([T{2} interT]);
+mT{1} = mT{2};
+mS = [S interS];
+mS = mS(IDX);
+mR = [mR interR];
+mR = mR(IDX);
+
+s = mS(1);
 mT{mod(s,2)+1}(1) = NaN;
 i = 1;
 while i<=length(mT{1})-1
-    d = find(S(i+1:end)~=s,1);
+    d = find(mS(i+1:end)~=s,1);
     if ~isempty(d)
         mT{mod(s,2)+1}(i+1:i+d-1) = NaN;
         i = i + d;
@@ -28,15 +44,13 @@ while i<=length(mT{1})-1
         i = length(mT{1});
     end
 end
+
 T{1}(S==2) = NaN;
 T{2}(S==1) = NaN;
 
+% parameters for plotting
 c = {'red','blue'};
 mSize = 5;
-
-% median filtered R-vector
-%w = 11;
-mR = medfilt1_trunc(R,w);
 
 subplot(4,1,1)
 % median filtered radius
