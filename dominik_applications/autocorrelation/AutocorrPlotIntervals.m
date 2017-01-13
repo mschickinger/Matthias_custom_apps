@@ -22,14 +22,14 @@ traces = figure('units','normalized','outerposition',[0 0 1 1]);
     for m = 1:length(AutocorrData)
         for s = 1:length(AutocorrData{m}.spots)
             j = 1;
-            for p = 1:interval:frames
+            for p = 1 %:interval:frames
                 subplot(3,4,1:4)
                 level = ceil(prctile(AutocorrData{m}.spots{s}.pos_x,99));
                 plot((AutocorrData{m}.spots{s}.pos_x+level))
                 hold on
                 plot((AutocorrData{m}.spots{s}.pos_y-level),'k-')
-                plot(p:min(p+interval-1,frames),(AutocorrData{m}.spots{s}.pos_x(p:min(p+interval-1,frames))+1),'r-')
-                plot(p:min(p+interval-1,frames),(AutocorrData{m}.spots{s}.pos_y(p:min(p+interval-1,frames))-1),'r-')
+                plot(p:min(p+interval-1,frames),(AutocorrData{m}.spots{s}.pos_x(p:min(p+interval-1,frames))+level),'r-')
+                plot(p:min(p+interval-1,frames),(AutocorrData{m}.spots{s}.pos_y(p:min(p+interval-1,frames))-level),'r-')
                 hold off
                 legend('x coordinate +1','y coordinate -1','interval')
                 xlim([0 frames]);

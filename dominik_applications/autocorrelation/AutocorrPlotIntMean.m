@@ -27,8 +27,8 @@ for m = 1:length(AutocorrData)
         plot((AutocorrData{m}.pos_mean_x+level))
         hold on
         plot((AutocorrData{m}.pos_mean_y-level),'k-')
-        plot(p:min(min(p+interval-1,frames),length(AutocorrData{m}.pos_mean_x)),(AutocorrData{m}.pos_mean_x(p:min(min(p+interval-1,frames),length(AutocorrData{m}.pos_mean_x)))+1),'r-')
-        plot(p:min(min(p+interval-1,frames),length(AutocorrData{m}.pos_mean_y)),(AutocorrData{m}.pos_mean_y(p:min(min(p+interval-1,frames),length(AutocorrData{m}.pos_mean_y)))-1),'r-')
+        plot(p:min(min(p+interval-1,frames),length(AutocorrData{m}.pos_mean_x)),(AutocorrData{m}.pos_mean_x(p:min(min(p+interval-1,frames),length(AutocorrData{m}.pos_mean_x)))+level),'r-')
+        plot(p:min(min(p+interval-1,frames),length(AutocorrData{m}.pos_mean_y)),(AutocorrData{m}.pos_mean_y(p:min(min(p+interval-1,frames),length(AutocorrData{m}.pos_mean_y)))-level),'r-')
         hold off
         legend('mean x coordinate +1','mean y coordinate -1','interval')
         xlim([0 frames]);
