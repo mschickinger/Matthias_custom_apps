@@ -31,7 +31,7 @@ hop.tpf = str2double(inputdlg(input_lines, 'Times per frame', 1, def_ans));
 
 % hop.results, scatterStats and allStats
 hop.results = cell(N_movies,1);
-hop.noStep = zeros(0,3);
+%hop.noStep = zeros(0,3);
 scatterStats = zeros(size(INPUT.indices,1),6); % mTb mTu sDb sDu Nb Nu;
 counter = 1;
 N_hi = 0;
@@ -45,38 +45,40 @@ for m = 1:N_movies
         hop.results{m}{s}.spotnum = tmp_spotnums(s);
         hop.results{m}{s}.state_trajectory = INPUT.state_trajectories{counter};
         [tmp_hi, tmp_lo] = get_hilo(hop.results{m}{s}.state_trajectory, start_offset);
-        if isempty(tmp_hi) && isempty(tmp_lo)
-            hop.noStep = [hop.noStep; m tmp_spotnums(s) counter];
-            tmp_remove = [tmp_remove s];
-        else
-            hop.results{m}{s}.lo = tmp_lo;
+        if ~isempty(tmp_hi)
             hop.results{m}{s}.hi = tmp_hi;
-            % statistics about this spot's bound/unbound lifetimes:
             scatterStats(counter,1) = mean(tmp_hi(:,2));
-            scatterStats(counter,2) = mean(tmp_lo(:,2));
             scatterStats(counter,3) = std(tmp_hi(:,2));
+        else
+            hop.results{m}{s}.hi = [];
+        end    
+        if ~isempty(tmp_lo)
+            hop.results{m}{s}.lo = tmp_lo;
+            scatterStats(counter,2) = mean(tmp_lo(:,2));  
             scatterStats(counter,4) = std(tmp_lo(:,2));
-            % conversion from frames to seconds:
-            scatterStats(counter,1:4) = 2*hop.tpf(m)/1000*scatterStats(counter,1:4);
-            % Number of states (hi, lo)
-            scatterStats(counter,5) = size(tmp_hi,1);
-            N_hi = N_hi + size(tmp_hi,1);
-            scatterStats(counter,6) = size(tmp_lo,1);
-            N_lo = N_lo + size(tmp_lo,1);
+        else
+            hop.results{m}{s}.lo = [];
         end
+        % conversion from frames to seconds:
+        scatterStats(counter,1:4) = 2*hop.tpf(m)/1000*scatterStats(counter,1:4);
+        % Number of states (hi, lo)
+        scatterStats(counter,5) = size(tmp_hi,1);
+        N_hi = N_hi + size(tmp_hi,1);
+        scatterStats(counter,6) = size(tmp_lo,1);
+        N_lo = N_lo + size(tmp_lo,1);
         counter = counter + 1;
     end
     hop.results{m}(tmp_remove) = [];
 end
 
 % remove all spots without transitions
-tmp_remove = find(scatterStats(:,1) == 0);
-tmp_keep = find(scatterStats(:,1) ~= 0);
-scatterStats(tmp_remove,:) = [];
-INPUT.XY(tmp_remove) = [];
-INPUT.medI(tmp_remove) = [];
-hop.indices = INPUT.indices(tmp_keep,:);
-hop.ranges = INPUT.ranges(tmp_keep,:);
+% tmp_remove = find(scatterStats(:,1) == 0);
+% tmp_keep = find(scatterStats(:,1) ~= 0);
+% scatterStats(tmp_remove,:) = [];
+% INPUT.XY(tmp_remove) = [];
+% INPUT.medI(tmp_remove) = [];
+hop.indices = INPUT.indices;%(tmp_keep,:);
+hop.ranges = INPUT.ranges;%(tmp_keep,:);
 
 % allspotStats
 allStats.hi = zeros(N_hi,10);
@@ -86,46 +88,48 @@ counterLo = 0;
 counter = 1;
 for m = 1:N_movies
     for s = 1:size(hop.results{m},1)
-        start_offset = hop.ranges(counter,1) - 1;
+        start_offset = INPUT.ranges(counter,1) - 1;
         tmpNhi = size(hop.results{m}{s}.hi,1);
+        if tmpNhi>0
+            %first column: movie index
+            allStats.hi(counterHi+(1:tmpNhi),1) = m;
+            %second column: spot index
+            allStats.hi(counterHi+(1:tmpNhi),2) = hop.results{m}{s}.spotnum;
+            %third/fourth column: start and duration (frames)
+            allStats.hi(counterHi+(1:tmpNhi),3:4) = hop.results{m}{s}.hi;
+            %fifth column: duration (seconds)
+            allStats.hi(counterHi+(1:tmpNhi),5) = 2*hop.tpf(m)/1000*hop.results{m}{s}.hi(:,2);
+            %remaining columns: means and stDevs in x/y and mean med_itrace
+            tmpHi = zeros(tmpNhi,5);
+            for n = 1:tmpNhi
+                tmp_frames = hop.results{m}{s}.hi(n,1)+(0:hop.results{m}{s}.hi(n,2))-start_offset;
+                tmp_XY = INPUT.XY{counter}(:,tmp_frames);
+                tmpHi(n,1) = mean(tmp_XY(1,:));
+                tmpHi(n,2) = std(tmp_XY(1,:));
+                tmpHi(n,3) = mean(tmp_XY(2,:));
+                tmpHi(n,4) = std(tmp_XY(2,:));
+                tmpHi(n,5) = mean(INPUT.medI{counter}(tmp_frames));
+            end
+            allStats.hi(counterHi+(1:tmpNhi),6:10) = tmpHi;  
+        end
         tmpNlo = size(hop.results{m}{s}.lo,1);
-        %first column: movie index
-        allStats.hi(counterHi+(1:tmpNhi),1) = m;
-        allStats.lo(counterLo+(1:tmpNlo),1) = m;
-        %second column: spot index
-        allStats.hi(counterHi+(1:tmpNhi),2) = hop.results{m}{s}.spotnum;
-        allStats.lo(counterLo+(1:tmpNlo),2) = hop.results{m}{s}.spotnum;
-        %third/fourth column: start and duration (frames)
-        allStats.hi(counterHi+(1:tmpNhi),3:4) = hop.results{m}{s}.hi;
-        allStats.lo(counterLo+(1:tmpNlo),3:4) = hop.results{m}{s}.lo;
-        %fifth column: duration (seconds)
-        allStats.hi(counterHi+(1:tmpNhi),5) = 2*hop.tpf(m)/1000*hop.results{m}{s}.hi(:,2);
-        allStats.lo(counterLo+(1:tmpNlo),5) = 2*hop.tpf(m)/1000*hop.results{m}{s}.lo(:,2);
-        
-        %remaining columns: means and stDevs in x/y and mean med_itrace
-        tmpHi = zeros(tmpNhi,5);
-        for n = 1:tmpNhi
-            tmp_frames = hop.results{m}{s}.hi(n,1)+(0:hop.results{m}{s}.hi(n,2))-start_offset;
-            tmp_XY = INPUT.XY{counter}(:,tmp_frames);
-            tmpHi(n,1) = mean(tmp_XY(1,:));
-            tmpHi(n,2) = std(tmp_XY(1,:));
-            tmpHi(n,3) = mean(tmp_XY(2,:));
-            tmpHi(n,4) = std(tmp_XY(2,:));
-            tmpHi(n,5) = mean(INPUT.medI{counter}(tmp_frames));
-        end
-        allStats.hi(counterHi+(1:tmpNhi),6:10) = tmpHi;      
-        tmpLo = zeros(tmpNlo,5);
-        for n = 1:tmpNlo
-            tmp_frames = hop.results{m}{s}.lo(n,1)+(0:hop.results{m}{s}.lo(n,2))-start_offset;
-            tmp_XY = INPUT.XY{counter}(:,tmp_frames);
-            tmpLo(n,1) = mean(tmp_XY(1,:));
-            tmpLo(n,2) = std(tmp_XY(1,:));
-            tmpLo(n,3) = mean(tmp_XY(2,:));
-            tmpLo(n,4) = std(tmp_XY(2,:));
-            tmpLo(n,5) = mean(INPUT.medI{counter}(tmp_frames));
-        end
-        allStats.lo(counterLo+(1:tmpNlo),6:10) = tmpLo;
-        
+        if tmpNhi>0 
+            allStats.lo(counterLo+(1:tmpNlo),1) = m;
+            allStats.lo(counterLo+(1:tmpNlo),2) = hop.results{m}{s}.spotnum;
+            allStats.lo(counterLo+(1:tmpNlo),3:4) = hop.results{m}{s}.lo;
+            allStats.lo(counterLo+(1:tmpNlo),5) = 2*hop.tpf(m)/1000*hop.results{m}{s}.lo(:,2);
+            tmpLo = zeros(tmpNlo,5);
+            for n = 1:tmpNlo
+                tmp_frames = hop.results{m}{s}.lo(n,1)+(0:hop.results{m}{s}.lo(n,2))-start_offset;
+                tmp_XY = INPUT.XY{counter}(:,tmp_frames);
+                tmpLo(n,1) = mean(tmp_XY(1,:));
+                tmpLo(n,2) = std(tmp_XY(1,:));
+                tmpLo(n,3) = mean(tmp_XY(2,:));
+                tmpLo(n,4) = std(tmp_XY(2,:));
+                tmpLo(n,5) = mean(INPUT.medI{counter}(tmp_frames));
+            end
+            allStats.lo(counterLo+(1:tmpNlo),6:10) = tmpLo;
+        end           
         %update counters
         counterHi = counterHi + tmpNhi;
         counterLo = counterLo + tmpNlo;
@@ -136,6 +140,8 @@ end
 % create output struct
 
 output = struct('hop', hop, 'scatterStats', scatterStats, 'allStats', allStats);
+output.XY = INPUT.XY;
+output.medI = INPUT.medI;
             
     function [hi, lo] = get_hilo(traj, offset)
         steps = find(diff(traj)~=0) + 1;
