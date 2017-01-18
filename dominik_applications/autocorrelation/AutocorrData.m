@@ -6,12 +6,14 @@ addRequired(p, 'data')
 addRequired(p, 'indices')
 addRequired(p, 'chm') % 1 = red; 2 = green;
 addOptional(p, 'lags', 200, @isscalar)
+addParameter(p,'ranges',[])
 
 parse(p, data, indices, chm, varargin{:})
 data = p.Results.data;
 indices = p.Results.indices; % form of cell for movies including vector of spot numbers
 chm = p.Results.chm;
 lags = p.Results.lags;
+ranges = p.Results.ranges;
 
 autocorr = cell(length(indices),1); % number of movies
     for m = 1:length(indices)
@@ -31,10 +33,15 @@ autocorr = cell(length(indices),1); % number of movies
             autocorr{m}.spots{s}.acorr_y = xcorr(tmp_y(:,s),lags,'coeff');
             autocorr{m}.spots{s}.spectrum_y = singlesidedspectrum(tmp_y(:,s));
         end
-        autocorr{m}.pos_mean_x = mean(tmp_x,2);
+        if isempty(ranges)
+            autocorr{m}.pos_mean_x = nanmean(tmp_x,2);
+            autocorr{m}.pos_mean_y = nanmean(tmp_y,2);
+        else
+            autocorr{m}.pos_mean_x = rangeMean(tmp_x,ranges{m});
+            autocorr{m}.pos_mean_y = rangeMean(tmp_y,ranges{m});
+        end
         autocorr{m}.acorr_mean_x = xcorr(autocorr{m}.pos_mean_x,lags,'coeff');
         autocorr{m}.spectrum_mean_x = singlesidedspectrum(autocorr{m}.pos_mean_x);
-        autocorr{m}.pos_mean_y = mean(tmp_y,2);
         autocorr{m}.acorr_mean_y = xcorr(autocorr{m}.pos_mean_y,lags,'coeff');
         autocorr{m}.spectrum_mean_y = singlesidedspectrum(autocorr{m}.pos_mean_y);    
     end
