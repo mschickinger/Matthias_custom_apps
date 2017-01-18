@@ -16,7 +16,8 @@ T{1} = T{2};
 
 % median filtered R-vector
 %w = 11;
-mR = medfilt1_trunc(R,w);
+%mR = medfilt1_trunc(R,w);
+mR = RMSfilt2d(XY',w)';
 
 transitions = find(diff(S)~=0)+1;
 interS = S(transitions);
