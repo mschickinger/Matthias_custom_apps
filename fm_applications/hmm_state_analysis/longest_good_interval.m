@@ -9,7 +9,7 @@ function interval = longest_good_interval(XY,thr1,thr2)
 Lmin = 10000;
 
 % first round
-I = [0 find(max(XY,[],1) > thr1) size(XY,2)+1];
+I = [0 find(max(abs(XY),[],1) > thr1) size(XY,2)+1];
 L = diff(I) - 1;
 
 I = I(L>=Lmin) + 1;
@@ -19,7 +19,7 @@ L = L(L>=Lmin);
 tol = 0.001;
 keep = zeros(size(I));
 for i = 1:length(keep)
-    tmpD = max(XY(:,I(i)+(0:L(i)-1)),[],1);
+    tmpD = max(abs(XY(:,I(i)+(0:L(i)-1))),[],1);
     keep(i) = sum(tmpD > thr2)/length(tmpD) <= tol;
 end
 I = I(keep==1);
