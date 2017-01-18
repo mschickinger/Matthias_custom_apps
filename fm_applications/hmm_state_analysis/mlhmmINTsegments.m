@@ -10,11 +10,13 @@ addRequired(p, 'iThreshs');
 addRequired(p, 'init');
 %addOptional(p, 'xyLims', [Inf Inf]);
 addParameter(p, 'options', []);
+addParameter(p, 'sigmas',[]);
 parse(p, XY, iTrace, iThreshs, init, varargin{:})
 
 XY = p.Results.XY;
 iTrace = p.Results.iTrace;
 iThreshs = p.Results.iThreshs;
+sigmas = p.Results.sigmas;
 
 if ~isempty(p.Results.options)
     mlhmmOptions = p.Results.options;
@@ -33,7 +35,7 @@ segments = iSegments(iTrace, iThreshs);
 
 if ~isempty(segments)
     XY = XY(:,1:segments(end,2));
-    [mlmodels, state_trajectory] = mlhmmXYsegments(XY, segments, 2, mlhmmOptions);    
+    [mlmodels, state_trajectory] = mlhmmXYsegments(XY, segments, 2, mlhmmOptions, [], sigmas);    
     arxv.XY = XY;
 else
     mlmodels = [];
