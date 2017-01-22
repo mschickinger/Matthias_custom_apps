@@ -17,7 +17,7 @@ lags = (length(AutocorrData{1}.acorr_mean_x)-1)/2;
 traces = figure('units','normalized','outerposition',[0 0 1 1]);
     for m = 1:length(AutocorrData)
         subplot(3,2,1:2)
-        level = max(ceil(prctile(AutocorrData{m}.pos_mean_x,99)),ceil(prctile(AutocorrData{m}.pos_mean_y,99)));
+        level = max([ceil(prctile(abs(AutocorrData{m}.pos_mean_x),99)),ceil(prctile((AutocorrData{m}.pos_mean_y),99)),1]);
         plot(AutocorrData{m}.pos_mean_x+level)
         hold on
         plot(AutocorrData{m}.pos_mean_y-level,'k-')
@@ -46,14 +46,17 @@ traces = figure('units','normalized','outerposition',[0 0 1 1]);
         title('single-sided amplitude spectrum of x','FontSize',15)
         xlabel('f [Hz]','FontSize',15)
         limity = max(max(AutocorrData{m}.spectrum_mean_x),max(AutocorrData{m}.spectrum_mean_y(:)));
-        ylim([0 limity*1.05])
-
+        if limity>0
+            ylim([0 limity*1.05])
+        end
+        
         subplot(3,2,6)
         plot(f(1:length(AutocorrData{m}.spectrum_mean_y)),AutocorrData{m}.spectrum_mean_y)
         title('single-sided amplitude spectrum of y','FontSize',15)
         xlabel('f [Hz]','FontSize',15)
-        ylim([0 limity*1.05])
-
+        if limity>0    
+            ylim([0 limity*1.05])
+        end
         pause
     end
 end
