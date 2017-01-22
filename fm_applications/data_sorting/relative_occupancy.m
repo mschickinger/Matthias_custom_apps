@@ -5,20 +5,20 @@ hop = outputPostHMM.hop;
 
 %% Calculate relative occupancies and store in hop.results struct
 % (Take into account excluded time intervals)
-for m = 1:size(hop.results,1)
-    for s = 1:size(hop.results{m},1)
-        hop.results{m}{s}.rocc = zeros(1,2);
+% for m = 1:size(hop.results,1)
+%     for s = 1:size(hop.results{m},1)
+%         hop.results{m}{s}.relOcc = zeros(1,2);
 %         tmp_ex = [];
 %         for i = 1:size(hop.results{m}{s}.ex_int,1)
 %             tmp_ex = [tmp_ex hop.results{m}{s}.ex_int(i,1):hop.results{m}{s}.ex_int(i,2)]; % pre-allocation too complicated?
 %         end
 %         tmp_ex(tmp_ex>length(hop.results{m}{s}.state_trajectory)) = [];
-        tmp_st = hop.results{m}{s}.state_trajectory;
+%         tmp_st = hop.results{m}{s}.state_trajectory;
 %         tmp_st(tmp_ex) = [];
-        hop.results{m}{s}.rocc(2) = sum(tmp_st==2)/length(tmp_st);
-        hop.results{m}{s}.rocc(1) = sum(tmp_st==1)/length(tmp_st);
-    end
-end
+%         hop.results{m}{s}.relOcc(2) = sum(tmp_st==2)/length(tmp_st);
+%         hop.results{m}{s}.relOcc(1) = sum(tmp_st==1)/length(tmp_st);
+%     end
+% end
 
 %% Get total number of particles in hop.results struct
 L = 0;
@@ -28,7 +28,7 @@ end
 
 %% Get relative occupancies from all particles in hop.results struct
 spotident = zeros(L,3);
-rocc_all = zeros(L,2);
+relOcc_all = zeros(L,2);
 counter = 0;
 for m = 1:size(hop.results,1)
     for s = 1:size(hop.results{m},1)
@@ -36,12 +36,12 @@ for m = 1:size(hop.results,1)
         spotident(counter,1) = m;
         spotident(counter,2) = s;
         spotident(counter,3) = hop.results{m}{s}.spotnum;
-        rocc_all(counter,:) = hop.results{m}{s}.rocc;
+        relOcc_all(counter,:) = hop.results{m}{s}.relOcc;
     end
 end
 
 %% Sort relative occupancy values
-[ROb_asc, ROb_I] = sort(rocc_all(:,1));
+[ROb_asc, ROb_I] = sort(relOcc_all(:,1));
 
 %% Get number of un-/bound events from all particles in hop.results struct
 Nu = zeros(L,1);
@@ -68,10 +68,10 @@ end
 %% Display RMS traces
 figure
 %%
-%for i = find(isnan(rocc_all(:,1)))'
+%for i = find(isnan(relOcc_all(:,1)))'
 subplot(6,1,1)
 hold off
-plot(rocc_all(:,1),Nu+Nb,'.')
+plot(relOcc_all(:,1),Nu+Nb,'.')
 hold on
 for i = 5:length(ROb_I)
     xl = 0;
@@ -83,7 +83,7 @@ for i = 5:length(ROb_I)
         %plot(hop.results{spo}{}
         ylim([0 3.5])
         xl = max(xl,length(rms_cell{spotident(ROb_I(i-p+2),1)}{spotident(ROb_I(i-p+2),2)}.rms10));
-        title(['Fraction bound: ' num2str(rocc_all(ROb_I(spind),1)) ', # of events: ' ...
+        title(['Fraction bound: ' num2str(relOcc_all(ROb_I(spind),1)) ', # of events: ' ...
             num2str(Nu(ROb_I(spind))+Nb(ROb_I(spind)))], 'Fontsize', 14)
     end
     for p = 2:6
@@ -92,8 +92,8 @@ for i = 5:length(ROb_I)
     end
     subplot(6,1,1)
     hold on
-    curcle = plot(rocc_all(ROb_I(i),1),Nu(ROb_I(i))+Nb(ROb_I(i)), 'ro');
-    %title(['Fraction bound: ' num2str(rocc_all(ROb_I(i),1)) ', # of events: ' num2str(Nu(ROb_I(i))+Nb(ROb_I(i)))], 'Fontsize', 16)
+    curcle = plot(relOcc_all(ROb_I(i),1),Nu(ROb_I(i))+Nb(ROb_I(i)), 'ro');
+    %title(['Fraction bound: ' num2str(relOcc_all(ROb_I(i),1)) ', # of events: ' num2str(Nu(ROb_I(i))+Nb(ROb_I(i)))], 'Fontsize', 16)
     title([num2str(i) ' / ' num2str(length(ROb_I))], 'FontSize', 14)
     pause
     delete(curcle)
