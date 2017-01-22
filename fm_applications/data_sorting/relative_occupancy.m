@@ -99,6 +99,9 @@ for i = 5:length(ROb_I)
     delete(curcle)
 end
 
+%%
+mkdir('tapete')
+cd tapete
 
  %% Tapete
 tapete = figure('Units', 'centimeters', 'Position', [-100 00 21 29.7], ...
