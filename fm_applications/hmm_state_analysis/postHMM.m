@@ -31,7 +31,6 @@ hop.tpf = str2double(inputdlg(input_lines, 'Times per frame', 1, def_ans));
 
 % hop.results, scatterStats and allStats
 hop.results = cell(N_movies,1);
-%hop.noStep = zeros(0,3);
 scatterStats = zeros(size(INPUT.indices,1),6); % mTb mTu sDb sDu Nb Nu;
 counter = 1;
 N_hi = 0;
@@ -39,7 +38,6 @@ N_lo = 0;
 for m = 1:N_movies
     tmp_spotnums = INPUT.indices(INPUT.indices(:,1)==m,2);
     hop.results{m} = cell(length(tmp_spotnums),1);
-    tmp_remove = [];
     for s = 1:length(tmp_spotnums)
         start_offset = INPUT.ranges(counter,1) - 1;
         hop.results{m}{s}.spotnum = tmp_spotnums(s);
@@ -68,7 +66,6 @@ for m = 1:N_movies
         N_lo = N_lo + size(tmp_lo,1);
         counter = counter + 1;
     end
-    hop.results{m}(tmp_remove) = [];
 end
 
 % remove all spots without transitions
