@@ -218,9 +218,9 @@ for m=1:N_movie
                 x_0 = round(mean(data{m}{s,c}.pos0(1:100,1)));
                 y_0 = round(mean(data{m}{s,c}.pos0(1:100,2)));
                 if size(avg_img,2) == 4
-                    plot_subframe(avg_img{m,c}, x_0, y_0, 6);
+                    plot_subframe(avg_img{m,c}, x_0, y_0, 12);
                 elseif size(avg_img,2) == 2
-                    plot_subframe(avg_img{m,c}{1}, x_0, y_0, 6);
+                    plot_subframe(avg_img{m,c}{1}, x_0, y_0, 12);
                 end
                 hold on        
                 ellipse(r_integrate, r_integrate, 0, x_0, y_0, channel{c});
@@ -234,9 +234,9 @@ for m=1:N_movie
                 x_0 = round(mean(data{m}{s,c}.pos0(end-99:end,1)));
                 y_0 = round(mean(data{m}{s,c}.pos0(end-99:end,2)));
                 if size(avg_img,2) == 4
-                    plot_subframe(avg_img{m,c+2}, x_0, y_0, 6);
+                    plot_subframe(avg_img{m,c+2}, x_0, y_0, 12);
                 elseif size(avg_img,2) == 2
-                    plot_subframe(avg_img{m,c}{end}, x_0, y_0, 6);
+                    plot_subframe(avg_img{m,c}{end}, x_0, y_0, 12);
                 end
                 hold on        
                 ellipse(r_integrate, r_integrate, 0, x_0, y_0, channel{c});
