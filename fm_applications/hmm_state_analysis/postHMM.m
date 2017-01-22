@@ -184,6 +184,17 @@ output.medI = INPUT.medI;
         end
     end
 
+    function RO = relative_occupancy(traj, K, ex_int, offset)
+        if ~isempty(ex_int)
+            tmp_ex = [];
+            for i = 1:size(ex_int,1)
+                tmp_ex = [tmp_ex (ex_int(i,1):ex_int(i,2))-offset];
+            end
+            tmp_ex(tmp_ex>numel(traj))=[];
+            traj(tmp_ex) = [];
+        end
+        RO = sum(traj==K)/numel(traj);
+    end
 end
 
 
