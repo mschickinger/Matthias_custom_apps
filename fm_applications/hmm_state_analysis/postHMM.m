@@ -6,6 +6,7 @@ function output = postHMM(INPUT)
 %       'StateTrajectories' - Vector of 1s and 2s indicating the state assigned to corresponding frame
 %       'XY' - XY-trajectories that were used during HMM evaluation
 %       'medI' - median-filtered intensity traces of the particles.
+%       'ex_int' - intervals to be excluded in further analysis.
 
 %   'output' is a struct with fields:
 %   'hop' - 
@@ -42,8 +43,12 @@ for m = 1:N_movies
         start_offset = INPUT.ranges(counter,1) - 1;
         hop.results{m}{s}.spotnum = tmp_spotnums(s);
         hop.results{m}{s}.state_trajectory = INPUT.state_trajectories{counter};
-        [tmp_hi, tmp_lo] = get_hilo(hop.results{m}{s}.state_trajectory, start_offset);
-        if ~isempty(tmp_hi)
+        hop.results{m}{s}.ex_int = INPUT.ex_int{counter};
+        for k = 2:-1:1
+            hop.results{m}{s}.relOcc(k) = relative_occupancy(INPUT.state_trajectories{counter}, k, INPUT.ex_int{counter}, start_offset);
+        end
+        [tmp_hi, tmp_lo] = get_hilo(hop.results{m}{s}.state_trajectory, start_offset, INPUT.ex_int{counter});
+        if ~isempty(tmp_hi)    
             hop.results{m}{s}.hi = tmp_hi;
             scatterStats(counter,1) = mean(tmp_hi(:,2));
             scatterStats(counter,3) = std(tmp_hi(:,2));
@@ -140,7 +145,7 @@ output = struct('hop', hop, 'scatterStats', scatterStats, 'allStats', allStats);
 output.XY = INPUT.XY;
 output.medI = INPUT.medI;
             
-    function [hi, lo] = get_hilo(traj, offset)
+    function [hi, lo] = get_hilo(traj, offset, ex_int)
         steps = find(diff(traj)~=0) + 1;
         if ~isempty(steps)
             % Start frames and lengths of states
@@ -154,12 +159,30 @@ output.medI = INPUT.medI;
             % divide in hi and lo states
             hi = [S(updn==1)+offset L(updn==1)];
             lo = [S(updn==-1)+offset L(updn==-1)];
+            if ~isempty(ex_int)
+                hi = remove_excluded(hi, ex_int);
+                lo = remove_excluded(lo, ex_int);
+            end
         else
             hi = [];
             lo = [];
         end
     end
 
+    function [SL] = remove_excluded(SL, ex_int)
+        tmp_ex = [];
+        for i = 1:size(ex_int,1)
+            tmp_ex = [tmp_ex ex_int(i,1):ex_int(i,2)];
+        end
+        i = 1;
+        while i <= size(SL,1)
+            if any(ismember(SL(i,1):(sum(SL(i,:))-1),tmp_ex))
+                SL(i,:) = [];
+            else
+                i = i+1;
+            end
+        end
+    end
 
 end
 
