@@ -70,31 +70,34 @@ while m <= N_movie
         set(f, 'Visible','on');
         
         category = 0; 
-        categorylist = {'Keep', 'Neighbour too close', 'Attachment issues', 'Promiscuous particle' ,'Bad lifetime/SNR', 'REVIEW PREVIOUS PAIR'};
+        categorylist = {'KEEP', 'Neighbour / Edge too close', 'Faulty attachment', 'Unspecific sticking' ,'Bad lifetime / Signal', 'Other', 'BACK TO PREVIOUS PAIR'};
         %[category, ok] = listdlg('PromptString', 'What up with that spot pair?', 'ListString', categorylist, 'SelectionMode', 'single');
-        bg = uibuttongroup('Position', [.7 .2 .18 .2], 'Visible', 'off');
+        bg = uibuttongroup('Position', [.7 .05 .2 .3], 'Visible', 'off');
         
-        p1 = uicontrol(bg, 'Style', 'Pushbutton', 'Position', [20 150 50 30],...
-            'String', categorylist{1}, 'Callback', 'category=1; uiresume(gcbf)');
+        p1 = uicontrol(bg, 'Style', 'Pushbutton', 'Position', [40 240 80 40],...
+            'String', categorylist{1}, 'Callback', 'category=1; uiresume(gcbf)', 'FontSize', 12);
         
-        p2 = uicontrol(bg, 'Style', 'Pushbutton', 'Position', [80 150 120 30],...
-            'String', categorylist{2}, 'Callback', 'category=2; uiresume(gcbf)');
+        p2 = uicontrol(bg, 'Style', 'Pushbutton', 'Position', [130 240 180 40],...
+            'String', categorylist{2}, 'Callback', 'category=2; uiresume(gcbf)', 'FontSize', 12);
         
-        p3 = uicontrol(bg, 'Style', 'Pushbutton', 'Position', [210 150 100 30],...
-            'String', categorylist{3}, 'Callback', 'category=3; uiresume(gcbf)');
+        p3 = uicontrol(bg, 'Style', 'Pushbutton', 'Position', [40 190 120 40],...
+            'String', categorylist{3}, 'Callback', 'category=3; uiresume(gcbf)', 'FontSize', 12);
         
-        p4 = uicontrol(bg, 'Style', 'Pushbutton', 'Position', [40 110 120 30],...
-            'String', categorylist{4}, 'Callback', 'category=4; uiresume(gcbf)');
+        p4 = uicontrol(bg, 'Style', 'Pushbutton', 'Position', [170 190 140 40],...
+            'String', categorylist{4}, 'Callback', 'category=4; uiresume(gcbf)', 'FontSize', 12);
         
-        p5 = uicontrol(bg, 'Style', 'Pushbutton', 'Position', [170 110 120 30],...
-            'String', categorylist{5}, 'Callback', 'category=5; uiresume(gcbf)');
+        p5 = uicontrol(bg, 'Style', 'Pushbutton', 'Position', [40 140 160 40],...
+            'String', categorylist{5}, 'Callback', 'category=5; uiresume(gcbf)', 'FontSize', 12);
         
-        p6 = uicontrol(bg, 'Style', 'Pushbutton', 'Position', [80 70 150 30],...
-            'String', categorylist{6}, 'Callback', 'category=6; uiresume(gcbf)');
+        p6 = uicontrol(bg, 'Style', 'Pushbutton', 'Position', [210 140 100 40],...
+            'String', categorylist{6}, 'Callback', 'category=6; uiresume(gcbf)', 'FontSize', 12);
         
-        e1 = uicontrol(bg, 'Style', 'Pushbutton', 'Position', [80 30 150 30],...
+        pBack = uicontrol(bg, 'Style', 'Pushbutton', 'Position', [60 80 190 40],...
+            'String', categorylist{end}, 'Callback', 'category=length(categorylist); uiresume(gcbf)', 'FontSize', 12);
+        
+        e1 = uicontrol(bg, 'Style', 'Pushbutton', 'Position', [80 30 150 40],...
             'String', 'Abort sorting', 'Callback', ['m = N_movie; s = size(data{N_movie},1)+1; ' ...
-            'uiresume(gcbf); close all']);
+            'uiresume(gcbf); close all'], 'FontSize', 12);
         
         set(bg, 'Visible', 'on')
         uiwait(gcf)
@@ -139,6 +142,7 @@ while m <= N_movie
     end
     while i <= length(find(GiTSiK.categorized{m} == 1))
         s = keeps(i);
+        disp(s)
         tmp_vwcm = imread([data_path filesep 'vwcm_traces' filesep 'traces_RMS_hist_m' num2str(m) '_s' num2str(s) '.png']);
         tmp_disp = imread([data_path filesep 'disp_from_map_traces' filesep 'disp_from_map_m' num2str(m) '_s' num2str(s) '.png']);
         tmp_traces = [tmp_vwcm([vert(1):vert(2) vert(3):vert(4) vert(5):vert(6) vert(7):vert(8)],:,:) ;...
@@ -151,31 +155,28 @@ while m <= N_movie
         set(f, 'Visible','on');
         
         behave = 0;
-        behavelist = {'Permanently bound/unbound', 'Clearly switching states', 'Not sure', 'REVIEW PREVIOUS PAIR'};
+        behavelist = {'Permanently bound/unbound', 'Clearly switching states', 'Not sure', 'Re-Categorize', 'BACK TO PREVIOUS PAIR'};
         %[behave, ok] = listdlg('PromptString', 'Spot pair behaviour?', 'ListString', behavelist, 'SelectionMode', 'single');
-        bg = uibuttongroup('Position', [.7 .2 .18 .2], 'Visible', 'off');
+        bg = uibuttongroup('Position', [.7 .05 .2 .3], 'Visible', 'off');
         
-        p1 = uicontrol(bg, 'Style', 'Pushbutton', 'Position', [20 150 150 30],...
-            'String', behavelist{1}, 'Callback', 'behave=1; uiresume(gcbf)');
+        p1 = uicontrol(bg, 'Style', 'Pushbutton', 'Position', [40 220 300 40],...
+            'String', behavelist{1}, 'Callback', 'behave=1; uiresume(gcbf)', 'FontSize', 12);
         
-        p2 = uicontrol(bg, 'Style', 'Pushbutton', 'Position', [180 150 130 30],...
-            'String', behavelist{2}, 'Callback', 'behave=2; uiresume(gcbf)');
+        p2 = uicontrol(bg, 'Style', 'Pushbutton', 'Position', [40 170 300 40],...
+            'String', behavelist{2}, 'Callback', 'behave=2; uiresume(gcbf)', 'FontSize', 12);
         
-        p3 = uicontrol(bg, 'Style', 'Pushbutton', 'Position', [20 110 100 30],...
-            'String', behavelist{3}, 'Callback', 'behave=3; uiresume(gcbf)');
+        p3 = uicontrol(bg, 'Style', 'Pushbutton', 'Position', [40 120 100 40],...
+            'String', behavelist{3}, 'Callback', 'behave=3; uiresume(gcbf)', 'FontSize', 12);
         
-        p4 = uicontrol(bg, 'Style', 'Pushbutton', 'Position', [80 70 150 30],...
-            'String', behavelist{4}, 'Callback', 'behave=4; uiresume(gcbf)');
+        p4 = uicontrol(bg, 'Style', 'Pushbutton', 'Position', [150 120 190 40],...
+            'String', behavelist{4}, 'Callback', 'behave=4; uiresume(gcbf)', 'FontSize', 12);
         
-        %p5 = uicontrol(bg, 'Style', 'Pushbutton', 'Position', [170 110 120 30],...
-         %   'String', behavelist{5}, 'Callback', 'behave=5;');
+        p5 = uicontrol(bg, 'Style', 'Pushbutton', 'Position', [90 70 200 40],...
+            'String', behavelist{end}, 'Callback', 'behave=length(behavelist); uiresume(gcbf)', 'FontSize', 12);
         
-        %p6 = uicontrol(bg, 'Style', 'Pushbutton', 'Position', [80 70 150 30],...
-        %    'String', behavelist{6}, 'Callback', 'behave=6;');
-        
-        e1 = uicontrol(bg, 'Style', 'Pushbutton', 'Position', [80 30 150 30],...
-            'String', 'Abort sorting', 'Callback', ['m = N_movie; s = size(data{N_movie},1)+1; ' ...
-            'uiresume(gcbf); close all']);
+        e1 = uicontrol(bg, 'Style', 'Pushbutton', 'Position', [115 20 150 40],...
+            'String', 'Abort sorting', 'Callback', ['m = N_movie; i = length(GiTSiK.categorized{N_movie})+1;' ...
+            'uiresume(gcbf); close all'], 'FontSize', 12);
         
         set(bg, 'Visible', 'on')
         uiwait(gcf)
@@ -191,6 +192,13 @@ while m <= N_movie
                         m = m-1;
                         i = length(find(GiTSiK.categorized{m} == 1));
                     end
+                end
+            elseif behave == 4
+                [category, ok] = listdlg('PromptString', 'Select a new category', ...
+                    'SelectionMode', 'single', 'ListString', categorylist(1:end-1));
+                if ok
+                    GiTSiK.categorized{m}(s) = category;
+                    i = i+1;
                 end
             else
                 GiTSiK.behaviour{m}(s) = behave; % Permanent:1, Switching:2, Don't know:3, Cancel:0
@@ -263,7 +271,7 @@ close(gcf),
 %% Appendix B: Output bar graphs of category / behaviour counts + summary pie chart:
 close all
 figure(1)
-categories = {'OK', 'Neighbour close', 'Attachment', 'Promiscuous' ,'Lifetime'};
+categories = {'OK', 'Neighbour close', 'Attachment', 'Promiscuous' ,'Lifetime', 'Other'};
 counts = hist(vertcat(GiTSiK.categorized{:}),1:5);
 bar(counts)
 text(1:5,counts',num2str(counts'),'HorizontalAlignment','center','VerticalAlignment','bottom')
