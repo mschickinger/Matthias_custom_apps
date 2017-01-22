@@ -21,7 +21,7 @@ sigmas = p.Results.sigmas;
 if ~isempty(p.Results.options)
     mlhmmOptions = p.Results.options;
 else
-    mlhmmOptions.verbosity = 1;
+    mlhmmOptions.verbosity = 2;
     mlhmmOptions.convergenceTolerance = 1e-4;
     mlhmmOptions.reversible = 1;
     mlhmmOptions.maximumIterations = 1000;
