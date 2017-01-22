@@ -18,6 +18,28 @@ function [ segments, segments_idx ] = iSegments( trace , thr )
     else
         segments = [];
     end
+    
+    minLEN = 1000;
+    if ~isempty(segments)
+        LEN = segments(:,2) - segments(:,1) + 1;
+        while any(LEN<100)
+            while LEN(1)<minLEN
+                segments(1,:) = [];
+                segments(1,1) = 1;
+                LEN = segments(:,2) - segments(:,1) + 1;
+            end
+            i = 1;
+            while i <length(LEN)
+                i = i+1;
+                if LEN(i)<minLEN
+                    segments(i-1,2) = segments(i,2);
+                    segments(i,:) = [];
+                    LEN = segments(:,2) - segments(:,1) + 1;
+                    i = i-1;
+                end
+            end
+        end
+    end
 
 end
 
