@@ -43,5 +43,14 @@ else
     arxv.XY = [];
 end
 arxv.segments = segments + init - 1;
+arxv.models = cell(size(mlmodels));
+for i = 1:length(mlmodels)
+    arxv.models{i}.Tij = mlmodels{i}.Tij;
+    arxv.models{i}.Pi = mlmodels{i}.Pi;
+    arxv.models{i}.states = cell(2,1);
+    for j = 1:2
+        arxv.models{i}.states{j}.mu = mlmodels{i}.states{j}.mu;
+        arxv.models{i}.states{j}.sigma = mlmodels{i}.states{j}.sigma;
+    end
 end
 
