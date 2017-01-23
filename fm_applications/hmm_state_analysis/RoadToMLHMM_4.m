@@ -18,8 +18,8 @@ end
 % - rewrite the medians101 arrays around that frame number (+/- 50 frames)
 % - recalculate the dispmed101 displacements for the same frame range
 % (Truncate traces from first occuring zero onwards)
-jumpMovs = [1 0 0]; % RESET FOR EVERY DATASET
-jumpFrames = {[27113 41677]}; % RESET FOR EVERY DATASET
+jumpMovs = [0 0 0]; % RESET FOR EVERY DATASET
+jumpFrames = {[]}; % RESET FOR EVERY DATASET
 xyG = cell(length(indicesG),1);
 for i = 1:length(indicesG)
     if ismember(indicesG(i,1),jumpMovs)
@@ -45,9 +45,9 @@ end
 
 %% Find number of traces containing more than a certain percentage of frames above increasing threshold levels
 % (exclude data points with unrealistic values from statistic)
-Dmax = 10; %INPUT
+Dmax = 4; %INPUT - RESET FOR EVERY DATASET
 tol = 0.0001;
-threshs = 5.5:0.01:7.5;
+threshs = 1.5:0.01:4.5;
 nPmillAbove = zeros(length(threshs),1);
 for i = 1:length(xyG)
     tmp_data = xyG{i};
@@ -74,7 +74,7 @@ intervalsHMM = zeros(size(indicesG));
 xyHMM = cell(size(xyG));
 % set intervals to be ignored
 ignore = cell(max(indicesG(1,:)),1); % RESET FOR EVERY DATASET
-ignore{1} = [27063 27200; 41601 41726]; % RESET FOR EVERY DATASET
+%ignore{1} = [27063 27200; 41601 41726]; % RESET FOR EVERY DATASET
 for i = 1:length(intervalsHMM)
     tmpM = indicesG(i,1);
     tmpS = indicesG(i,2);
@@ -102,7 +102,7 @@ models = cell(size(xyHMM));
 state_trajectories = cell(size(xyHMM));
 arxv = cell(size(xyHMM));
 iEdges = [8000 9000 7000];
-sigManual = [.45 1.6];
+sigManual = [];
 h = waitbar(0,['Spot-by-spot HMM analysis: ' num2str(0) ' of ' num2str(length(xyHMM)) ' done.']);
 tic
 for i = 1:length(xyHMM)
@@ -198,9 +198,9 @@ end
 
 %% truncate or discard data from specific particles
 % INPUT SPECIFICALLY FOR EVERY NEW DATASET:
-index_truncate = [31 50 73];
-limit_truncate = [19000 29000 13000];
-index_discard = unique([find(discard==1) 75 81 89]);
+index_truncate = [];
+limit_truncate = [];
+index_discard = unique([find(discard==1)]);
 
 for i = 1:length(index_truncate)
     inputPostHMM.XY{index_truncate(i)} = inputPostHMM.XY{index_truncate(i)}(:,1:limit_truncate(i));
@@ -225,7 +225,7 @@ hop = outputPostHMM.hop;
 save dataPostHMM.mat outputPostHMM inputPostHMM
 
 %% Export Scatter Stats to Igor
-SID = 'S045';
+SID = 'S044';
 StatsForIgor = outputPostHMM.scatterStats;
 tmp_remove = find(StatsForIgor(:,5) == 0 | StatsForIgor(:,6) == 0);
 StatsForIgor(tmp_remove,:) = [];
