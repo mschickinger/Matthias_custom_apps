@@ -176,9 +176,9 @@ close(ts)
 save HMMdata.mat state_trajectories arxv iEdges xyHMM xyHMMcorr indicesHMM intervalsHMM
 
 %% Prepare input for postHMM: 
-discard = zeros(1,length(models));
+discard = zeros(1,length(state_trajectories));
 for i = 1:length(discard)
-    discard(i) = isempty(models{i});
+    discard(i) = isempty(state_trajectories{i});
 end
 
 inputPostHMM.indices = indicesHMM;
