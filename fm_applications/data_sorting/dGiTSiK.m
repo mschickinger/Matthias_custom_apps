@@ -274,9 +274,9 @@ close(gcf),
 close all
 figure(1)
 categories = {'OK', 'Neighbour close', 'Attachment', 'Promiscuous' ,'Lifetime', 'Other'};
-counts = hist(vertcat(GiTSiK.categorized{:}),1:5);
+counts = hist(vertcat(GiTSiK.categorized{:}),1:6);
 bar(counts)
-text(1:5,counts',num2str(counts'),'HorizontalAlignment','center','VerticalAlignment','bottom')
+text(1:6,counts',num2str(counts'),'HorizontalAlignment','center','VerticalAlignment','bottom')
 ylim([0 round(1.1*max(counts))])
 set(gca, 'XTickLabel', categories)
 ylabel('count')
