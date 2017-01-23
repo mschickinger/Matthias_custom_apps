@@ -145,7 +145,6 @@ while m <= N_movie
     end
     while i <= length(find(GiTSiK.categorized{m} == 1))
         s = keeps(i);
-        disp(s)
         tmp_vwcm = imread([data_path filesep 'vwcm_traces' filesep 'traces_RMS_hist_m' num2str(m) '_s' num2str(s) '.png']);
         tmp_disp = imread([data_path filesep 'disp_from_map_traces' filesep 'disp_from_map_m' num2str(m) '_s' num2str(s) '.png']);
         tmp_traces = [tmp_vwcm([vert(1):vert(2) vert(3):vert(4) vert(5):vert(6) vert(7):vert(8)],:,:) ;...
