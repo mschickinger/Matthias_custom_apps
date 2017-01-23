@@ -70,7 +70,7 @@ while m <= N_movie
         set(f, 'Visible','on');
         
         category = 0; 
-        categorylist = {'KEEP', 'Neighbour / Edge too close', 'Faulty attachment', 'Unspecific sticking' ,'Bad lifetime / Signal', 'Other', 'BACK TO PREVIOUS PAIR'};
+        categorylist = {'KEEP', 'Neighbour / Edge too close', 'Faulty attachment', 'Unspecific sticking' ,'Bad lifetime / Signal', 'Other', 'Postpone', 'BACK TO PREVIOUS PAIR'};
         %[category, ok] = listdlg('PromptString', 'What up with that spot pair?', 'ListString', categorylist, 'SelectionMode', 'single');
         bg = uibuttongroup('Position', [.7 .05 .2 .3], 'Visible', 'off');
         
@@ -92,10 +92,13 @@ while m <= N_movie
         p6 = uicontrol(bg, 'Style', 'Pushbutton', 'Position', [210 140 100 40],...
             'String', categorylist{6}, 'Callback', 'category=6; uiresume(gcbf)', 'FontSize', 12);
         
+        pp = uicontrol(bg, 'Style', 'Pushbutton', 'Position', [210 30 100 40],...
+            'String', categorylist{end-1}, 'Callback', 'category=0; uiresume(gcbf)', 'FontSize', 12);
+        
         pBack = uicontrol(bg, 'Style', 'Pushbutton', 'Position', [60 80 190 40],...
             'String', categorylist{end}, 'Callback', 'category=length(categorylist); uiresume(gcbf)', 'FontSize', 12);
         
-        e1 = uicontrol(bg, 'Style', 'Pushbutton', 'Position', [80 30 150 40],...
+        e1 = uicontrol(bg, 'Style', 'Pushbutton', 'Position', [40 30 150 40],...
             'String', 'Abort sorting', 'Callback', ['m = N_movie; s = size(data{N_movie},1)+1; ' ...
             'uiresume(gcbf); close all'], 'FontSize', 12);
         
