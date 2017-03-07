@@ -215,7 +215,7 @@ if plot_discarded
     end
 end
 
-display(['Discarded ' num2str(sum(~accepted)) ' spot.'])
+display(['Discarded ' num2str(sum(~accepted)) ' spots.'])
 close all
 
 N_pairs = size(peaks_raw2,1);
