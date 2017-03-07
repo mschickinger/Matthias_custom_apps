@@ -200,6 +200,7 @@ while m <= N_movie
                     'SelectionMode', 'single', 'ListString', categorylist(1:end-1));
                 if ok
                     GiTSiK.categorized{m}(s) = category;
+                    GiTSiK.behaviour{m}(s) = 0;
                     i = i+1;
                 end
             else
