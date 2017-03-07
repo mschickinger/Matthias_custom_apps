@@ -47,7 +47,7 @@ end
 % (exclude data points with unrealistic values from statistic)
 Dmax = 4; %INPUT - RESET FOR EVERY DATASET
 tol = 0.0001;
-threshs = 1.5:0.01:4.5;
+threshs = 1.5:0.01:7.5;
 nPmillAbove = zeros(length(threshs),1);
 for i = 1:length(xyG)
     tmp_data = xyG{i};
@@ -58,7 +58,7 @@ for i = 1:length(xyG)
     end
 end
 
-%% Determine threshold for 'sensible' displament values
+%% Determine threshold for 'sensible' displacement values
 P = 0.2; %INPUT
 THR = threshs(find(nPmillAbove>=P*length(indicesG),1));
 
@@ -73,7 +73,7 @@ plot([THR THR], [0 length(xyG)],'r--')
 intervalsHMM = zeros(size(indicesG));
 xyHMM = cell(size(xyG));
 % set intervals to be ignored
-ignore = cell(max(indicesG(1,:)),1); % RESET FOR EVERY DATASET
+ignore = cell(max(indicesG(:,1)),1); % RESET FOR EVERY DATASET
 %ignore{1} = [27063 27200; 41601 41726]; % RESET FOR EVERY DATASET
 for i = 1:length(intervalsHMM)
     tmpM = indicesG(i,1);
@@ -145,20 +145,20 @@ close(h)
 inDisp = indicesHMM;
 m_start = 1;
 i = find(inDisp(:,1)==m_start,1);
-while isempty(models{i}) && i<=length(models)
+while isempty(state_trajectories{i}) && i<=length(state_trajectories)
     i = i+1;
 end
 ts = figure('Units','normalized','Position',[0 0 1 1]);
 for p = 1:4
     subplot(4,1,p)
 end
-bBack = uicontrol('Style', 'pushbutton', 'String', 'Back', 'Units', 'normalized', 'Position', [0.025 0.8 0.05 0.04], 'Callback', 'if i > 1 i = i-1; end, while isempty(models{i}) && i>1 i = i-1; disp(i), end, disp(i), uiresume', 'FontSize', 12);
-bNext = uicontrol('Style', 'pushbutton', 'String', 'Next', 'Units', 'normalized','Position', [0.925 0.8 0.05 0.04], 'Callback', 'if i < length(models) i = i+1; end, while isempty(models{i}) && i<length(models) i = i+1; disp(i), end, disp(i), uiresume', 'FontSize', 12);
+bBack = uicontrol('Style', 'pushbutton', 'String', 'Back', 'Units', 'normalized', 'Position', [0.025 0.8 0.05 0.04], 'Callback', 'if i > 1 i = i-1; end, while isempty(state_trajectories{i}) && i>1 i = i-1; end, uiresume', 'FontSize', 12);
+bNext = uicontrol('Style', 'pushbutton', 'String', 'Next', 'Units', 'normalized','Position', [0.925 0.8 0.05 0.04], 'Callback', 'if i < length(state_trajectories) i = i+1; end, while isempty(state_trajectories{i}) && i<length(state_trajectories) i = i+1; end, uiresume', 'FontSize', 12);
 loLim = uicontrol('Style', 'edit', 'Units', 'normalized', 'Position', [0.025 0.2 0.03 0.03]);
 hiLim = uicontrol('Style', 'edit', 'Units', 'normalized', 'Position', [0.06 0.2 0.03 0.03]);
 bSet = uicontrol('Style', 'pushbutton', 'Units', 'normalized', 'String', 'Set Xlims', 'Position', [0.025 0.15 0.065 0.04], 'Callback', 'for p = 1:4 subplot(4,1,p), xlim([str2double(loLim.String) str2double(hiLim.String)]); end', 'FontSize', 12);
 bReset = uicontrol('Style', 'pushbutton', 'Units', 'normalized', 'String', 'Reset', 'Position', [0.025 0.1 0.065 0.04], 'Callback', 'for p = 1:4 subplot(4,1,p), xlim auto; end', 'FontSize', 12);
-bDone = uicontrol('Style', 'pushbutton', 'Units', 'normalized', 'String', 'Done', 'Position', [0.925 0.15 0.05 0.04], 'Callback', 'go_on = 0; disp(i), uiresume', 'FontSize', 12);
+bDone = uicontrol('Style', 'pushbutton', 'Units', 'normalized', 'String', 'Done', 'Position', [0.925 0.15 0.05 0.04], 'Callback', 'go_on = 0; uiresume', 'FontSize', 12);
 
 go_on = 1;
 while go_on
@@ -166,7 +166,7 @@ while go_on
     tmpS = state_trajectories{i};
     plot_twostate(tmpXY,tmpS,11);
     subplot(4,1,1)
-    title(['Movie ' num2str(inDisp(i,1)) ', spot ' num2str(inDisp(i,2)), ', index ' num2str(i) '/' num2str(length(models))],'FontSize',16)
+    title(['Movie ' num2str(inDisp(i,1)) ', spot ' num2str(inDisp(i,2)), ', index ' num2str(i) '/' num2str(length(state_trajectories))],'FontSize',16)
     uiwait(gcf)
 end
 display('Done.')
@@ -198,9 +198,9 @@ end
 
 %% truncate or discard data from specific particles
 % INPUT SPECIFICALLY FOR EVERY NEW DATASET:
-index_truncate = [];
-limit_truncate = [];
-index_discard = unique([find(discard==1)]);
+index_truncate = [40 69];
+limit_truncate = [41000 23550];
+index_discard = unique([find(discard==1) 29 64 89 95]);
 
 for i = 1:length(index_truncate)
     inputPostHMM.XY{index_truncate(i)} = inputPostHMM.XY{index_truncate(i)}(:,1:limit_truncate(i));
@@ -225,7 +225,7 @@ hop = outputPostHMM.hop;
 save dataPostHMM.mat outputPostHMM inputPostHMM
 
 %% Export Scatter Stats to Igor
-SID = 'S044';
+SID = 'S043';
 StatsForIgor = outputPostHMM.scatterStats;
 tmp_remove = find(StatsForIgor(:,5) == 0 | StatsForIgor(:,6) == 0);
 StatsForIgor(tmp_remove,:) = [];
@@ -248,7 +248,7 @@ for i = 1:length(models)
         tmpS = state_trajectories{i};
         plot_twostate(tmpXY,tmpS,11);
         subplot(4,1,1)
-        title(['Movie ' num2str(inDisp(i,1)) ', spot ' num2str(inDisp(i,2)), ', index ' num2str(i) '/' num2str(length(models)],'FontSize',14)
+        title(['Movie ' num2str(inDisp(i,1)) ', spot ' num2str(inDisp(i,2)), ', index ' num2str(i) '/' num2str(length(models))],'FontSize',14)
         pause
     end
 end
