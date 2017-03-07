@@ -61,8 +61,8 @@ end
 peaks_raw = zeros(0,5);
 
 for i=1:N_movie
-    [~,p1] = ch1{i}.get_h_min(r_find, N_frames_for_average, 'autosigma', 3);
-    [~,p2] = ch2{i}.get_h_min(r_find, N_frames_for_average, 'autosigma', 3);
+    [~,p1] = ch1{i}.get_h_min(r_find, N_frames_for_average, 'autosigma', 2);
+    [~,p2] = ch2{i}.get_h_min(r_find, N_frames_for_average, 'autosigma', 2);
     
     % map peaks
     trace_map = map_traces(p1(:,1:2), p2(:,1:2), p2(:,1:2), r_find*2)+1; %map the traces from average positions
