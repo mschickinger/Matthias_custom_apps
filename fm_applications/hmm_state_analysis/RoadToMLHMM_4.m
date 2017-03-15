@@ -101,8 +101,9 @@ end
 models = cell(size(xyHMM));
 state_trajectories = cell(size(xyHMM));
 arxv = cell(size(xyHMM));
-iEdges = [8000 9000 7000];
-sigManual = [];
+%iEdges = [7000 8000 9000];
+iEdges = [7500 8000 9000];
+sigManual = [0.45 0.85];
 h = waitbar(0,['Spot-by-spot HMM analysis: ' num2str(0) ' of ' num2str(length(xyHMM)) ' done.']);
 tic
 for i = 1:length(xyHMM)
