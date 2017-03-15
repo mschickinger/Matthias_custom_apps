@@ -113,6 +113,19 @@ end
 toc
 close(h)
 
+%% Extract suitable starting values sigManual
+
+SIGMA = [];
+for i = 1:length(arxv)
+    for j = 1:length(arxv{i}.models)
+        for k = 1:2
+            SIGMA = [SIGMA arxv{i}.models{j}.states{k}.sigma];
+        end
+    end
+end
+figure
+hist(SIGMA,84)
+
 %% Confirm, discard or truncate state-assigned trajectories:
 % ts = figure('Units','normalized','Position',[0 0 1 1]);
 % inDisp = indicesHMM;
