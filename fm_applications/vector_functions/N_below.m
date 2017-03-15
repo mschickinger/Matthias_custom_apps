@@ -8,7 +8,7 @@ threshs = sort(threshs);
 
 for i = 1:length(traces)
     N_all = N_all + nnz(traces{i});
-    tmp_trace = fliplr(nonzeros(traces{i}));
+    tmp_trace = fliplr(reshape(nonzeros(traces{i}),1,[]));
     for j = 1:numel(threshs)
         tmpF = find(tmp_trace > threshs(j),1);
         if ~isempty(tmpF)
