@@ -23,7 +23,7 @@ function [ segments, segments_idx ] = iSegments( trace , thr )
     minLEN = 1000;
     if ~isempty(segments)
         LEN = segments(:,2) - segments(:,1) + 1;
-        while any(LEN<100)
+        while any(LEN<minLEN)
             while LEN(1)<minLEN
                 segments(1,:) = [];
                 segments_idx(1) = [];
