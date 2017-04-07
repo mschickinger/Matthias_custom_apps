@@ -45,7 +45,7 @@ end
 
 %% Find number of traces containing more than a certain percentage of frames above increasing threshold levels
 % (exclude data points with unrealistic values from statistic)
-Dmax = 4; %INPUT - RESET FOR EVERY DATASET
+Dmax = 6; %INPUT - RESET FOR EVERY DATASET
 tol = 0.0001;
 threshs = 1.5:0.01:7.5;
 nPmillAbove = zeros(length(threshs),1);
@@ -101,9 +101,9 @@ end
 models = cell(size(xyHMM));
 state_trajectories = cell(size(xyHMM));
 arxv = cell(size(xyHMM));
-%iEdges = [7000 8000 9000];
-iEdges = [7500 8000 9000];
-sigManual = [0.45 0.85];
+iEdges = [7000 8000 9000];
+%iEdges = [7900 9000];
+sigManual = [0.4 1.2];
 h = waitbar(0,['Spot-by-spot HMM analysis: ' num2str(0) ' of ' num2str(length(xyHMM)) ' done.']);
 tic
 for i = 1:length(xyHMM)
@@ -123,6 +123,7 @@ for i = 1:length(arxv)
         end
     end
 end
+
 figure
 hist(SIGMA,84)
 
@@ -178,7 +179,8 @@ go_on = 1;
 while go_on
     tmpXY = arxv{i}.XY;
     tmpS = state_trajectories{i};
-    plot_twostate(tmpXY,tmpS,11);
+    tmpRMS = data{indicesHMM(i,1)}{indicesHMM(i,2),1}.vwcm.rms10(intervalsHMM(i,1):intervalsHMM(i,2));
+    plot_twostate(tmpXY,tmpS,tmpRMS');
     subplot(4,1,1)
     title(['Movie ' num2str(inDisp(i,1)) ', spot ' num2str(inDisp(i,2)), ', index ' num2str(i) '/' num2str(length(state_trajectories))],'FontSize',16)
     uiwait(gcf)
@@ -212,9 +214,12 @@ end
 
 %% truncate or discard data from specific particles
 % INPUT SPECIFICALLY FOR EVERY NEW DATASET:
-index_truncate = [40 69];
-limit_truncate = [41000 23550];
-index_discard = unique([find(discard==1) 29 64 89 95]);
+index_truncate = [60,86,94,166,176,183,31500,202,225,229,241,255];
+limit_truncate = [21000,12000,42700,12500,13500,15400,31500,24300,35500,30700,16000,13400];
+if length(index_truncate)~=length(limit_truncate)
+    display('ERROR')
+end
+index_discard = unique([find(discard==1),2, 12, 22, 66, 80, 262 ]);
 
 for i = 1:length(index_truncate)
     inputPostHMM.XY{index_truncate(i)} = inputPostHMM.XY{index_truncate(i)}(:,1:limit_truncate(i));
@@ -239,7 +244,7 @@ hop = outputPostHMM.hop;
 save dataPostHMM.mat outputPostHMM inputPostHMM
 
 %% Export Scatter Stats to Igor
-SID = 'S043';
+SID = 'S048';
 StatsForIgor = outputPostHMM.scatterStats;
 tmp_remove = find(StatsForIgor(:,5) == 0 | StatsForIgor(:,6) == 0);
 StatsForIgor(tmp_remove,:) = [];
