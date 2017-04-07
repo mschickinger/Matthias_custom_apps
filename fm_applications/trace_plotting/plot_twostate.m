@@ -1,35 +1,48 @@
-function plot_twostate(XY, S, w, R)
+function plot_twostate(XY, S, varargin)
 
-XY = reshape(XY,2,length(XY));
+% parse input
+p = inputParser;
+
+addRequired(p,'XY')
+addRequired(p,'S')
+addOptional(p,'RMS',[])
+addOptional(p,'R',[])
+addParameter(p,'wSize',11)
+
+parse(p, XY, S, varargin{:})
+
+XY = p.Results.XY;
 X = XY(1,:);
 Y = XY(2,:);
 
-if nargin < 4
+S = p.Results.S;
+
+if isempty(p.Results.RMS)
+    RMS = RMSfilt2d(XY',wSize)';
+else
+    RMS = p.Results.RMS;
+end
+
+if isempty(p.Results.R)
     R = sqrt(X.^2+Y.^2);
-    if nargin < 3
-        w = 2;
-    end
+else
+    R = p.Results.R;
 end
 
 T{2} = 1:length(X);
 T{1} = T{2};
 
-% median filtered R-vector
-%w = 11;
-%mR = medfilt1_trunc(R,w);
-mR = RMSfilt2d(XY',w)';
-
 transitions = find(diff(S)~=0)+1;
 interS = S(transitions);
 interT = transitions - 0.5;
-interR = (mR(transitions)+mR(transitions-1))./2;
+interR = (RMS(transitions)+RMS(transitions-1))./2;
 
 [mT{2}, IDX] = sort([T{2} interT]);
 mT{1} = mT{2};
 mS = [S interS];
 mS = mS(IDX);
-mR = [mR interR];
-mR = mR(IDX);
+RMS = [RMS interR];
+RMS = RMS(IDX);
 
 s = mS(1);
 mT{mod(s,2)+1}(1) = NaN;
@@ -60,7 +73,7 @@ subplot(4,1,1)
 % median filtered radius
 hold off
 for s = 1:2
-    plot(mT{s},mR,'-','Color',c{s})
+    plot(mT{s},RMS,'-','Color',c{s})
     hold on
 end
 
