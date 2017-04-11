@@ -6,7 +6,7 @@ for i = 1:2
     distXYBelow{i} = zeros(2,0);
     indsBelow{i} = zeros(0,3);
 end
-K = 2;
+K = 1;
 cutoffD = [0.25 0.5];
 %cutoffL = [20 20];
 %removInds = cell(length(medI),2);
@@ -39,6 +39,7 @@ if any(allDmax{K}>cutoffD(K))
         for isp = 1:size(removInds{K},1)
             tmp = size(RMSintSeg{K,j},2);
             RMSintSeg{K,j}(:,RMSintSeg{K,j}(3,:)==isp & ismember(RMSintSeg{K,j}(4,:),removInds{K}{isp,2})) = [];
+            xySeg{K,j}(:,xySeg{K,j}(3,:)==isp & ismember(xySeg{K,j}(4,:),removInds{K}{isp,2})) = [];
             if size(RMSintSeg{K,j},2)~=tmp
                 disp(tmp-size(RMSintSeg{K,j},2))
             end
@@ -132,17 +133,17 @@ if any(allDmax{K}>cutoffD(K))
     allA = cell(2,1);
     allAmax = cell(2,1);
     allLmax = cell(2,1);
-    %for k = 1:2
+    for k = 1:2
         for isp = setdiff(1:size(densities,1),discard)
-            if ~isempty(densities{isp,K})
-                allD{K} = [allD{K};densities{isp,K}(~isnan(densities{isp,K}(:,1)),1)];
-                allDmax{K} = [allDmax{K};densities{isp,K}(~isnan(densities{isp,K}(:,2)),2)];
-                allA{K} = [allA{K};areas{isp,K}(~isnan(areas{isp,K}(:,1)),1)];
-                allAmax{K} = [allAmax{K};areas{isp,K}(~isnan(areas{isp,K}(:,2)),2)];
-                allLmax{K} = [allLmax{K};maxlBelow{isp,K}(~isnan(maxlBelow{isp,K}))];
+            if ~isempty(densities{isp,k})
+                allD{k} = [allD{k};densities{isp,k}(~isnan(densities{isp,k}(:,1)),1)];
+                allDmax{k} = [allDmax{k};densities{isp,k}(~isnan(densities{isp,k}(:,2)),2)];
+                allA{k} = [allA{k};areas{isp,k}(~isnan(areas{isp,k}(:,1)),1)];
+                allAmax{k} = [allAmax{k};areas{isp,k}(~isnan(areas{isp,k}(:,2)),2)];
+                allLmax{k} = [allLmax{k};maxlBelow{isp,k}(~isnan(maxlBelow{isp,k}))];
             end
         end
-    %end
+    end
 else
     display(['No states with density above ' num2str(cutoffD(K))])
 end
@@ -224,6 +225,7 @@ wSize = 10;
 b = (1/wSize)*ones(1,wSize);
 a = 1;
 allAVG = cell(2,1);
+allRMS = cell(2,1);
 for k = 1:2
     allAVG{k} = zeros(2,0);
 end
@@ -231,7 +233,8 @@ for isp = setdiff(1:length(indicesHMM),discard)
     tmpXY = data{indicesHMM(isp,1)}{indicesHMM(isp,2),1}.vwcm.dispmed101(intervalsHMM(isp,1):intervalsHMM(isp,2),:)';
     avgXY = vertcat(filter(b,a,tmpXY(1,:)),filter(b,a,tmpXY(2,:)));
     avgXY = avgXY(:,wSize:end);
-    straj = state_trajectories{isp}(wSize:end);    
+    straj = state_trajectories{isp}(wSize:end);
+    tmpRMS = data{indicesHMM(isp,1)}{indicesHMM(isp,2),1}.vwcm.rms10(wSize:end);
     steps = find(diff(straj)~=0) + 1;
     tmpF = [];
     for i = 1:length(steps)
@@ -240,10 +243,58 @@ for isp = setdiff(1:length(indicesHMM),discard)
     tmpF(tmpF>length(straj)) = [];
     avgXY(:,tmpF) = [];
     straj(tmpF) = [];
+    tmpRMS(tmpF) = [];
     for k = 1:2
         allAVG{k} = [allAVG{k} avgXY(:,straj==k)];
+        allRMS{k} = [allRMS{k} tmpRMS(straj==k)'];
     end
 end
+
+%% Fill global cell array for segments and states with mean-filtered XY
+xySeg = cell(2,numel(iEdges));
+for i = 1:length(medI)
+    tmpXY = data{indicesHMM(i,1)}{indicesHMM(i,2),1}.vwcm.dispmed101(intervalsHMM(i,1):intervalsHMM(i,2),:)';
+    W = 21;
+    tmpXY(1,:) = meanfilt1_trunc(tmpXY(1,:),W);
+    tmpXY(2,:) = meanfilt1_trunc(tmpXY(2,:),W);
+    if length(tmpXY)~=length(medI{i})
+        display([num2str(i) ' of ' num2str(length(medI)) ': ERROR'])
+    else
+        display([num2str(i) ' of ' num2str(length(medI)) ': OK'])
+    end
+    if ~isempty(segments{i})
+        tmpS = state_trajectories{i}(1:find(state_trajectories{i}~=state_trajectories{i}(end),1,'last'));
+        for k = 1:2
+            statesInds{k} = find(state_trajectories{i}==k);
+            %statesInds{k} = setdiff(find(state_trajectories{i}==k),removInds{i,2});
+        end
+        for j = 1:length(segmInds{i})
+            for k = 1:2
+                tmpIND = intersect(statesInds{k},segments{i}(j,1):segments{i}(j,2));
+                xySeg{k,segmInds{i}(j)} = [xySeg{k,segmInds{i}(j)} [tmpXY(:,tmpIND); ...
+                                                                    i*ones(1,length(tmpIND)); ...
+                                                                    tmpIND]];                                                                           
+            end
+        end 
+    end
+end
+
+%%
+figure
+W = 21;
+L = length(RMSintSeg{2,1});
+subplot(2,1,1)
+hold off
+plot(RMSintSeg{2,1}(5,:),'.')
+hold on
+plot([0 L], medSigmas{2}(1,1)*3.29/sqrt(W)*[1 1], 'k--')
+plot([0 L], -medSigmas{2}(1,1)*3.29/sqrt(W)*[1 1], 'k--')
+subplot(2,1,2)
+hold off
+plot(RMSintSeg{2,1}(6,:),'.')
+hold on
+plot([0 L], medSigmas{2}(1,2)*3.29/sqrt(W)*[1 1], 'k--')
+plot([0 L], -medSigmas{2}(1,2)*3.29/sqrt(W)*[1 1], 'k--')
 
 
 
