@@ -1,3 +1,16 @@
+%{
+THINGS YOU NEED TO DO BEFOREHAND:
+- check if med_itrace has been corrected. if not -> correct and save data
+- set the following parameters for each dataset:
+    - jumps: jumpMovs, jumpFrames
+    - intervals to be igored: ignore (cell array)
+    - Dmax (maximum physically stretched out excursion in XY; ctr len)
+    - iEdges:
+        - standard for @x-y geometries: [7000 8000 9000]
+        - standard for old geometries: [6500 7500]
+    - sigManual (optional)
+%}
+
 %% Extract dataset from GiTSiK
 tmp = 0;
 for m = 1:length(GiTSiK)
@@ -19,7 +32,7 @@ end
 % - recalculate the dispmed101 displacements for the same frame range
 % (Truncate traces from first occuring zero onwards)
 jumpMovs = [0 0 0]; % RESET FOR EVERY DATASET
-jumpFrames = {[]}; % RESET FOR EVERY DATASET
+jumpFrames = {[]};%,[19310 30101 30235 30415]}; % RESET FOR EVERY DATASET
 xyG = cell(length(indicesG),1);
 for i = 1:length(indicesG)
     if ismember(indicesG(i,1),jumpMovs)
@@ -45,9 +58,9 @@ end
 
 %% Find number of traces containing more than a certain percentage of frames above increasing threshold levels
 % (exclude data points with unrealistic values from statistic)
-Dmax = 6; %INPUT - RESET FOR EVERY DATASET
+Dmax = 7; %INPUT - RESET FOR EVERY DATASET
 tol = 0.0001;
-threshs = 1.5:0.01:7.5;
+threshs = 4.0:0.02:9;
 nPmillAbove = zeros(length(threshs),1);
 for i = 1:length(xyG)
     tmp_data = xyG{i};
@@ -74,7 +87,7 @@ intervalsHMM = zeros(size(indicesG));
 xyHMM = cell(size(xyG));
 % set intervals to be ignored
 ignore = cell(max(indicesG(:,1)),1); % RESET FOR EVERY DATASET
-%ignore{1} = [27063 27200; 41601 41726]; % RESET FOR EVERY DATASET
+%ignore{2} = [19309 19311; 30050 30100; 30234 30236; 30414 30416]; % RESET FOR EVERY DATASET
 for i = 1:length(intervalsHMM)
     tmpM = indicesG(i,1);
     tmpS = indicesG(i,2);
@@ -90,6 +103,11 @@ intervalsHMM(intervalsHMM(:,1)==0,:) = [];
 
 %% Correct XY-trajectories for instrumental vibration with sample average
 xyHMMcorr = correctXYensemble(xyHMM,indicesHMM,intervalsHMM);
+for i = 1:length(xyHMMcorr)
+    if all(xyHMMcorr{i}(1,:)==0) || all(xyHMMcorr{i}(2,:)==0)
+        display(['Something is wrong with xyHMMcorr at index ' num2str(i)])
+    end
+end
 
 %% cell container for the med_itraces of spots/intervals used for HMM analysis
 medI = cell(size(indicesHMM,1),1);
@@ -101,9 +119,9 @@ end
 models = cell(size(xyHMM));
 state_trajectories = cell(size(xyHMM));
 arxv = cell(size(xyHMM));
-iEdges = [7000 8000 9000];
+iEdges = [6500 7500 8500];
 %iEdges = [7900 9000];
-sigManual = [0.4 1.2];
+sigManual = [0.3 1.3];
 h = waitbar(0,['Spot-by-spot HMM analysis: ' num2str(0) ' of ' num2str(length(xyHMM)) ' done.']);
 tic
 for i = 1:length(xyHMM)
@@ -157,6 +175,7 @@ hist(SIGMA,84)
 %mlmodel = model8_7;
 %xyHMM = arxv8_7.xyHMM;
 %inDisp = Arxv.indices;
+YLIM = [0 2.5];
 inDisp = indicesHMM;
 m_start = 1;
 i = find(inDisp(:,1)==m_start,1);
@@ -179,9 +198,10 @@ go_on = 1;
 while go_on
     tmpXY = arxv{i}.XY;
     tmpS = state_trajectories{i};
-    tmpRMS = data{indicesHMM(i,1)}{indicesHMM(i,2),1}.vwcm.rms10(intervalsHMM(i,1):intervalsHMM(i,2));
+    tmpRMS = data{inDisp(i,1)}{inDisp(i,2),1}.vwcm.rms10(intervalsHMM(i,1):intervalsHMM(i,2));
     plot_twostate(tmpXY,tmpS,tmpRMS');
     subplot(4,1,1)
+    ylim(YLIM)
     title(['Movie ' num2str(inDisp(i,1)) ', spot ' num2str(inDisp(i,2)), ', index ' num2str(i) '/' num2str(length(state_trajectories))],'FontSize',16)
     uiwait(gcf)
 end
@@ -214,18 +234,41 @@ end
 
 %% truncate or discard data from specific particles
 % INPUT SPECIFICALLY FOR EVERY NEW DATASET:
-index_truncate = [60,86,94,166,176,183,31500,202,225,229,241,255];
-limit_truncate = [21000,12000,42700,12500,13500,15400,31500,24300,35500,30700,16000,13400];
-if length(index_truncate)~=length(limit_truncate)
-    display('ERROR')
+index_discard = unique([find(discard==1),10]);
+copypaste_truncate_from = ...
+    [ ...
+14	42775
+53	26600 ...
+];
+copypaste_truncate_to = ...
+    [ ...
+];
+if ~isempty(copypaste_truncate_from)
+    index_truncate_from = copypaste_truncate_from(:,1); %[,];
+    limit_truncate_from = copypaste_truncate_from(:,2); %[,];
+    if length(index_truncate_from)~=length(limit_truncate_from)
+        display('ERROR')
+    end
+    for i = 1:length(index_truncate_from)
+        inputPostHMM.XY{index_truncate_from(i)} = inputPostHMM.XY{index_truncate_from(i)}(:,1:limit_truncate_from(i));
+        inputPostHMM.state_trajectories{index_truncate_from(i)} = inputPostHMM.state_trajectories{index_truncate_from(i)}(1:limit_truncate_from(i));
+        inputPostHMM.medI{index_truncate_from(i)} = inputPostHMM.medI{index_truncate_from(i)}(1:limit_truncate_from(i));
+        inputPostHMM.ranges(index_truncate_from(i),2) = inputPostHMM.ranges(index_truncate_from(i),1) + limit_truncate_from(i) - 1;
+    end
 end
-index_discard = unique([find(discard==1),2, 12, 22, 66, 80, 262 ]);
 
-for i = 1:length(index_truncate)
-    inputPostHMM.XY{index_truncate(i)} = inputPostHMM.XY{index_truncate(i)}(:,1:limit_truncate(i));
-    inputPostHMM.state_trajectories{index_truncate(i)} = inputPostHMM.state_trajectories{index_truncate(i)}(1:limit_truncate(i));
-    inputPostHMM.medI{index_truncate(i)} = inputPostHMM.medI{index_truncate(i)}(1:limit_truncate(i));
-    inputPostHMM.ranges(index_truncate(i),2) = inputPostHMM.ranges(index_truncate(i),1) + limit_truncate(i) - 1;
+if ~isempty(copypaste_truncate_to)
+    index_truncate_to = copypaste_truncate_to(:,1); %[,];
+    limit_truncate_to = copypaste_truncate_to(:,2); %[,];
+    if length(index_truncate_to)~=length(limit_truncate_to)
+        display('ERROR')
+    end
+    for i = 1:length(index_truncate_to)
+        inputPostHMM.XY{index_truncate_to(i)} = inputPostHMM.XY{index_truncate_to(i)}(:,limit_truncate_to(i)+1:end);
+        inputPostHMM.state_trajectories{index_truncate_to(i)} = inputPostHMM.state_trajectories{index_truncate_to(i)}(limit_truncate_to(i)+1:end);
+        inputPostHMM.medI{index_truncate_to(i)} = inputPostHMM.medI{index_truncate_to(i)}(limit_truncate_to(i)+1:end);
+        inputPostHMM.ranges(index_truncate_to(i),1) = inputPostHMM.ranges(index_truncate_from(i),1) + limit_truncate_to(i) + 1;
+    end
 end
 
 inputPostHMM.indices(index_discard,:) = [];
@@ -244,7 +287,7 @@ hop = outputPostHMM.hop;
 save dataPostHMM.mat outputPostHMM inputPostHMM
 
 %% Export Scatter Stats to Igor
-SID = 'S048';
+SID = 'S038';
 StatsForIgor = outputPostHMM.scatterStats;
 tmp_remove = find(StatsForIgor(:,5) == 0 | StatsForIgor(:,6) == 0);
 StatsForIgor(tmp_remove,:) = [];
