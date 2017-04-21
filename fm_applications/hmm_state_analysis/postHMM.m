@@ -190,8 +190,10 @@ output.medI = INPUT.medI;
             for i = 1:size(ex_int,1)
                 tmp_ex = [tmp_ex (ex_int(i,1):ex_int(i,2))-offset];
             end
-            tmp_ex(tmp_ex>numel(traj))=[];
-            traj(tmp_ex) = [];
+            tmp_ex(tmp_ex<0 | tmp_ex>length(traj))=[];
+            if ~isempty(tmp_ex)
+                traj(tmp_ex) = [];
+            end
         end
         RO = sum(traj==K)/numel(traj);
     end
