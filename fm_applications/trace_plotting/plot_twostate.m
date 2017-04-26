@@ -18,7 +18,7 @@ Y = XY(2,:);
 S = p.Results.S;
 
 if isempty(p.Results.RMS)
-    RMS = RMSfilt2d(XY',wSize)';
+    RMS = RMSfilt2d(XY',p.Results.wSize)';
 else
     RMS = p.Results.RMS;
 end
@@ -35,13 +35,13 @@ T{1} = T{2};
 transitions = find(diff(S)~=0)+1;
 interS = S(transitions);
 interT = transitions - 0.5;
-interR = (RMS(transitions)+RMS(transitions-1))./2;
+interRMS = (RMS(transitions)+RMS(transitions-1))./2;
 
 [mT{2}, IDX] = sort([T{2} interT]);
 mT{1} = mT{2};
 mS = [S interS];
 mS = mS(IDX);
-RMS = [RMS interR];
+RMS = [RMS interRMS];
 RMS = RMS(IDX);
 
 s = mS(1);
@@ -70,7 +70,7 @@ c = {[204 0 0]/255,[0 102 153]/255};
 mSize = 5;
 
 subplot(4,1,1)
-% median filtered radius
+% RMS fluctuation
 hold off
 for s = 1:2
     plot(mT{s},RMS,'-','Color',c{s})
