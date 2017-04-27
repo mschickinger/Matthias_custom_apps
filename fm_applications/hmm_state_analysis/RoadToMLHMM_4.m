@@ -37,6 +37,7 @@ jumpFrames = cell(size(jumpMovs));
 ignore = cell(size(jumpMovs));
 %ignore{2} = [19309 19311; 30050 30100; 30234 30236; 30414 30416]; % RESET FOR EVERY DATASET
 if exist('jumps.mat','file')
+    display('loading jumps.mat file')
     load jumps.mat
     for m = 1:length(jumpMovs)
         if ~isempty(jumps{m})
@@ -83,9 +84,9 @@ end
 
 %% Find number of traces containing more than a certain percentage of frames above increasing threshold levels
 % (exclude data points with unrealistic values from statistic)
-Dmax = 3.5; %INPUT - RESET FOR EVERY DATASET
+Dmax = 8.5; %INPUT - RESET FOR EVERY DATASET
 tol = 0.0001;
-threshs = 2.5:0.02:7;
+threshs = 3:0.05:10;
 nPmillAbove = zeros(length(threshs),1);
 for i = 1:length(xyG)
     tmp_data = xyG{i};
@@ -139,7 +140,7 @@ end
 
 %% Check distribution of data points in intensity intervals
 %iEdges = [6750 7500 8500];
-iEdges = [7500 9000 10500];
+iEdges = [6500 7500 9000];
 foo2 = N_below(medI,iEdges);
 disp(foo2.N/foo2.N_all)
 
@@ -148,7 +149,7 @@ models = cell(size(xyHMM));
 state_trajectories = cell(size(xyHMM));
 arxv = cell(size(xyHMM));
 %iEdges = [7900 9000];
-sigManual = [0.3 0.9];
+sigManual = [0.35 1.5];
 h = waitbar(0,['Spot-by-spot HMM analysis: ' num2str(0) ' of ' num2str(length(xyHMM)) ' done.']);
 tic
 for i = 1:length(xyHMM)
@@ -204,7 +205,7 @@ histogram(SIGMA,100)
 %mlmodel = model8_7;
 %xyHMM = arxv8_7.xyHMM;
 %inDisp = Arxv.indices;
-YLIM = [0 2.5];
+YLIM = [0 4];
 inDisp = indicesHMM;
 m_start = 1;
 i = 1;%find(inDisp(:,1)==m_start,1);
@@ -265,18 +266,18 @@ end
 
 %% truncate or discard data from specific particles
 % INPUT SPECIFICALLY FOR EVERY NEW DATASET:
-index_discard = unique([find(discard==1)]);
+index_discard = unique([find(discard==1), 44]);
 copypaste_truncate_from = ...
     [ ...
-8	34200
-10	36400
-51	40850
-90	26100
+3	43000
+5	13850
+30	24450
+35	41300
+53	27420
+62	44900
 ];
 copypaste_truncate_to = ...
     [ ...
-67	2400
-83	10
 ];
 if ~isempty(copypaste_truncate_from)
     index_truncate_from = copypaste_truncate_from(:,1); %[,];
@@ -322,7 +323,7 @@ hop = outputPostHMM.hop;
 save dataPostHMM.mat outputPostHMM inputPostHMM
 
 %% Export Scatter Stats to Igor
-SID = 'S063';
+SID = 'S039';
 StatsForIgor = outputPostHMM.scatterStats;
 tmp_remove = find(StatsForIgor(:,5) == 0 | StatsForIgor(:,6) == 0);
 StatsForIgor(tmp_remove,:) = [];
