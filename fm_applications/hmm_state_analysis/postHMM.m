@@ -1,4 +1,4 @@
-function output = postHMM(INPUT)
+function output = postHMM(INPUT, varargin)
 
 %   'INPUT' is a struct with fields:
 %       'indices' - (array  of movie and spot indices)
@@ -15,20 +15,39 @@ function output = postHMM(INPUT)
 %   'indices' - 
 %   'ranges' - 
 
+p = inputParser;
+
+addRequired(p,'INPUT');
+addOptional(p,'sample_ident',[]);
+addOptional(p,'tpf',[]);
+
+parse(p,INPUT,varargin{:});
+
+INPUT = p.Results.INPUT;
+
 % Create hop structure
-sample_ident = inputdlg({'Date:', 'Sample:', 'Number of movies:'}, 'Identify');
+if ~isempty(p.Results.sample_ident)
+    sample_ident = p.Results.sample_ident;
+else
+    sample_ident = inputdlg({'Date:', 'Sample:', 'Number of movies:'}, 'Identify');
+end
+
 hop.date = sample_ident{1};
 hop.sample = sample_ident{2};
 N_movies = str2double(sample_ident{3});
 
 % Times per frame
-input_lines = cell(N_movies,1);
-def_ans = cell(N_movies,1);
-for m = 1:N_movies
-    input_lines{m} = ['Enter tpf for movie # ' num2str(m)];
-    def_ans{m} = '50';
+if ~isempty(p.Results.tpf)
+    hop.tpf = p.Results.tpf;
+else
+    input_lines = cell(N_movies,1);
+    def_ans = cell(N_movies,1);
+    for m = 1:N_movies
+        input_lines{m} = ['Enter tpf for movie # ' num2str(m)];
+        def_ans{m} = '50';
+    end
+    hop.tpf = str2double(inputdlg(input_lines, 'Times per frame', 1, def_ans));
 end
-hop.tpf = str2double(inputdlg(input_lines, 'Times per frame', 1, def_ans));
 
 % hop.results, scatterStats and allStats
 hop.results = cell(N_movies,1);
@@ -115,7 +134,7 @@ for m = 1:N_movies
             allStats.hi(counterHi+(1:tmpNhi),6:10) = tmpHi;  
         end
         tmpNlo = size(hop.results{m}{s}.lo,1);
-        if tmpNhi>0 
+        if tmpNlo>0 
             allStats.lo(counterLo+(1:tmpNlo),1) = m;
             allStats.lo(counterLo+(1:tmpNlo),2) = hop.results{m}{s}.spotnum;
             allStats.lo(counterLo+(1:tmpNlo),3:4) = hop.results{m}{s}.lo;
