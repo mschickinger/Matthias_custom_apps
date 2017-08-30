@@ -3,9 +3,11 @@ function [  ] = stats_to_igor( stats, ID, path )
     
 if nargin == 2
     path = cd;
+    fullpath = [path filesep ID '_Scatter.txt'];
+else
+    fullpath = path;
 end
 wave_names = {[ID '_mTu'],[ID '_mTb'],[ID '_SEMu'],[ID '_SEMb']};
-fullpath = [path filesep ID '_Scatter.txt'];
     if size(stats,2)== length(wave_names)
         % write header/wave names
         fileID=fopen(fullpath, 'w'); %open file to write
