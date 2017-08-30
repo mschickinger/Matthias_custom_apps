@@ -42,10 +42,18 @@ type{chb} = 'fixed';
 if ~exist('cut', 'var')
     cut = questdlg('Intensity threshold or maximum frame?','Cutoff method','Intensity','Frame','Frame');
 end
-if strcmp(cut, 'Intensity') || cut == 1
-    cut_plot = [0 1];
-elseif strcmp(cut,'Frame') || cut == 2
-    cut_plot = [1 0];
+if ischar(cut)
+    if strcmp(cut, 'Intensity')
+        cut_plot = [0 1];
+    elseif strcmp(cut,'Frame')
+        cut_plot = [1 0];
+    end
+else
+    if cut == 1
+        cut_plot = [0 1];
+    elseif cut == 2
+        cut_plot = [1 0];
+    end
 end
 
 if strcmp(p.Results.horzAx, 'time')
