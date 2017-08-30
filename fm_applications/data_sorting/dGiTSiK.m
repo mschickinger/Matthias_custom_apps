@@ -127,7 +127,7 @@ while m <= N_movie
     end
     m = m+1;
 end
-
+close all
 %% Assign spot behaviour (permanently mobile, permanently stationary, switching of unknown)
 close all
 f = figure('Visible', 'off', 'Units', 'normalized', 'Position', [0 0 1 1]);
