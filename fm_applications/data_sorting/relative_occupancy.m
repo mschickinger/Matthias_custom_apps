@@ -1,6 +1,6 @@
 %% What is hop?
 
-hop = outputPostHMM.hop;
+hop = outputPostHMM_nost.hop;
 
 
 %% Calculate relative occupancies and store in hop.results struct
@@ -65,6 +65,7 @@ for m = 1:length(rms_cell)
         rms_cell{m}{i}.rms10 = data{m}{tmpS(i),1}.vwcm.rms10(tmpF(i,1):tmpF(i,2));
     end
 end
+%{
 %% Display RMS traces
 figure
 %%
@@ -98,7 +99,7 @@ for i = 5:length(ROb_I)
     pause
     delete(curcle)
 end
-
+%}
 %%
 mkdir('tapete')
 cd tapete
