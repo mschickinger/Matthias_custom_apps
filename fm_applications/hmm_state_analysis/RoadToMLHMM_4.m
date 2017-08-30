@@ -11,6 +11,14 @@ THINGS YOU NEED TO DO BEFOREHAND:
     - sigManual (optional)
 %}
 
+%% Set sample ID and load data
+clear variables
+run('my_prefs.m')
+
+SID = 'S047';
+load('data_spot_pairs.mat')
+load('GiTSiK.mat')
+
 %% Extract dataset from GiTSiK
 tmp = 0;
 for m = 1:length(GiTSiK)
@@ -59,7 +67,7 @@ truncate = []; %[3 82 1 14500]; % RESET FOR EVERY DATASET
 for i = 1:length(indicesG)
     if ismember(indicesG(i,1),jumpMovs)
         tmpMF101 = data{indicesG(i,1)}{indicesG(i,2),1}.vwcm.medians101;
-        for fNum = jumpFrames{indicesG(i,1)}
+        for fNum = reshape(jumpFrames{indicesG(i,1)},1,[])
             for j = 1:2
                 tmpMF101(fNum+(-50:-1),j) = tmpMF101(fNum-51,j);
                 tmpMF101(fNum+(0:49),j) = tmpMF101(fNum+50,j);
@@ -84,9 +92,9 @@ end
 
 %% Find number of traces containing more than a certain percentage of frames above increasing threshold levels
 % (exclude data points with unrealistic values from statistic)
-Dmax = 8.5; %INPUT - RESET FOR EVERY DATASET
+Dmax = 4; %INPUT - RESET FOR EVERY DATASET
 tol = 0.0001;
-threshs = 3:0.05:10;
+threshs = 2.5:0.05:7;
 nPmillAbove = zeros(length(threshs),1);
 for i = 1:length(xyG)
     tmp_data = xyG{i};
@@ -131,6 +139,7 @@ for i = 1:length(xyHMMcorr)
         display(['Something is wrong with xyHMMcorr at index ' num2str(i)])
     end
 end
+% if there's only one spot in a movie, the correction doesn't make sense!
 
 %% cell container for the med_itraces of spots/intervals used for HMM analysis
 medI = cell(size(indicesHMM,1),1);
@@ -140,7 +149,7 @@ end
 
 %% Check distribution of data points in intensity intervals
 %iEdges = [6750 7500 8500];
-iEdges = [6500 7500 9000];
+iEdges = [7000 8000 9000];
 foo2 = N_below(medI,iEdges);
 disp(foo2.N/foo2.N_all)
 
@@ -148,8 +157,7 @@ disp(foo2.N/foo2.N_all)
 models = cell(size(xyHMM));
 state_trajectories = cell(size(xyHMM));
 arxv = cell(size(xyHMM));
-%iEdges = [7900 9000];
-sigManual = [0.35 1.5];
+sigManual = [0.45 0.85];
 h = waitbar(0,['Spot-by-spot HMM analysis: ' num2str(0) ' of ' num2str(length(xyHMM)) ' done.']);
 tic
 for i = 1:length(xyHMM)
@@ -175,41 +183,18 @@ end
 figure
 histogram(SIGMA,100)
 
-%% Confirm, discard or truncate state-assigned trajectories:
-% ts = figure('Units','normalized','Position',[0 0 1 1]);
-% inDisp = indicesHMM;
-% m = 1;
-% tmp_start = find(inDisp(:,1)==m,1);
-% keep2 = [keep zeros(size(keep))]; 
-% for i = tmp_start:length(models)
-%     if ~isempty(models{i})
-%         tmpXY = arxv{i}.XY;
-%         tmpS = state_trajectories{i};
-%         plot_twostate(tmpXY,tmpS,11);
-%         subplot(4,1,1)
-%         title(['Movie ' num2str(inDisp(i,1)) ', spot ' num2str(inDisp(i,2)), ', index ' num2str(i)],'FontSize',14)
-%         tmp = questdlg('Keep this trajectory?', 'HMM analysis successful?','Yes', 'No', 'Truncate', 'Yes');
-%         keep2(i,1) = ~strcmp(tmp,'No');
-%         if strcmp(tmp,'Truncate')
-%             subplot(2,1,1)
-%             h = impoint(gca);
-%             pos_cut = wait(h);
-%             keep2(i,2) = floor(pos_cut(1));
-%             delete(h)
-%         end
-%     end
-% end
-% close(ts)
-
 %% GUI for inspection of state-assigned trajectories:
 %mlmodel = model8_7;
 %xyHMM = arxv8_7.xyHMM;
 %inDisp = Arxv.indices;
-YLIM = [0 4];
-inDisp = indicesHMM;
+YLIM = [0 3];
+%inData = redo_indices;
+%inData = index_trunc;
+inData = 1:numel(state_trajectories);
+inDisp = indicesHMM(inData,:);
 m_start = 1;
 i = 1;%find(inDisp(:,1)==m_start,1);
-while isempty(state_trajectories{i}) && i<=length(state_trajectories)
+while isempty(state_trajectories{i}) && i<=length(inData)
     i = i+1;
 end
 ts = figure('Units','normalized','Position',[0 0 1 1]);
@@ -217,7 +202,7 @@ for p = 1:4
     subplot(4,1,p)
 end
 bBack = uicontrol('Style', 'pushbutton', 'String', 'Back', 'Units', 'normalized', 'Position', [0.025 0.8 0.05 0.04], 'Callback', 'if i > 1 i = i-1; end, while isempty(state_trajectories{i}) && i>1 i = i-1; end, uiresume', 'FontSize', 12);
-bNext = uicontrol('Style', 'pushbutton', 'String', 'Next', 'Units', 'normalized','Position', [0.925 0.8 0.05 0.04], 'Callback', 'if i < length(state_trajectories) i = i+1; end, while isempty(state_trajectories{i}) && i<length(state_trajectories) i = i+1; end, uiresume', 'FontSize', 12);
+bNext = uicontrol('Style', 'pushbutton', 'String', 'Next', 'Units', 'normalized','Position', [0.925 0.8 0.05 0.04], 'Callback', 'if i < length(inData) i = i+1; end, while isempty(state_trajectories{i}) && i<length(state_trajectories) i = i+1; end, uiresume', 'FontSize', 12);
 loLim = uicontrol('Style', 'edit', 'Units', 'normalized', 'Position', [0.025 0.2 0.03 0.03]);
 hiLim = uicontrol('Style', 'edit', 'Units', 'normalized', 'Position', [0.06 0.2 0.03 0.03]);
 bSet = uicontrol('Style', 'pushbutton', 'Units', 'normalized', 'String', 'Set Xlims', 'Position', [0.025 0.15 0.065 0.04], 'Callback', 'for p = 1:4 subplot(4,1,p), xlim([str2double(loLim.String) str2double(hiLim.String)]); end', 'FontSize', 12);
@@ -226,36 +211,120 @@ bDone = uicontrol('Style', 'pushbutton', 'Units', 'normalized', 'String', 'Done'
 
 go_on = 1;
 while go_on
-    tmpXY = arxv{i}.XY;
-    tmpS = state_trajectories{i};
-    tmpRMS = data{inDisp(i,1)}{inDisp(i,2),1}.vwcm.rms10(arxv{i}.segments(1):arxv{i}.segments(end));
+    tmpXY = arxv{inData(i)}.XY;
+    tmpS = state_trajectories{inData(i)};
+    tmpRMS = data{inDisp(i,1)}{inDisp(i,2),1}.vwcm.rms10(arxv{inData(i)}.segments(1):arxv{inData(i)}.segments(end));
     plot_twostate(tmpXY,tmpS,tmpRMS');
     subplot(4,1,1)
     hold on
-    %plot(tmpRMS,'ko-', 'MarkerSize', 6)
+    plot(double(tmpS)+.75, 'k')
     ylim(YLIM)
-    title(['Movie ' num2str(inDisp(i,1)) ', spot ' num2str(inDisp(i,2)), ', index ' num2str(i) '/' num2str(length(state_trajectories))],'FontSize',16)
+    title(['Movie ' num2str(inDisp(i,1)) ', spot ' num2str(inDisp(i,2)), ', index ' num2str(i) '/' num2str(length(inData))],'FontSize',16)
     uiwait(gcf)
 end
 display('Done.')
 close(ts)
 
-%% Save data from HMM analysis !!!Navigate to appropriate folder before!!!
-save HMMdata.mat state_trajectories arxv iEdges xyHMM xyHMMcorr indicesHMM intervalsHMM
+%% Consensus model
+%consensus_indices = setdiff(1:50, [16 25 92 11 18 27 31 37 40 49 55 77 107 108 117]);
+consensus_indices = [2,3,5,9,11,19,21,23,25,26,27,28,31,33,35,36,37,39,42,44,45,47,48,49,50];
+consensus_models = make_consensus_models(state_trajectories(consensus_indices),xyHMMcorr(consensus_indices), iEdges, medI(consensus_indices));
+save consensus_models.mat consensus_models
+%% Redo analysis for failed trajectories:
+redo_indices = 1:numel(models);
+%redo_indices = setdiff(1:numel(state_trajectories),consensus_indices);
+%redo_indices = 1:numel(state_trajectories);
+h = waitbar(0,['Spot-by-spot HMM analysis: ' num2str(0) ' of ' num2str(length(redo_indices)) ' done.']);
+tic
+for i = 1:length(redo_indices)
+    j = redo_indices(i);
+    [models{j}, state_trajectories{j}, arxv{j}] = mlhmmINTsegments(xyHMMcorr{j}, medI{j}, iEdges, intervalsHMM(j,1), 'initial_models', consensus_models);
+    waitbar(i/length(redo_indices),h,['Spot-by-spot HMM analysis: ' num2str(i) ' of ' num2str(length(redo_indices)) ' done.']);
+end
+toc
+close(h)
 
-%% Prepare input for postHMM: 
+%% Save data from HMM analysis !!!Navigate to appropriate folder before!!!
+save HMMdata1.mat state_trajectories arxv iEdges xyHMM xyHMMcorr indicesHMM intervalsHMM medI ignore
+
+%% truncate or discard data from specific particles
+% INPUT SPECIFICALLY FOR EVERY NEW DATASET:
+discard_manual = [41, 53, 60, 62, 63, 66, 69, 113];
+truncate_from = ...
+    [ ...
+23	44800
+37	18500
+43	31850
+52	25500
+95	44950
+101	21030
+];
+truncate_to = ...
+    [ ...
+
+];
+if ~isempty(truncate_from)
+    index_truncate_from = truncate_from(:,1); %[,];
+    limit_truncate_from = truncate_from(:,2); %[,];
+else
+    index_truncate_from = [];
+    limit_truncate_from = [];
+end
+if ~isempty(truncate_to)
+    index_truncate_to = truncate_to(:,1); %[,];
+    limit_truncate_to = truncate_to(:,2); %[,];
+else
+    index_truncate_to = [];
+    limit_truncate_to = [];
+end
+% adjust HMM intervals, xyHMM, xyHMMcorr, medI
+for i = 1:length(index_truncate_from)
+    intervalsHMM(index_truncate_from(i),2) = intervalsHMM(index_truncate_from(i),1) + limit_truncate_from(i);
+    xyHMM{index_truncate_from(i)} = xyHMM{index_truncate_from(i)}(:,1:limit_truncate_from(i));
+    xyHMMcorr{index_truncate_from(i)} = xyHMMcorr{index_truncate_from(i)}(:,1:limit_truncate_from(i));
+    medI{index_truncate_from(i)} = medI{index_truncate_from(i)}(1:limit_truncate_from(i));
+end
+for i = 1:length(index_truncate_to)
+    intervalsHMM(index_truncate_to(i),1) = intervalsHMM(index_truncate_to(i),1) + limit_truncate_to(i);
+    xyHMM{index_truncate_to(i)} = xyHMM{index_truncate_to(i)}(:,limit_truncate_to(i)+1:end);
+    xyHMMcorr{index_truncate_to(i)} = xyHMMcorr{index_truncate_to(i)}(:,limit_truncate_to(i)+1:end);
+    medI{index_truncate_to(i)} = medI{index_truncate_to(i)}(limit_truncate_to(i)+1:end);
+end
+
+
+%% Redo analysis in truncated trajectories -> save again
+index_trunc = reshape(union(index_truncate_to,index_truncate_from),1,[]);
+mode = questdlg('Choose mode', 'Choose mode','regular','consensus','regular'); 
+h = waitbar(0,['Re-doing HMM analysis: ' num2str(0) ' of ' num2str(length(index_trunc)) ' done.']);
+tic
+for i = index_trunc
+    waitbar(find(index_trunc==i)/length(index_trunc),h,['Redoing HMM analysis: Current index is ' num2str(i) ' (' num2str(find(index_trunc==i)) ' of ' num2str(length(index_trunc)) ')']);
+    switch mode
+        case 'regular'
+        [models{i}, state_trajectories{i}, arxv{i}] = mlhmmINTsegments(xyHMMcorr{i}, medI{i}, iEdges, intervalsHMM(i,1), 'sigmas', sigManual);
+        case 'consensus'
+        [models{i}, state_trajectories{i}, arxv{i}] = mlhmmINTsegments(xyHMMcorr{i}, medI{i}, iEdges, intervalsHMM(i,1), 'initial_models', consensus_models);
+    end
+end
+toc
+close(h)
+save HMMdata2.mat state_trajectories arxv iEdges xyHMM xyHMMcorr indicesHMM intervalsHMM
+
 discard = zeros(1,length(state_trajectories));
 for i = 1:length(discard)
     discard(i) = isempty(state_trajectories{i});
 end
+index_discard = unique([find(discard==1), discard_manual]);
+save HMMsortout.mat truncate_from truncate_to index_discard
 
+%% Prepare input for postHMM: 
 inputPostHMM.indices = indicesHMM;
 inputPostHMM.XY = xyHMMcorr;
 inputPostHMM.state_trajectories = state_trajectories;
 inputPostHMM.medI = medI;
 inputPostHMM.ranges = zeros(size(inputPostHMM.indices));
-inputPostHMM.ex_int = cell(size(inputPostHMM.indices));
-for i = find(discard==0)
+inputPostHMM.ex_int = cell(size(inputPostHMM.medI));
+for i = setdiff(1:size(inputPostHMM.ranges,1),index_discard)
     inputPostHMM.ranges(i,:) = [arxv{i}.segments(1,1) arxv{i}.segments(end,2)];
     if ~isempty(ignore{inputPostHMM.indices(i,1)})
         inputPostHMM.ex_int{i} = ignore{inputPostHMM.indices(i,1)};
@@ -263,67 +332,24 @@ for i = find(discard==0)
         inputPostHMM.ex_int{i} = zeros(0,2);
     end
 end
-
-%% truncate or discard data from specific particles
-% INPUT SPECIFICALLY FOR EVERY NEW DATASET:
-index_discard = unique([find(discard==1), 44]);
-copypaste_truncate_from = ...
-    [ ...
-3	43000
-5	13850
-30	24450
-35	41300
-53	27420
-62	44900
-];
-copypaste_truncate_to = ...
-    [ ...
-];
-if ~isempty(copypaste_truncate_from)
-    index_truncate_from = copypaste_truncate_from(:,1); %[,];
-    limit_truncate_from = copypaste_truncate_from(:,2); %[,];
-    if length(index_truncate_from)~=length(limit_truncate_from)
-        display('ERROR')
-    end
-    for i = 1:length(index_truncate_from)
-        inputPostHMM.XY{index_truncate_from(i)} = inputPostHMM.XY{index_truncate_from(i)}(:,1:limit_truncate_from(i));
-        inputPostHMM.state_trajectories{index_truncate_from(i)} = inputPostHMM.state_trajectories{index_truncate_from(i)}(1:limit_truncate_from(i));
-        inputPostHMM.medI{index_truncate_from(i)} = inputPostHMM.medI{index_truncate_from(i)}(1:limit_truncate_from(i));
-        inputPostHMM.ranges(index_truncate_from(i),2) = inputPostHMM.ranges(index_truncate_from(i),1) + limit_truncate_from(i) - 1;
-    end
-end
-
-if ~isempty(copypaste_truncate_to)
-    index_truncate_to = copypaste_truncate_to(:,1); %[,];
-    limit_truncate_to = copypaste_truncate_to(:,2); %[,];
-    if length(index_truncate_to)~=length(limit_truncate_to)
-        display('ERROR')
-    end
-    for i = 1:length(index_truncate_to)
-        inputPostHMM.XY{index_truncate_to(i)} = inputPostHMM.XY{index_truncate_to(i)}(:,limit_truncate_to(i)+1:end);
-        inputPostHMM.state_trajectories{index_truncate_to(i)} = inputPostHMM.state_trajectories{index_truncate_to(i)}(limit_truncate_to(i)+1:end);
-        inputPostHMM.medI{index_truncate_to(i)} = inputPostHMM.medI{index_truncate_to(i)}(limit_truncate_to(i)+1:end);
-        inputPostHMM.ranges(index_truncate_to(i),1) = inputPostHMM.ranges(index_truncate_from(i),1) + limit_truncate_to(i) + 1;
-    end
-end
-
 inputPostHMM.indices(index_discard,:) = [];
 inputPostHMM.XY(index_discard) = [];
 inputPostHMM.state_trajectories(index_discard) = [];
 inputPostHMM.medI(index_discard) = [];
 inputPostHMM.ranges(index_discard,:) = [];
-inputPostHMM.ex_int(index_discard) = [];
+inputPostHMM.ex_int(index_discard,:) = [];
 
-%% Post-HMM evaluation
+%% Post-HMM evaluation + Save post-HMM-data 
+% !!!Navigate to appropriate folder before!!!
+
 [outputPostHMM] = postHMM(inputPostHMM);
-hop = outputPostHMM.hop;
-
-%% Save post-HMM-data !!!Navigate to appropriate folder before!!!
-
 save dataPostHMM.mat outputPostHMM inputPostHMM
 
-%% Export Scatter Stats to Igor
-SID = 'S039';
+% Export Scatter Stats to Igor
+if ~exist('SID','var')
+    tmp = inputdlg({'Enter sample ID'});
+    SID = tmp{1};
+end
 StatsForIgor = outputPostHMM.scatterStats;
 tmp_remove = find(StatsForIgor(:,5) == 0 | StatsForIgor(:,6) == 0);
 StatsForIgor(tmp_remove,:) = [];
@@ -331,23 +357,4 @@ for i = 3:4
     StatsForIgor(:,i) = StatsForIgor(:,i)./sqrt(StatsForIgor(:,i+2));
 end
 stats_to_igor(StatsForIgor(:,1:4), SID)
-
-%% Plot the series of state-assigned trajectories:
-ts = figure('Units','normalized','Position',[0 0 1 1]);
-%mlmodel = model8_7;
-%xyHMM = arxv8_7.xyHMM;
-%inDisp = Arxv.indices;
-inDisp = indicesHMM;
-m = 1;
-tmp_start = find(inDisp(:,1)==m,1);
-for i = 1:length(models)
-    if ~isempty(models{i})
-        tmpXY = arxv{i}.XY;
-        tmpS = state_trajectories{i};
-        plot_twostate(tmpXY,tmpS,11);
-        subplot(4,1,1)
-        title(['Movie ' num2str(inDisp(i,1)) ', spot ' num2str(inDisp(i,2)), ', index ' num2str(i) '/' num2str(length(models))],'FontSize',14)
-        pause
-    end
-end
-close(ts)
+display('Saved .txt file for Igor scatter plot')
