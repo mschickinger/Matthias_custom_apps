@@ -1,7 +1,7 @@
-function [simStraj, simXY, simRMS] = sim_twostate_XY_RMS(params)
+function [simStraj, simXY, simRMS, simT] = sim_twostate_XY_RMS(params)
 
 tau = params.tau;
-tpf = params.tpf;
+tpf = params.tpf*2/1000;
 L = params.L;
 simMu = params.mu;
 simSigma = params.sigma;
@@ -19,18 +19,30 @@ end
 % simulate trajectories
 simStraj = zeros(1,L);
 simXY = zeros(2,L);
-
+allT = zeros(ceil(2*tpf*L/sum(tau)),1);
 
 sumT = 0;
-tmpF = 1;
 st = S1;
-while sumT < L*tpf
-    sumT = sumT + random('exp',tau(st));
-    tmpE = min(floor(sumT/tpf),L);
-    simStraj(tmpF:tmpE) = st;
-    simXY(:,tmpF:tmpE) = random('norm',simMu,simSigma(st),2,tmpE-tmpF+1);
-    tmpF = ceil(sumT/tpf);
+counter = 0;
+while sumT < (L-0.5)*tpf
+    counter = counter+1;
+    allT(counter) = exprnd(tau(st));
+    tmpF = ceil(sumT/tpf+0.5);
+    sumT = sumT + allT(counter);
+    tmpE = min(L,round(sumT/tpf));
+    if tmpE>=tmpF
+        simStraj(tmpF:tmpE) = st;
+        simXY(:,tmpF:tmpE) = random('norm',simMu,simSigma(st),2,tmpE-tmpF+1);
+    end
     st = mod(st,2)+1;
 end
+allT = allT(1:counter-1);
 simRMS = RMSfilt2d(simXY,wSize);
+
+% 'real' lifetime distributions
+for i = 2:-1:1
+    simT{1,i} = allT((1+(S1~=i)):2:end);
+end
+simT{S1}(1) = [];
+    
 return

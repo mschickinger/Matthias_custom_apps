@@ -1,37 +1,47 @@
-params.tau = [30 15];
-params.tpf = 0.1;
-params.L = 45000;
-params.mu = 0;
-params.sigma = [0.45 0.85];
-params.wSize = 11;
+clear variables
+close all
+clear variables
+run('my_prefs.m')
 
-N = 50;
+%% Generate dummy data
+% MAKE SURE YOU ARE INSIDE THE RIGHT FOLDER!!!!!!
+SID = 'T016';
+sample_means = {27.19, 14.27}; % in seconds
+Tmin = [1.3 1.0];
+
+k_in = get_corrected_rates(sample_means, Tmin, Inf);
+disp(1./k_in)
+%%
+simParams.tau = 1./k_in; %[];
+simParams.tpf = 50;
+simParams.L = 45000;
+simParams.mu = 0;
+simParams.sigma = [0.45 0.83];
+simParams.wSize = 11;
+
+N = 100;
 
 simStraj = cell(N,1);
 simXY = cell(N,1);
 simRMS11 = cell(N,1);
+simT = cell(N,2);
 h = waitbar(0);
 rng default %for reproducibility;
 for n = 1:N
     waitbar(n/N,h,['creating random trajectory ' ...
         num2str(n) ' of ' num2str(N) '.']);
-    [simStraj{n}, simXY{n}, simRMS11{n}] = sim_twostate_XY_RMS(params);
+    [simStraj{n}, simXY{n}, simRMS11{n}, simT(n,:)] = sim_twostate_XY_RMS(simParams);
+    %fprintf('%.2f\t%.2f\t%.2f\t%.2f\n',mean(simT{n,1}), mean(simT{n,2}), mean(vertcat(simT{1:n,1})), mean(vertcat(simT{1:n,2})))
 end
 close(h)
-
-%% show plots
-dispidx = 1;
-figure('Units', 'normalized', 'Position', [ 0 0 1 1 ])
-plot_twostate(simXY{dispidx},simStraj{dispidx},11)
-% subplot(4,1,1)
-% plot(simStraj)
-% ylim([0 3])
-% subplot(4,1,2)
-% plot(simXY(1,:),'.')
-% subplot(4,1,3)
-% plot(simXY(2,:),'.')
-% subplot(4,1,4)
-% plot(simRMS11)
+%
+save sim_data.mat simT simStraj simXY simRMS11 simParams
+data = {cell(N,1)};
+for s = 1:N
+    data{1}{s}.vwcm.pos = simXY{s}';
+    data{1}{s}.vwcm.rms10 = simRMS11{s}';
+end    
+save data_spot_pairs.mat data
 
 %%
 simEx = cell(size(simStraj));
@@ -143,7 +153,7 @@ for i = 1:2
     RMSstate{k} = RMSstate{k}(:,RMSstate{k}(1,:)<RMSmax);
 end
 
-%% Get density below 0.01% threshold for all bound intervals
+%% Get density below 1% threshold for all bound intervals
 P = 0.01;
 globThresh = zeros(2,1);
 for k = 1:2
@@ -153,12 +163,6 @@ for k = 1:2
 end
 densities = cell(length(simStraj),2);
 areas = cell(length(simStraj),2);
-allen = cell(2,1);
-distlBelow = cell(2,1);
-distXYBelow = cell(2,1);
-for i = 1:2
-    distXYBelow{i} = zeros(2,0);
-end
 h = waitbar(0,'');
 for isp = 1:length(simStraj)
     waitbar(isp/length(simStraj),h,['getting density and area statistics ' ...
@@ -182,7 +186,6 @@ for isp = 1:length(simStraj)
         states{1} = [S(updn==-1) L(updn==-1)];
     end
     for k = 1:2
-        allen{k} = [allen{k}; states{k}(:,2)];
         densities{isp,k} = zeros(size(states{k}));
         areas{isp,k} = zeros(size(states{k}));
         for i = 1:size(densities{isp,k},1)
@@ -204,19 +207,6 @@ for isp = 1:length(simStraj)
             else
                 densities{isp,k}(i,2) = densities{isp,k}(i,1);
                 areas{isp,k}(i,2) = areas{isp,k}(i,1);
-            end
-            if any(tmpB==1)
-                steps = find(diff([0; tmpB; 0])~=0);
-                S = steps(1:end-1);
-                S = S(tmpB(steps(1:end-1))==1);
-                L = steps(2:end)-steps(1:end-1);
-                L = L(tmpB(steps(1:end-1))==1);
-                distlBelow{k} = [distlBelow{k}; L];
-                tmpXYbelow = zeros(2,length(S));
-                for s = 1:size(tmpXYbelow,2)
-                    tmpXYbelow(:,s) = mean(tmpXY(:,tmpI(S(s)):(tmpI(S(s))+L(s)-1)),2);
-                end
-                distXYBelow{k} = [distXYBelow{k} tmpXYbelow]; 
             end
         end
     end
@@ -240,25 +230,20 @@ for isp = 1:size(densities,1)
     end
 end
 %%
-figure
-k = 2;
-subplot(2,2,1)
-histogram(allD{k},0:0.01:1.1)
-title(['allD' num2str(k)],'Fontsize',16)
-subplot(2,2,2)
-histogram(allDmax{k},0:0.01:1.1)
-title(['allDmax' num2str(k)],'Fontsize',16)
-subplot(2,2,3)
-histogram(allA{k})
-title(['allA' num2str(k)],'Fontsize',16)
-subplot(2,2,4)
-histogram(allAmax{k})
-title(['allAmax' num2str(k)],'Fontsize',16)
-for i = 1:4
-    subplot(2,2,i)
-    ylim([0 100])
-end
 
+figure('Units','normalized','Position',[0 0 1 1])
+for k = 1:2
+    subplot(2,2,1+(k-1)*2)
+    histogram(allD{k},0:0.01:1.1)
+    title(['allD' num2str(k)],'Fontsize',16)
+    subplot(2,2,2+(k-1)*2)
+    histogram(allDmax{k},0:0.01:1.1)
+    title(['allDmax' num2str(k)],'Fontsize',16)
+    for i = 1:4
+        subplot(2,2,i)
+        ylim([0 100])
+    end
+end
 
 %% cdfs
 fractions = 0:0.01:1;
@@ -266,29 +251,16 @@ relcountsD = cell(2,1);
 for k = 1:2
     relcountsD{k} = zeros(size(fractions));
     for i =1:length(relcountsD)
-        relcountsD(i) = sum(allDmax>=fractions(i));
+        relcountsD{k}(i) = sum(allDmax{k}>=fractions(i));
     end
     relcountsD{k} = relcountsD{k}/length(allDmax{k});
 end
 
 
-AR = linspace(0,1.01*max(allAmax));
-relcountsA = cell(2,1);
+figure('Units','normalized','Position',[0 0 1 1])
 for k = 1:2
-    relcountsA{k} = zeros(size(AR));
-    for i = 1:length(AR)
-        relcountsA(i) = sum(allAmax>=AR(i));
-    end
-    relcountsA{k} = relcountsA{k}/length(allAmax{k});
+    subplot(2,1,k)
+    semilogx(fractions,relcountsD{k})
+    title(['cum D, state ' num2str(k)], 'FontSize', 16)
+    %set(gca,'Xdir','reverse')
 end
-
-figure
-k = 2;
-subplot(2,1,1)
-plot(fractions,relcountsD{k})
-title('cum D', 'FontSize', 16)
-set(gca,'Xdir','reverse')
-subplot(2,1,2)
-plot(AR,relcountsA{k})
-title('cum A', 'FontSize', 16)
-set(gca,'Xdir','reverse')
