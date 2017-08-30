@@ -11,12 +11,21 @@ addRequired(p, 'init');
 %addOptional(p, 'xyLims', [Inf Inf]);
 addParameter(p, 'options', []);
 addParameter(p, 'sigmas',[]);
+addParameter(p, 'initial_models', []);
 parse(p, XY, iTrace, iThreshs, init, varargin{:})
 
 XY = p.Results.XY;
 iTrace = p.Results.iTrace;
 iThreshs = p.Results.iThreshs;
-sigmas = p.Results.sigmas;
+[segments, segmInds] = iSegments(iTrace, iThreshs);
+
+if ~isempty(p.Results.sigmas)
+    sigmas = p.Results.sigmas;
+    modelmode = 'sigma';
+elseif ~isempty(p.Results.initial_models)
+    models = p.Results.initial_models(segmInds);
+    modelmode = 'model';
+end
 
 if ~isempty(p.Results.options)
     mlhmmOptions = p.Results.options;
@@ -31,17 +40,21 @@ else
     mlhmmOptions.assign_states = 1;
 end
 
-segments = iSegments(iTrace, iThreshs);
-
 if ~isempty(segments)
     XY = XY(:,1:segments(end,2));
-    [mlmodels, state_trajectory] = mlhmmXYsegments(XY, segments, 2, mlhmmOptions, [], sigmas);    
+    switch modelmode
+        case 'sigma'
+        [mlmodels, state_trajectory] = mlhmmXYsegments(XY, segments, 2, mlhmmOptions, sigmas);
+        case 'model'
+        [mlmodels, state_trajectory] = mlhmmXYsegments(XY, segments, 2, mlhmmOptions, [], models);
+    end
     arxv.XY = XY;
 else
     mlmodels = [];
     state_trajectory = [];
     arxv.XY = [];
 end
+
 arxv.segments = segments + init - 1;
 arxv.models = cell(size(mlmodels));
 for i = 1:length(mlmodels)
