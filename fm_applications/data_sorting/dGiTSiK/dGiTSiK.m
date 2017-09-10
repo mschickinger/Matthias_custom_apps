@@ -3,8 +3,8 @@
 % Short lifetime and/or bad SNR? 
 
 close all
-clear data
-clear GiTSiK
+clear variables
+run('my_prefs.m')
 data_path = cd;
 %% Load data
 tmp = 0;
@@ -99,7 +99,7 @@ while m <= N_movie
             'String', categorylist{end}, 'Callback', 'category=length(categorylist); uiresume(gcbf)', 'FontSize', 12);
         
         e1 = uicontrol(bg, 'Style', 'Pushbutton', 'Position', [40 30 150 40],...
-            'String', 'Abort sorting', 'Callback', ['m = N_movie; s = size(data{N_movie},1)+1; ' ...
+            'String', 'Abort sorting', 'Callback', ['m = N_movie+2; s = size(data{end},1)+1; ' ...
             'uiresume(gcbf); close all'], 'FontSize', 12);
         
         set(bg, 'Visible', 'on')
@@ -128,10 +128,12 @@ while m <= N_movie
     m = m+1;
 end
 close all
-%% Assign spot behaviour (permanently mobile, permanently stationary, switching of unknown)
+%% Assign spot behaviour (unimodal, switching, not sure)
 close all
 f = figure('Visible', 'off', 'Units', 'normalized', 'Position', [0 0 1 1]);
-m = 1;
+if m == N_movie+1
+    m = 1;
+end
 while m <= N_movie
     keeps = find(GiTSiK.categorized{m} == 1);
     if isempty(GiTSiK.behaviour{m})
@@ -140,10 +142,10 @@ while m <= N_movie
     else
         i = find(GiTSiK.behaviour{m}(keeps') == 0, 1);
         if isempty(i)
-            i = length(find(GiTSiK.categorized{m} == 1)) + 1;
+            i = length(keeps) + 1;
         end
     end
-    while i <= length(find(GiTSiK.categorized{m} == 1))
+    while i <= length(keeps)
         s = keeps(i);
         tmp_vwcm = imread([data_path filesep 'vwcm_traces' filesep 'traces_RMS_hist_m' num2str(m) '_s' num2str(s) '.png']);
         tmp_disp = imread([data_path filesep 'disp_from_map_traces' filesep 'disp_from_map_m' num2str(m) '_s' num2str(s) '.png']);
@@ -177,7 +179,7 @@ while m <= N_movie
             'String', behavelist{end}, 'Callback', 'behave=length(behavelist); uiresume(gcbf)', 'FontSize', 12);
         
         e1 = uicontrol(bg, 'Style', 'Pushbutton', 'Position', [115 20 150 40],...
-            'String', 'Abort sorting', 'Callback', ['m = N_movie; i = length(GiTSiK.categorized{N_movie})+1;' ...
+            'String', 'Abort sorting', 'Callback', ['m = N_movie+2; i = size(data{end},1)+1;' ...
             'uiresume(gcbf); close all'], 'FontSize', 12);
         
         set(bg, 'Visible', 'on')
@@ -192,18 +194,19 @@ while m <= N_movie
                         i = 1;
                     else
                         m = m-1;
-                        i = length(find(GiTSiK.categorized{m} == 1));
+                        keeps = find(GiTSiK.categorized{m} == 1);
+                        i = length(keeps);
                     end
                 end
             elseif behave == 4
                 [category, ok] = listdlg('PromptString', 'Select a new category', ...
-                    'SelectionMode', 'single', 'ListString', categorylist(1:end-1));
+                    'SelectionMode', 'single', 'ListString', categorylist(2:end-2));
                 if ok
-                    GiTSiK.categorized{m}(s) = category;
+                    GiTSiK.categorized{m}(s) = category+1;
                     GiTSiK.behaviour{m}(s) = 0;
-                    i = i+1;
+                    keeps(i) = [];
                 end
-            else
+            elseif m<=N_movie
                 GiTSiK.behaviour{m}(s) = behave; % Permanent:1, Switching:2, Don't know:3, Cancel:0
                 i = i+1;
             end
@@ -273,28 +276,33 @@ end
 close(gcf),
 %% Appendix B: Output bar graphs of category / behaviour counts + summary pie chart:
 close all
-figure(1)
-categories = {'OK', 'Neighbour close', 'Attachment', 'Promiscuous' ,'Lifetime', 'Other'};
-counts = hist(vertcat(GiTSiK.categorized{:}),1:6);
-bar(counts)
-text(1:6,counts',num2str(counts'),'HorizontalAlignment','center','VerticalAlignment','bottom')
-ylim([0 round(1.1*max(counts))])
-set(gca, 'XTickLabel', categories)
-ylabel('count')
-title(['Categories assigned in sample: ' GiTSiK.sample{1} ', Date: ' GiTSiK.date{1} ', N_tot: ' num2str(sum(counts))])
-%annotation('textbox', [0.8 0.8 0.1 0.05], 'String', ['Total #: ' num2str(length(counts))])
-cd(data_path)
-print('-dpng', '-r150', 'category_barplot.png')
+tmp = vertcat(GiTSiK.categorized{:});
+if all(tmp>0)
+    figure(1)
+    categories = {'OK', 'Neighbour close', 'Attachment', 'Promiscuous' ,'Lifetime', 'Other'};
+    counts = hist(tmp,1:6);
+    bar(counts)
+    text(1:6,counts',num2str(counts'),'HorizontalAlignment','center','VerticalAlignment','bottom')
+    ylim([0 round(1.1*max(counts))])
+    set(gca, 'XTickLabel', categories)
+    ylabel('count')
+    title(['Categories assigned in sample: ' GiTSiK.sample{1} ', Date: ' GiTSiK.date{1} ', N_tot: ' num2str(sum(counts))])
+    %annotation('textbox', [0.8 0.8 0.1 0.05], 'String', ['Total #: ' num2str(length(counts))])
+    cd(data_path)
+    print('-dpng', '-r150', 'category_barplot.png')
+end
 
-figure(2)
-behaviours = {'Static', 'Switching', 'Not sure'};
 tmp = vertcat(GiTSiK.behaviour{:});
-counts = hist(tmp(tmp>0),1:3);
-bar(counts, 'r')
-text(1:3,counts',num2str(counts'),'HorizontalAlignment','center','VerticalAlignment','bottom')
-ylim([0 round(1.1*max(counts))])
-set(gca, 'XTickLabel', behaviours)
-ylabel('count')
-title(['Behaviour assigned in sample: ' GiTSiK.sample{1} ', Date: ' GiTSiK.date{1} ', N_tot: ' num2str(sum(counts))])
-cd(data_path)
-print('-dpng', '-r150', 'behaviour_barplot.png')
+if any(tmp>0)
+    figure(2)
+    behaviours = {'Unimodal', 'Switching', 'Not sure'};
+    counts = hist(tmp(tmp>0),1:3);
+    bar(counts, 'r')
+    text(1:3,counts',num2str(counts'),'HorizontalAlignment','center','VerticalAlignment','bottom')
+    ylim([0 round(1.1*max(counts))])
+    set(gca, 'XTickLabel', behaviours)
+    ylabel('count')
+    title(['Behaviour assigned in sample: ' GiTSiK.sample{1} ', Date: ' GiTSiK.date{1} ', N_tot: ' num2str(sum(counts))])
+    cd(data_path)
+    print('-dpng', '-r150', 'behaviour_barplot.png')
+end
