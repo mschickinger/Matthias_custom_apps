@@ -6,26 +6,29 @@ load('lts_main_pop.mat')
 close all
 exppdf_mod = @(t,tau,Tmin,Tmax)1./tau.*exp(-t./tau)./(exp(-Tmin./tau)-exp(-Tmax./tau));
 expcdf_mod = @(t,tau,Tmin,Tmax)(exp(-t./tau)-exp(-Tmin./tau))/(exp(-Tmax./tau)-exp(-Tmin./tau));
-colors = {[237 177 32]/255,[0 102 153]/255, [204 0 0]/255};
-cf = figure('Color', [1 1 1], 'Units', 'Pixels', 'Position', [500 500 128 115], 'PaperPositionMode', 'auto', ...
-                'Visible','off');
+%colors = {[237 177 32]/255,[0 102 153]/255, [204 0 0]/255};
+%cf = figure('Color', [1 1 1], 'Units', 'Pixels', 'Position', [500 500 128 115], 'PaperPositionMode', 'auto', ...
+ %               'Visible','off');
 [filename,savepath] = uiputfile('','',[paper_dir '/2017_Figures/NaClScreen/']);%inputdlg({'Enter filename (without extension):'},'Filename',1,{''});
 cd(savepath)
 
-%% Set limits
+%% Set limits, color, markers
 BLIM = [8 45];
-ULIM = [30 300];
-
+ULIM = [9 400];
+colors = {[.929 .694 .125],[.494 .184 .556],[.466 .674 .188]};
+cind = 2;
+markers = {'x','o','+'};
+msize = [4.2,5,3.5];
 %% Scatter plot
 close all
 sz = [100 100 320 170];
 figure('Units','Points','Position',sz,'PaperUnits','Points','PaperSize',sz(3:4),'PaperPositionMode','auto')
 hold off
 XYmin = [Inf Inf];
-cind = 0;
+%cind = 0;
 for j = numel(lifetimes):-1:1
-    cind = cind+1;
-    loglog(lifetimes{j}.MEAN(INdices{j},2),lifetimes{j}.MEAN(INdices{j},1),'+','Color',colors{cind},'MarkerSize',3,'LineWidth',.1)
+    %cind = cind+1;
+    loglog(lifetimes{j}.MEAN(INdices{j},2),lifetimes{j}.MEAN(INdices{j},1),markers{j},'Color',colors{cind},'MarkerSize',msize(j),'LineWidth',.1,'MarkerFaceColor',[1 1 1]*1)
     hold on
     for k = 1:2
         XYmin(k) = min(XYmin(k),min(lifetimes{j}.MEAN(INdices{j},k)));
@@ -40,7 +43,7 @@ ax.TickDir = 'out';
 ax.FontName = 'Helvetica';
 ax.FontSize = 12;
 %ax.YTick = [0 .5 1];
-ax.XTick = [50,100];
+ax.XTick = [10,100];
 for i = 1:numel(ax.XTick)
     ax.XTickLabel{i} = num2str(ax.XTick(i));
 end
