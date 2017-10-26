@@ -14,21 +14,39 @@ cd(savepath)
 
 %% Set limits, color, markers
 BLIM = [8 45];
-ULIM = [9 400];
-colors = {[.929 .694 .125],[.494 .184 .556],[.466 .674 .188]};
-cind = 2;
-markers = {'x','o','+'};
-msize = [4.2,5,3.5];
+ULIM = [7 200];
+% yellow-purple-green
+%colors = {[.929 .694 .125],[.494 .184 .556],[.466 .674 .188]};
+% azurblau-rot-orange
+%colors = {[36 88 120]/255,[204 0 0]/255,[255 170 0]/255};
+% blau verlauf
+%colors = {[21 51 69]/255,[59 144 196]/255,[118 167 196]/255};
+% lila verlauf
+%colors = {[204 0 163]/255,[126 47 142]/255,[69 27 67]/255};
+% yellow-orange verlauf 
+%colors = {[247 127 21]/255,[.929 .694 .125],[247 226 21]/255};
+%colors = {[230 94 43]/255,[255 170 0]/255,[.929 .694 .125]};
+%colors = {[230 94 43]/255,[254 186 48]/255,[.929 .694 .125]};
+% L2: cyan-aqua-darqua
+%colors = {[128 255 255]./255,[0 128 255]./255,[0 0 128]./255};
+% L6: lemon-tangerine-maraschino
+%colors = {[225 225 0]./255,[255 128 0]./255,[255 0 0]./255};
+% L10: magenta-plum
+colors = {[255 0 255]./255,[128 0 128]./255};
+%cind = 2;
+markers = {'^','o','s'};
+%markers = {'x', 'd', '+'}
+msize = [5,5,5];
 %% Scatter plot
 close all
-sz = [100 100 320 170];
-figure('Units','Points','Position',sz,'PaperUnits','Points','PaperSize',sz(3:4),'PaperPositionMode','auto')
+sz = [100 100 500 350];
+sf = figure('Units','Points','Position',sz,'PaperUnits','Points','PaperSize',sz(3:4),'PaperPositionMode','auto');
 hold off
 XYmin = [Inf Inf];
-%cind = 0;
-for j = numel(lifetimes):-1:1
-    %cind = cind+1;
-    loglog(lifetimes{j}.MEAN(INdices{j},2),lifetimes{j}.MEAN(INdices{j},1),markers{j},'Color',colors{cind},'MarkerSize',msize(j),'LineWidth',.1,'MarkerFaceColor',[1 1 1]*1)
+cind = 0;
+for j = 1:numel(lifetimes)
+    cind = cind+1;
+    loglog(lifetimes{j}.MEAN(INdices{j},2),lifetimes{j}.MEAN(INdices{j},1),markers{3},'Color',colors{cind},'MarkerSize',20,'LineWidth',.1,'MarkerFaceColor',[1 1 1]*1)
     hold on
     for k = 1:2
         XYmin(k) = min(XYmin(k),min(lifetimes{j}.MEAN(INdices{j},k)));
@@ -36,38 +54,38 @@ for j = numel(lifetimes):-1:1
 end
 XYmin = XYmin - [0.1 0.1];
 ax = gca;
+ax.Units = 'points';
 ax.XLim = ULIM;
 %xlim auto
 ax.YLim = BLIM;
 ax.TickDir = 'out';
-ax.FontName = 'Helvetica';
-ax.FontSize = 12;
+%ax.FontName = 'Helvetica';
+%ax.FontSize = 20;
 %ax.YTick = [0 .5 1];
 ax.XTick = [10,100];
-for i = 1:numel(ax.XTick)
-    ax.XTickLabel{i} = num2str(ax.XTick(i));
-end
+ax.XTickLabel = {};
+% for i = 1:numel(ax.XTick)
+%     ax.XTickLabel{i} = num2str(ax.XTick(i));
+% end
 ax.YTick = [10, 20, 30, 40];
-for i = 1:numel(ax.YTick)
-    ax.YTickLabel{i} = num2str(ax.YTick(i));
-end
+ax.YTickLabel = {};
+% for i = 1:numel(ax.YTick)
+%     ax.YTickLabel{i} = num2str(ax.YTick(i));
+% end
 ax.YMinorGrid = 'off';
-%ax.YTickLabel = {};
 %xlabel('lifetime (s)', 'FontSize', 14)
 %ylabel('Cumulative frequency / Probability', 'FontSize', 14)
 %l = legend({'data','MLE'},'Location','southeast', 'FontSize', 12);
 box off
-ax.Layer = 'top';
+ax.Layer = 'bottom';
 grid on
+ax.GridLineStyle = '-';
+ax.MinorGridLineStyle = '-';
 
 %minimize whitespace (from Matlab help)
-outerpos = ax.OuterPosition;
-ti = ax.TightInset; 
-left = outerpos(1) + ti(1);
-bottom = outerpos(2) + ti(2);
-ax_width = outerpos(3) - ti(1) - ti(3);
-ax_height = outerpos(4) - ti(2) - ti(4);
-ax.Position = [left bottom ax_width ax_height];
+ax.Position(1) = 10;
+ax.Position(2) = 10;
+ax.Position(3:4) = sf.Position(3:4)-ax.Position(1:2)-[1 1];
 
 %export_fig(filename(1:strfind(filename,'.')-1),'-eps','-r600', '-transparent')
 print('-depsc','-r600','-tiff','-loose',[filename(1:strfind(filename,'.')-1) '_scatter.eps'])

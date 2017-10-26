@@ -15,7 +15,7 @@ THINGS YOU NEED TO DO BEFOREHAND:
 clear variables
 run('my_prefs.m')
 
-SID = 'S047';
+SID = 'S032';
 load('data_spot_pairs.mat')
 load('GiTSiK.mat')
 
@@ -92,9 +92,9 @@ end
 
 %% Find number of traces containing more than a certain percentage of frames above increasing threshold levels
 % (exclude data points with unrealistic values from statistic)
-Dmax = 4; %INPUT - RESET FOR EVERY DATASET
+Dmax = 7; %INPUT - RESET FOR EVERY DATASET
 tol = 0.0001;
-threshs = 2.5:0.05:7;
+threshs = 4:0.05:10;
 nPmillAbove = zeros(length(threshs),1);
 for i = 1:length(xyG)
     tmp_data = xyG{i};
@@ -157,7 +157,7 @@ disp(foo2.N/foo2.N_all)
 models = cell(size(xyHMM));
 state_trajectories = cell(size(xyHMM));
 arxv = cell(size(xyHMM));
-sigManual = [0.45 0.85];
+sigManual = [0.3 1.3];
 h = waitbar(0,['Spot-by-spot HMM analysis: ' num2str(0) ' of ' num2str(length(xyHMM)) ' done.']);
 tic
 for i = 1:length(xyHMM)
@@ -213,7 +213,8 @@ go_on = 1;
 while go_on
     tmpXY = arxv{inData(i)}.XY;
     tmpS = state_trajectories{inData(i)};
-    tmpRMS = data{inDisp(i,1)}{inDisp(i,2),1}.vwcm.rms10(arxv{inData(i)}.segments(1):arxv{inData(i)}.segments(end));
+    tmpRMS = RMSfilt2d(tmpXY',11);
+%    tmpRMS = data{inDisp(i,1)}{inDisp(i,2),1}.vwcm.rms10(arxv{inData(i)}.segments(1):arxv{inData(i)}.segments(end));
     plot_twostate(tmpXY,tmpS,tmpRMS');
     subplot(4,1,1)
     hold on
@@ -249,19 +250,23 @@ save HMMdata1.mat state_trajectories arxv iEdges xyHMM xyHMMcorr indicesHMM inte
 
 %% truncate or discard data from specific particles
 % INPUT SPECIFICALLY FOR EVERY NEW DATASET:
-discard_manual = [41, 53, 60, 62, 63, 66, 69, 113];
+discard_manual = [51,62];
 truncate_from = ...
     [ ...
-23	44800
-37	18500
-43	31850
-52	25500
-95	44950
-101	21030
+16	25500
+18	44700
+19	44980
+29	44750
+53	26520
+58	39370
+61	33290
+65	44720
+72	43000
+90	44980
 ];
 truncate_to = ...
     [ ...
-
+82  20
 ];
 if ~isempty(truncate_from)
     index_truncate_from = truncate_from(:,1); %[,];
@@ -308,7 +313,7 @@ for i = index_trunc
 end
 toc
 close(h)
-save HMMdata2.mat state_trajectories arxv iEdges xyHMM xyHMMcorr indicesHMM intervalsHMM
+save HMMdata2.mat state_trajectories arxv iEdges xyHMM xyHMMcorr indicesHMM intervalsHMM medI
 
 discard = zeros(1,length(state_trajectories));
 for i = 1:length(discard)

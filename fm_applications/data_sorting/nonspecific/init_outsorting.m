@@ -42,6 +42,7 @@ for i = 1:numel(RMSintSeg)
     RMSintSeg{i} = zeros(4,0);
     xySeg{i} = zeros(4,0);
 end
+%
 segments = cell(1,length(medI));
 segmInds = cell(1,length(medI));
 removInds = cell(2,1);
@@ -75,7 +76,7 @@ for i = 1:2
         medSigmas{i}(j,:) = median(allSigmas{i}{j});
     end
 end
-
+%
 % Fill global cell array for segments and states
 for i = 1:length(arxv)
     if ~isempty(arxv{i}.segments)
@@ -226,13 +227,15 @@ areasZ = areas;
 display('Outsorting initialized.')
 
 %%
-% figure('Units','normalized','Position',[0 0 1 1])
-% for k = 1:2
-%     subplot(2,2,k)
-%     histogram(allD{k})
-%     ylim([0 20])
-%     subplot(2,2,k+2)
-%     histogram(allDmax{k})
-%     title(['max' num2str(k)])
-%     ylim([0 20])
-% end
+%
+figure('Units','normalized','Position',[0 0 1 1])
+for k = 1:2
+    subplot(2,2,k)
+    histogram(allD{k})
+    ylim([0 20])
+    subplot(2,2,k+2)
+    histogram(allDmax{k})
+    title(['max' num2str(k)])
+    ylim([0 20])
+end
+%}

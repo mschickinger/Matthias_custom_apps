@@ -1,4 +1,4 @@
-cutoffD = [0.2 0.2];
+cutoffD = [1 0.2];
 limitSEM = [4 4];
 
 GO_ON = 1;
