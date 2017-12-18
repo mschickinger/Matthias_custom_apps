@@ -137,10 +137,7 @@ for j = 1:Nspecies
         for i2 = 1:length(tauRange{2})
             tmpI = zeros(size(lifetimes{j}.SUM,1),1);
             tmpTaus = [tauRange{1}(i1) tauRange{2}(i2)];
-            Nmult = [0 0];
-            for k = 1:2
-                Nmult(k) = exp(Tmin(k)/tmpTaus(k));
-            end
+            Nmult = exp(Tmin./tmpTaus);
             n = 0;
             for k = 1:size(lifetimes{j}.SUM,1)
                 tmp = [0 0];
