@@ -13,8 +13,8 @@ expcdf_mod = @(t,tau,Tmin,Tmax)(exp(-t./tau)-exp(-Tmin./tau))/(exp(-Tmax./tau)-e
 cd(savepath)
 
 %% Set limits, color, markers
-BLIM = [8 45];
-ULIM = [7 200];
+BLIM = [10 50];
+ULIM = [6.5 300];
 % yellow-purple-green
 %colors = {[.929 .694 .125],[.494 .184 .556],[.466 .674 .188]};
 % azurblau-rot-orange
@@ -28,25 +28,25 @@ ULIM = [7 200];
 %colors = {[230 94 43]/255,[255 170 0]/255,[.929 .694 .125]};
 %colors = {[230 94 43]/255,[254 186 48]/255,[.929 .694 .125]};
 % L2: cyan-aqua-darqua
-%colors = {[128 255 255]./255,[0 128 255]./255,[0 0 128]./255};
+%colors = {[128 255 255]./255,[0 128 255]./255,[0 0 128]./255}; mind = 1;
 % L6: lemon-tangerine-maraschino
-%colors = {[225 225 0]./255,[255 128 0]./255,[255 0 0]./255};
+%colors = {[225 225 0]./255,[255 128 0]./255,[255 0 0]./255}; mind = 2;
 % L10: magenta-plum
-colors = {[255 0 255]./255,[128 0 128]./255};
+colors = {[255 0 255]./255,[128 0 128]./255}; mind = 3;
 %cind = 2;
 markers = {'^','o','s'};
 %markers = {'x', 'd', '+'}
-msize = [5,5,5];
-%% Scatter plot
+msize = [16,16,20];
+% Scatter plot
 close all
-sz = [100 100 500 350];
-sf = figure('Units','Points','Position',sz,'PaperUnits','Points','PaperSize',sz(3:4),'PaperPositionMode','auto');
+sz = [500 350];
+sf = figure('Units','Points','Position',[1 1 sz],'PaperUnits','Points','PaperSize',sz,'PaperPositionMode','auto');
 hold off
 XYmin = [Inf Inf];
 cind = 0;
 for j = 1:numel(lifetimes)
     cind = cind+1;
-    loglog(lifetimes{j}.MEAN(INdices{j},2),lifetimes{j}.MEAN(INdices{j},1),markers{3},'Color',colors{cind},'MarkerSize',20,'LineWidth',.1,'MarkerFaceColor',[1 1 1]*1)
+    loglog(lifetimes{j}.MEAN(INdices{j},2),lifetimes{j}.MEAN(INdices{j},1),markers{mind},'Color',colors{cind},'MarkerSize',msize(mind),'LineWidth',.2,'MarkerFaceColor',[1 1 1]*1)
     hold on
     for k = 1:2
         XYmin(k) = min(XYmin(k),min(lifetimes{j}.MEAN(INdices{j},k)));
@@ -62,12 +62,14 @@ ax.TickDir = 'out';
 %ax.FontName = 'Helvetica';
 %ax.FontSize = 20;
 %ax.YTick = [0 .5 1];
-ax.XTick = [10,100];
+ax.XTick = [10,20,50,100,300];
+ax.XMinorTick = 'on';
 ax.XTickLabel = {};
 % for i = 1:numel(ax.XTick)
 %     ax.XTickLabel{i} = num2str(ax.XTick(i));
 % end
-ax.YTick = [10, 20, 30, 40];
+ax.YTick = 10:10:80;%[10, 20, 40, 80];
+ax.YMinorTick = 'off';
 ax.YTickLabel = {};
 % for i = 1:numel(ax.YTick)
 %     ax.YTickLabel{i} = num2str(ax.YTick(i));
@@ -88,7 +90,7 @@ ax.Position(2) = 10;
 ax.Position(3:4) = sf.Position(3:4)-ax.Position(1:2)-[1 1];
 
 %export_fig(filename(1:strfind(filename,'.')-1),'-eps','-r600', '-transparent')
-print('-depsc','-r600','-tiff','-loose',[filename(1:strfind(filename,'.')-1) '_scatter.eps'])
+print('-dpdf',[filename(1:strfind(filename,'.')-1) '.pdf'])
 
 %% CDF plot unbound (state 2)
 close all
