@@ -124,14 +124,15 @@ RMSintSegZ = RMSintSeg;
 
 % Get density below 1% threshold for all bound intervals
 P = 0.01;
-globThreshs = get_globThreshs(RMSintSeg, P);
+P2 = 0.025;
+[globThreshs gThreshs2] = get_globThreshs(RMSintSeg, P, P2);
 densities = cell(length(state_trajectories),2);
-areas = cell(length(state_trajectories),2);
+noneAboveP2 = cell(size(densities));
 %maxlBelow = cell(length(state_trajectories),2);
 stateFrames = cell(length(state_trajectories),2);
 h = waitbar(0,'');
 for isp = setdiff(1:size(densities,1),index_discard)
-    waitbar(isp/length(state_trajectories),h,['getting density and area statistics ' ...
+    waitbar(isp/length(state_trajectories),h,['getting density statistics ' ...
         num2str(isp) ' of ' num2str(length(state_trajectories)) '.']);
     if ~isempty(segments{isp})
         straj = state_trajectories{isp};       
@@ -159,56 +160,48 @@ for isp = setdiff(1:size(densities,1),index_discard)
         end
         for k = 1:2
             densities{isp,k} = zeros(size(states{k}));
-            areas{isp,k} = zeros(size(states{k}));
-            %maxlBelow{isp,k} = zeros(size(states{k},1),1);
+            noneAboveP2{isp,k} = zeros(size(states{k},1),1);
             tmpSeg = 1;
             for i = 1:size(densities{isp,k},1)
                 if ~isnan(states{k}(i,1))
                     while states{k}(i,1) > segments{isp}(tmpSeg,2)
                         tmpSeg = tmpSeg + 1;
                     end
-                    tmpA = zeros(1,states{k}(i,2));
+                    tmpA = states{k}(i,2)>1;
                     tmpB = zeros(1,states{k}(i,2));
                     tmpI = states{k}(i,1):sum(states{k}(i,:))-1;
                     tmpF = 0;
                     while sum(states{k}(i,:)) > segments{isp}(tmpSeg,2)
-                        tmpA((tmpF+1):(segments{isp}(tmpSeg,2)-states{k}(i,1))) = ...
-                            tmpRMS(tmpI((tmpF+1):(segments{isp}(tmpSeg,2)-states{k}(i,1))))-globThreshs(k,segmInds{isp}(tmpSeg));
+                        tmpA = tmpA && all(tmpRMS(tmpI((tmpF+1):(segments{isp}(tmpSeg,2)-states{k}(i,1))))<gThreshs2(k,segmInds{isp}(tmpSeg)));
                         tmpB((tmpF+1):(segments{isp}(tmpSeg,2)-states{k}(i,1))) = ...
                             tmpRMS(tmpI((tmpF+1):(segments{isp}(tmpSeg,2)-states{k}(i,1))))<=globThreshs(k,segmInds{isp}(tmpSeg));
                         tmpF = segments{isp}(tmpSeg,2)-states{k}(i,1);
                         tmpSeg = tmpSeg + 1;
                     end
                     if tmpF < states{k}(i,2)
-                        tmpA(tmpF+1:end) = tmpRMS(tmpI(tmpF+1:end))-globThreshs(k,segmInds{isp}(tmpSeg));
+                        tmpA = tmpA && all(tmpRMS(tmpI(tmpF+1:end))<gThreshs2(k,segmInds{isp}(tmpSeg)));
                         tmpB(tmpF+1:end) = tmpRMS(tmpI(tmpF+1:end))<=globThreshs(k,segmInds{isp}(tmpSeg));
                     end
                     densities{isp,k}(i,1) = sum(tmpB)/length(tmpB);
-                    areas{isp,k}(i,1) = abs(sum(tmpB.*tmpA));
+                    noneAboveP2{isp,k}(i) = tmpA;
                     Nmax = 100;
                     Lmin = [Nmax, (Nmax+2*floor(W/2))];
                     if states{k}(i,2)>Lmin(k)
                         if k==2
                             tmpB = tmpB(floor(W/2)+1:end-floor(W/2));
                         end
-                        tmpA2 = zeros(1,length(tmpB)-Nmax+1);
                         tmpB2 = zeros(1,length(tmpB)-Nmax+1);
                         for j = 1:length(tmpB2)
-                            tmpA2(j) = abs(sum(tmpA(j:j+Nmax-1).*tmpB(j:j+Nmax-1)));
                             tmpB2(j) = sum(tmpB(j:j+Nmax-1));
                         end
                         densities{isp,k}(i,2) = max(tmpB2)/Nmax;
-                        areas{isp,k}(i,2) = max(tmpA2);
                     elseif k==1
                         densities{isp,k}(i,2) = densities{isp,k}(i,1);
-                        areas{isp,k}(i,2) = areas{isp,k}(i,1);
                     else
                         densities{isp,k}(i,2) = NaN;
-                        areas{isp,k}(i,2) = NaN;
                     end
                 else
                     densities{isp,k}(i,:) = NaN;
-                    areas{isp,k}(i,:) = NaN;
                 end
             end
         end
@@ -217,12 +210,11 @@ end
 close(h)
 stateFramesZ = stateFrames;
 densitiesZ = densities;
-areasZ = areas;
-%maxlBelowZ = maxlBelow;
-
+noneAboveP2Z = noneAboveP2;
+RMSintSegZ = RMSintSeg;
+removIndsZ = removInds;
 % Check out distribution of densities
-[allD, allDmax, allA, allAmax] = get_allADmax(densities, index_discard, areas);%, maxlBelow);
-
+[allD, allDmax] = get_allDmax(densities, index_discard);
 %
 display('Outsorting initialized.')
 

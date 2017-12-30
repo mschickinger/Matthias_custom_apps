@@ -41,7 +41,7 @@ for i = 1:Nsamples
         hops{i} = outputPostHMM.hop;
     end
     if Nspecies>1
-        tmp = inputdlg(indquest, 'Movie indices',1);
+        tmp = inputdlg(indexprompt, 'Movie indices',1);
         for j = 1:Nspecies
             movInds{i,j} = str2num(tmp{j});
         end

@@ -7,7 +7,7 @@ for isp = setdiff(1:size(stickinTervals,1),index_discard)
         tmpRMS = data{indicesHMM(isp,1)}{indicesHMM(isp,2),1}.vwcm.rms10(arxv{isp}.segments(1):arxv{isp}.segments(end))';
         tmpXY = arxv{isp}.XY;
         tmpS = state_trajectories{isp};
-        [stickinTervals{isp}, stickinDices{isp}] = get_sticky(tmpRMS, tmpXY, tmpS, segments{isp}, segmInds{isp}, globThreshs, cutoffD, medSigmas, limitSEM);
+        [stickinTervals{isp}, stickinDices{isp}] = get_sticky(tmpRMS, tmpXY, tmpS, segments{isp}, segmInds{isp}, globThreshs, cutoffD, medSigmas, limitSEM, gThreshs2);
     end
     waitbar(isp/(size(stickinTervals,1)),h,[num2str(100*round(isp/(size(stickinTervals,1)),2)) ' percent done.'])
 end
@@ -40,7 +40,7 @@ save sticky.mat stickinTervals stickinDices
 
 %% GUI for inspection of state-assigned trajectories:
 
-%{
+%
 
 %mlmodel = model8_7;
 %xyHMM = arxv8_7.xyHMM;
@@ -76,13 +76,16 @@ while go_on
     tmpXY = arxv{inData(i)}.XY;
     tmpS = state_trajectories{inData(i)};
     tmpRMS = data{inDisp(i,1)}{inDisp(i,2),1}.vwcm.rms10(arxv{inData(i)}.segments(1):arxv{inData(i)}.segments(end));
+    %tmpRMS = data{inDisp(i,1)}{inDisp(i,2),1}.vwcm.rms10(segments{inData(i)}(1):segments{inData(i)}(end));
     plot_twostate(tmpXY,tmpS,tmpRMS');
     subplot(4,1,1)
     hold on
-    offset = arxv{inData(i)}.segments(1)-1;
-    for k = 1:2
-        for intidx = 1:size(arxv{inData(i)}.segments,1)
-            plot(arxv{inData(i)}.segments(intidx,:)-offset,globThreshs(k,intidx)*[1 1],'k--')
+    plot(double(tmpS)+.75, 'k')
+    offset = segments{inData(i)}(1)-1;
+    for intidx = 1:size(segments{inData(i)},1)
+        plot(segments{inData(i)}(intidx,:)-offset,gThreshs2(2,segmInds{inData(i)}(intidx))*[1 1],'b--')
+        for k = 1:2      
+            plot(segments{inData(i)}(intidx,:)-offset,globThreshs(k,segmInds{inData(i)}(intidx))*[1 1],'k--')
         end
     end
     ylim([0 3])
@@ -99,7 +102,7 @@ while go_on
     plot(sqrt(tmpMedXY(1,:).^2+tmpMedXY(2,:).^2),'Color',[1 1 1]*.6)
     for K = 1:2
         for intidx = 1:size(arxv{inData(i)}.segments,1)
-            plot(arxv{inData(i)}.segments(intidx,:)-offset,3/sqrt(W)*mean(medSigmas{K}(intidx,:))*[1 1],'k--')
+            plot(segments{inData(i)}(intidx,:)-offset,3/sqrt(W)*mean(medSigmas{K}(segmInds{inData(i)}(intidx),:))*[1 1],'k--')
         end
     end
     for K = 1:2
@@ -122,6 +125,6 @@ while go_on
     bShow.Value = 1;
     uiwait(gcf)
 end
+close(ts)
 %}
 display('Done.')
-%close(ts)

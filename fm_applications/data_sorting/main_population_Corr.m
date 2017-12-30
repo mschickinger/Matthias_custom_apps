@@ -41,7 +41,7 @@ for i = 1:Nsamples
         hops{i} = outputPostHMM.hop;
     end
     if Nspecies>1
-        tmp = inputdlg(indquest, 'Movie indices',1);
+        tmp = inputdlg(indexprompt, 'Movie indices',1);
         for j = 1:Nspecies
             movInds{i,j} = str2num(tmp{j});
         end
@@ -109,139 +109,261 @@ for j = 1:Nspecies
     end
     lifetimes{j}.MEAN = lifetimes{j}.SUM./lifetimes{j}.N;
 end
-clear resultsALL tpfALL
 %%
-close all
-surfig = figure('Units','normalized','Position',[0 .5 1 .5]);
-dotfig = figure('Units','normalized','Position',[0 0 1 1]);
-INdices = cell(Nspecies,1);
+clear resultsALL tpfALL
+%close all
+
+mode = 3;
+naive = 0;
+
+lim = [1e-6 1; 1e-5 1; 1e-4 1];
+lim(:,2) = 1-lim(:,1);
+Nmin = 1;
+
+tauRange = cell(Nspecies,2);
+nRange = cell(Nspecies,size(lim,1));
+INitial = cell(Nspecies,size(lim,1));
+fINal = INitial;
 taus = zeros(Nspecies,2);
 tauhats = zeros(Nspecies,2);
-Ns = zeros(Nspecies,2);
-stDevs = zeros(Nspecies,2);
-SEMs = zeros(Nspecies,2);
+Ns = cell(size(lim,1),1);
+stDevs = cell(size(lim,1),1);
+SEMs = cell(size(lim,1),1);
+for l = 1:size(lim,1)
+    Ns{l} = zeros(Nspecies,2);
+    stDevs{l} = zeros(Nspecies,2);
+    SEMs{l} = zeros(Nspecies,2);
+end
 for j = 1:Nspecies
-    display('Determining initial INdices...')
-    tauRange = cell(2,1);
-    for s = 1:2
-        tmp = sort(vertcat(lifetimes{j}.ALL{:,s}));
-        tauRange{s} = linspace(tmp(ceil(0.01*length(tmp))),tmp(floor(0.99*length(tmp))),100);
-    end
+    for l = 1:size(lim,1)
+        display('Determining initial INdices...')
+        for s = 1:2
+            tmp = sort(vertcat(lifetimes{j}.ALL{:,s}));
+            %tauRange{j,s} = linspace(tmp(ceil(0.01*length(tmp))),tmp(floor(0.99*length(tmp))),100);
+            tauRange{j,s} = linspace(max(1.45*Tmin(s),tmp(ceil(0.01*length(tmp)))),tmp(floor(0.99*length(tmp))),100);
+        end
+        iRange = cell(length(tauRange{j,1}),length(tauRange{j,1}));
+        nRange{j,l} = zeros(length(tauRange{j,1}),length(tauRange{j,1}));
+        for i1 = 1:length(tauRange{j,1})
+            for i2 = 1:length(tauRange{j,2})
+                tmpI = zeros(size(lifetimes{j}.SUM,1),1);
+                tmpTaus = [tauRange{j,1}(i1) tauRange{j,2}(i2)];
+                Nmult = exp(Tmin./tmpTaus);
+                alpha = Nmult - [1 1];
+                meanTmissed = tmpTaus - exp(-Tmin./tmpTaus).*(Tmin+tmpTaus);
+                n = 0;
+                for k = 1:size(lifetimes{j}.SUM,1)
+                    tmp = [0 0];
+                    switch mode
+                        case 0 % uncorrected
+                            tmpN = lifetimes{j}.N(k,:);
+                            tmpS = lifetimes{j}.SUM(k,:);
+                        case 1 % 'traditional'
+                            tmpN = [Nmult(1)*lifetimes{j}.N(k,1)+(1-1/Nmult(2))*lifetimes{j}.N(k,2) , Nmult(2)*lifetimes{j}.N(k,2)+(1-1/Nmult(1))*lifetimes{j}.N(k,1)];
+                            tmpS = lifetimes{j}.SUM(k,:);
+                        case 2 % corrected 'other-state-N'
+                            tmpN = Nmult.*lifetimes{j}.N(k,:) + fliplr((Nmult-1).*lifetimes{j}.N(k,:));
+                            tmpS = lifetimes{j}.SUM(k,:);
+                        case 3 % correct both Ns and SUMs
+                            if naive
+                                tmpN = Nmult.*lifetimes{j}.N(k,:) + fliplr((Nmult-1).*lifetimes{j}.N(k,:));
+                            else
+                                tmpN = [(lifetimes{j}.N(k,1) + alpha(2)*lifetimes{j}.N(k,2)) , ...
+                                        (lifetimes{j}.N(k,2) + alpha(1)*lifetimes{j}.N(k,1)) ].*(1+alpha)/(1-prod(alpha));
+                            end
+                            tmpS = lifetimes{j}.SUM(k,:) + (tmpN-lifetimes{j}.N(k,:)).*meanTmissed - fliplr((tmpN-lifetimes{j}.N(k,:)).*meanTmissed);
+                        case 4 % correct one N and SUM
+                            if naive
+                                tmpN = lifetimes{j}.N(k,:) + fliplr((Nmult-1).*lifetimes{j}.N(k,:));         
+                            else
+                                tmpN = [(lifetimes{j}.N(k,1) + alpha(2)*lifetimes{j}.N(k,2)) , ...
+                                        (lifetimes{j}.N(k,2) + alpha(1)*lifetimes{j}.N(k,1)) ]./(1-prod(alpha));
+                            end
+                            tmpS = lifetimes{j}.SUM(k,:) - fliplr((tmpN-lifetimes{j}.N(k,:)).*meanTmissed);
+                    end
+                    for state = 1:2
+                        tmp(state) = erlangcdf(tmpS(state),1/tmpTaus(state),tmpN(state));
+                    end
+                    if min(tmp)>=lim(l,1) && max(tmp)<=lim(l,2)
+                        n = n+1;
+                        tmpI(k) = 1;
+                    end
+                end
+                iRange{i1,i2} = find(tmpI==1);
+                nRange{j,l}(i1,i2) = n;
+            end
+        end
+        %
+        tmpI = find(nRange{j,l}==max(nRange{j,l}(:)));
+        INitial{j,l} = [];
+        for i = reshape(tmpI,1,[])
+            INitial{j,l} = union(INitial{j,l},iRange{i});
+        end
 
-    lim = [1e-4 0];
-    lim(2) = 1-lim(1);
+        %
+        
+        display([num2str(length(INitial{j,l})) ' spots, ' num2str(length(vertcat(lifetimes{j}.ALL{INitial{j,l},1}))) ' bound lifetimes, ' ...
+                num2str(length(vertcat(lifetimes{j}.ALL{INitial{j,l},2}))) ' unbound lifetimes.'])
 
-    iRange = cell(length(tauRange{1}),length(tauRange{1}));
-    nRange = zeros(length(tauRange{1}),length(tauRange{1}));
-    for i1 = 1:length(tauRange{1})
-        for i2 = 1:length(tauRange{2})
+        %
+
+        display('Re-evaluation of taus and INdices...')
+        fINal{j,l} = INitial{j,l};
+        go_on = 1;
+        while go_on
+            INdicesOld = fINal{j,l};
+            Tmax = max(vertcat(lifetimes{j}.ALL{:}));
+            [khat, tauhats(j,:)] = get_corrected_rates({vertcat(lifetimes{j}.ALL{fINal{j,l},1}) vertcat(lifetimes{j}.ALL{fINal{j,l},2})},Tmin,Tmax);
+            taus(j,:) = 1./khat;
+            meanTmissed = taus(j,:) - exp(-Tmin./taus(j,:)).*(Tmin+taus(j,:));
+            display(['Bound tau: ' num2str(taus(j,1)) ', unbound tau: ' num2str(taus(j,2))])
+            Nmult = exp(Tmin.*khat);
+            alpha = Nmult - [1 1];
             tmpI = zeros(size(lifetimes{j}.SUM,1),1);
-            tmpTaus = [tauRange{1}(i1) tauRange{2}(i2)];
-            Nmult = exp(Tmin./tmpTaus);
-            n = 0;
             for k = 1:size(lifetimes{j}.SUM,1)
                 tmp = [0 0];
-%                 tmp(1) = erlangcdf(lifetimes{j}.SUM(k,1),1/tmpTaus(1),Nmult(1)*lifetimes{j}.N(k,1));
-%                 tmp(2) = erlangcdf(lifetimes{j}.SUM(k,2),1/tmpTaus(2),Nmult(2)*lifetimes{j}.N(k,2));
-                tmp(1) = erlangcdf(lifetimes{j}.SUM(k,1),1/tmpTaus(1),Nmult(1)*lifetimes{j}.N(k,1)+(1-1/Nmult(2))*lifetimes{j}.N(k,2));
-                tmp(2) = erlangcdf(lifetimes{j}.SUM(k,2),1/tmpTaus(2),Nmult(2)*lifetimes{j}.N(k,2)+(1-1/Nmult(1))*lifetimes{j}.N(k,1));
-                if min(tmp)>=lim(1) && max(tmp)<=lim(2)
-                    n = n+1;
+                switch mode
+                    case 0 % uncorrected
+                        tmpN = lifetimes{j}.N(k,:);
+                        tmpS = lifetimes{j}.SUM(k,:);
+                    case 1 % 'traditional'
+                        tmpN = [Nmult(1)*lifetimes{j}.N(k,1)+(1-1/Nmult(2))*lifetimes{j}.N(k,2) , Nmult(2)*lifetimes{j}.N(k,2)+(1-1/Nmult(1))*lifetimes{j}.N(k,1)];
+                        tmpS = lifetimes{j}.SUM(k,:);
+                    case 2 % corrected 'other-state-N'
+                        tmpN = Nmult.*lifetimes{j}.N(k,:) + fliplr((Nmult-1).*lifetimes{j}.N(k,:));
+                        tmpS = lifetimes{j}.SUM(k,:);
+                    case 3 % correct both Ns and SUMs
+                        if naive
+                            tmpN = Nmult.*lifetimes{j}.N(k,:) + fliplr((Nmult-1).*lifetimes{j}.N(k,:));
+                        else
+                            tmpN = [(lifetimes{j}.N(k,1) + alpha(2)*lifetimes{j}.N(k,2)) , ...
+                                    (lifetimes{j}.N(k,2) + alpha(1)*lifetimes{j}.N(k,1)) ].*(1+alpha)/(1-prod(alpha));
+                        end
+                        tmpS = lifetimes{j}.SUM(k,:) + (tmpN-lifetimes{j}.N(k,:)).*meanTmissed - fliplr((tmpN-lifetimes{j}.N(k,:)).*meanTmissed);
+                    case 4 % correct one N and SUM
+                        if naive
+                            tmpN = lifetimes{j}.N(k,:) + fliplr((Nmult-1).*lifetimes{j}.N(k,:));         
+                        else
+                            tmpN = [(lifetimes{j}.N(k,1) + alpha(2)*lifetimes{j}.N(k,2)) , ...
+                                    (lifetimes{j}.N(k,2) + alpha(1)*lifetimes{j}.N(k,1)) ]./(1-prod(alpha));
+                        end
+                        tmpS = lifetimes{j}.SUM(k,:) - fliplr((tmpN-lifetimes{j}.N(k,:)).*meanTmissed);
+                end
+                if any(lifetimes{j}.N(k,:)<Nmin)
+                    tmp = [0 1];
+                else
+                    for state = 1:2
+                        tmp(state) = erlangcdf(tmpS(state),khat(state),tmpN(state));
+                    end
+                end
+                if min(tmp)>=lim(l,1) && max(tmp)<=lim(l,2)
                     tmpI(k) = 1;
+                else
+                    display(['Removing index ' num2str(k) ' from analysis.'])
+                    display(['P_state1 = ' num2str(tmp(1),12) ', P_state2 = ' num2str(tmp(2),12)])
                 end
             end
-            iRange{i1,i2} = find(tmpI==1);
-            nRange(i1,i2) = n;
-        end
-    end
-    figure(surfig)
-    subplot(1,Nspecies,j)
-    surf(tauRange{1},tauRange{2},nRange)
-    title(['Species ' num2str(j) ' (' Names{j} ').'],'FontSize',12)
-    
-    %
-    tmpI = find(nRange==max(nRange(:)));
-    INdices{j} = [];
-    for i = reshape(tmpI,1,[])
-        INdices{j} = union(INdices{j},iRange{i});
-    end
-    
-    %
-    figure(dotfig)
-    subplot(2,Nspecies,j)
-    plot(lifetimes{j}.MEAN(:,2),lifetimes{j}.MEAN(:,1),'.')
-    hold on
-    plot(lifetimes{j}.MEAN(INdices{j},2),lifetimes{j}.MEAN(INdices{j},1),'ko')
-    title(['Bound vs. unbound lifetimes, species ' num2str(j) ' (' Names{j} '). Initial nIN: ' num2str(length(INdices{j}))],'FontSize',12)
-    display([num2str(length(INdices{j})) ' spots, ' num2str(length(vertcat(lifetimes{j}.ALL{INdices{j},1}))) ' bound lifetimes, ' num2str(length(vertcat(lifetimes{j}.ALL{INdices{j},2}))) ' unbound lifetimes.'])
-
-    %
-    lim = [1e-4 0];
-    lim(2) = 1-lim(1);
-    display('Re-evaluation of taus and INdices...')
-    go_on = 1;
-    while go_on
-        INdicesOld = INdices{j};
-        Tmax = 0;
-        for i = INdices{j}'
+            fINal{j,l} = find(tmpI==1);
             for k = 1:2
-                if ~isempty(lifetimes{j}.ALL{i,k})
-                    Tmax = max(Tmax,max(lifetimes{j}.ALL{i,k}));
-                end
+                Ns{l}(j,k) = length(vertcat(lifetimes{j}.ALL{fINal{j,l},k}));
+                stDevs{l}(j,k) = std(vertcat(lifetimes{j}.ALL{fINal{j,l},k}));
+                SEMs{l}(j,k) = stDevs{l}(j,k)/sqrt(Ns{l}(j,k));
             end
+            display([num2str(length(fINal{j,l})) ' spots, ' num2str(Ns{l}(j,1)) ' bound lifetimes, ' num2str(Ns{l}(j,2)) ' unbound lifetimes.'])
+            go_on = ~isequal(fINal{j,l},INdicesOld);
         end
-        [khat, tauhats(j,:)] = get_corrected_rates({vertcat(lifetimes{j}.ALL{INdices{j},1}) vertcat(lifetimes{j}.ALL{INdices{j},2})},Tmin,Tmax);
-        taus(j,:) = 1./khat;
-        display(['Bound tau: ' num2str(taus(j,1)) ', unbound tau: ' num2str(taus(j,2))])
-        Nmult = [0 0];
-        for k = 1:2
-            Nmult(k) = exp(Tmin(k)*khat(k));
-        end
-        tmpI = zeros(size(lifetimes{j}.SUM,1),1);
-        for k = 1:size(lifetimes{j}.SUM,1)
-            tmp = [0 0];
-        %     tmp(1) = erlangcdf(lifetimes{j}.SUM(k,1),khat(1),Nmult(1)*lifetimes{j}.N(k,1));
-        %     tmp(2) = erlangcdf(lifetimes{j}.SUM(k,2),khat(2),Nmult(2)*lifetimes{j}.N(k,2));
-            tmp(1) = erlangcdf(lifetimes{j}.SUM(k,1),khat(1),Nmult(1)*lifetimes{j}.N(k,1)+(1-1/Nmult(2))*lifetimes{j}.N(k,2));
-            tmp(2) = erlangcdf(lifetimes{j}.SUM(k,2),khat(2),Nmult(2)*lifetimes{j}.N(k,2)+(1-1/Nmult(1))*lifetimes{j}.N(k,1));
-            if min(tmp)>=lim(1) && max(tmp)<=lim(2)
-                tmpI(k) = 1;
-            else
-                display(['Removing index ' num2str(k) ' from analysis.'])
-                display(['P_state1 = ' num2str(tmp(1),12) ', P_state2 = ' num2str(tmp(2),12)])
-            end
-        end
-        INdices{j} = find(tmpI==1);
-        for k = 1:2
-            Ns(j,k) = length(vertcat(lifetimes{j}.ALL{INdices{j},k}));
-            stDevs(j,k) = std(vertcat(lifetimes{j}.ALL{INdices{j},k}));
-            SEMs(j,k) = stDevs(j,k)/sqrt(Ns(j,k));
-        end
-        display([num2str(length(INdices{j})) ' spots, ' num2str(Ns(j,1)) ' bound lifetimes, ' num2str(Ns(j,2)) ' unbound lifetimes.'])
-        go_on = ~isequal(INdices{j},INdicesOld);
     end
-    subplot(2,Nspecies,Nspecies+j)
-    plot(lifetimes{j}.MEAN(:,2),lifetimes{j}.MEAN(:,1),'.')
-    hold on
-    plot(lifetimes{j}.MEAN(INdices{j},2),lifetimes{j}.MEAN(INdices{j},1),'ko')
-    title(['Bound vs. unbound lifetimes, species ' num2str(j) ' (' Names{j} '). Final nIN: ' num2str(length(INdices{j}))],'FontSize',12)
 end
+
+% Correct MEAN lifetime values
+display('Correcting mean values in individual particles...')
+for j = 1:Nspecies
+    Nmult = exp(Tmin./taus(j,:));
+    alpha = Nmult - [1 1];
+    meanTmissed = taus(j,:) - exp(-Tmin./taus(j,:)).*(Tmin+taus(j,:));
+    lifetimes{j}.corrMEAN = zeros(size(lifetimes{j}.MEAN));
+    for i = 1:size(lifetimes{j}.MEAN,1)
+        %Ndiv = [Nmult(1)*lifetimes{j}.N(i,1)+(1-1/Nmult(2))*lifetimes{j}.N(i,2) ...
+         %       Nmult(2)*lifetimes{j}.N(i,2)+(1-1/Nmult(1))*lifetimes{j}.N(i,1)];
+        if naive
+            tmpN = Nmult.*lifetimes{j}.N(i,:) + fliplr((Nmult-1).*lifetimes{j}.N(i,:));
+        else
+            tmpN = [(lifetimes{j}.N(i,1) + alpha(2)*lifetimes{j}.N(i,2)) , ...
+                        (lifetimes{j}.N(i,2) + alpha(1)*lifetimes{j}.N(i,1)) ].*(1+alpha)./(1-prod(alpha));
+        end
+        tmpS = lifetimes{j}.SUM(i,:) - fliplr((tmpN-lifetimes{j}.N(i,:)).*meanTmissed);
+        %tmpS = lifetimes{j}.SUM(i,:);
+        lifetimes{j}.corrMEAN(i,:) = tmpS./tmpN;
+    end
+end
+display('Done.')
+
+% Surface and scatter plots with IN/OUT stats
+%close all
+surfig = figure('Units','normalized','Position',[0 0 1 1]);
+for j = 1:Nspecies
+    for l = 1:size(lim,1)
+        %figure(surfig)
+        subplot(size(lim,1),Nspecies,(l-1)*Nspecies+j)
+        surf(tauRange{j,1},tauRange{j,2},nRange{j,l})
+        title(['Species ' num2str(j) ' (' Names{j} '), Limit: ' num2str(lim(l,1)) '.'],'FontSize',12)
+    end
+end
+dotfig = figure('Units','normalized','Position',[0 0 1 1]);
+oCols = {'k','c','r'};
+for j = 1:Nspecies
+    %figure(dotfig)
+    
+    %INitial
+    subplot(2,Nspecies,j)
+    loglog(lifetimes{j}.corrMEAN(:,2),lifetimes{j}.corrMEAN(:,1),'.')
+    hold on
+    legendary = cell(size(lim,1),2);
+    legendary = [[Names(j) Names(j)] ; legendary];
+    for l = 1:size(lim,1)
+        loglog(lifetimes{j}.corrMEAN(INitial{j,l},2),lifetimes{j}.corrMEAN(INitial{j,l},1),'o','Color',oCols{l})
+        legendary{l+1,1} = [num2str(lim(l,1)) ' , ' num2str(length(INitial{j,l}))];
+    end
+    xlabel('mean unbound dwell times (s)','FontSize',12)
+    ylabel('mean bound dwell times (s)','FontSize',12)
+    title(['Species ' num2str(j) ' (' Names{j} '), Limit / Initial nIN: Legend'],'FontSize',14)
+    legend(legendary(:,1),'FontSize',12)
+    
+    %fINal
+    subplot(2,Nspecies,Nspecies+j)
+    loglog(lifetimes{j}.corrMEAN(:,2),lifetimes{j}.corrMEAN(:,1),'.')
+    hold on
+    for l = 1:size(lim,1)
+        loglog(lifetimes{j}.corrMEAN(fINal{j,l},2),lifetimes{j}.corrMEAN(fINal{j,l},1),'o','Color',oCols{l})
+        legendary{l+1,2} = [num2str(lim(l,1)) ' , ' num2str(length(fINal{j,l}))];
+    end
+    xlabel('mean unbound dwell times (s)','FontSize',12)
+    ylabel('mean bound dwell times (s)','FontSize',12)
+    title(['Species ' num2str(j) ' (' Names{j} '), Limit / Final nIN: Legend'],'FontSize',14)
+    legend(legendary(:,2),'FontSize',12)
+end
+
+% Choose INdices from candidates
+L = 1; 
+INdices = fINal(:,L);
 
 %% Save data
-if size(hops,1)==1
-    savepath = pathname;
-else
-    display('Choose folder for results in save dialog')
-    [~,savepath] = uiputfile;
+if ~exist('pathname','var')
+    pathname = cd;
 end
+cd(pathname)
+display('Choose folder for results in save dialog')
+[~,savepath] = uiputfile;
 cd(savepath)
-save lts_main_pop.mat filepaths hops Names Fmin Tmin Tmax lifetimes INdices taus tauhats Ns stDevs SEMs
+save lts_main_pop.mat filepaths hops Names Fmin Tmin Tmax lifetimes INdices taus tauhats Ns stDevs SEMs lim Nmin L Nspecies Nsamples
+savefig(surfig,'surfig.fig')
+savefig(dotfig,'dotfig.fig')
 fileID = fopen('taus_main_pop.txt', 'w');
 fprintf(fileID, 'tau_b\ttau_u\tN_b\tN_u\tstDev_b\tstDev_u\n');
 for j = 1:Nspecies
-    fprintf(fileID, [num2str(taus(j,1),'%.2f') '\t' num2str(taus(j,2),'%.2f') '\t']);
-    fprintf(fileID, [num2str(Ns(j,1),'%d') '\t' num2str(Ns(j,2),'%d') '\t']);
-    fprintf(fileID, [num2str(stDevs(j,1),'%.2f') '\t' num2str(stDevs(j,2),'%.2f') '\n']);
+    fprintf(fileID, [num2str(taus(j,1),'%.1f') '\t' num2str(taus(j,2),'%.1f') '\t']);
+    fprintf(fileID, [num2str(Ns{L}(j,1),'%d') '\t' num2str(Ns{L}(j,2),'%d') '\t']);
+    fprintf(fileID, [num2str(stDevs{L}(j,1),'%.1f') '\t' num2str(stDevs{L}(j,2),'%.1f') '\n']);
 end
 fclose(fileID);
 
@@ -303,13 +425,13 @@ for j = 1:Nspecies
         box off
 
         subplot(2,2,1)
-        title(['PDF for state 1 (bound), \tau_{final} = ' num2str(round(taus(j,1),2)) ' s, \tau_{MLE} = ' num2str(round(tauhats(j,1),2)) ' s, N = ' num2str(Ns(j,1))], 'FontSize', 18, 'Interpreter', 'tex')
+        title(['PDF for state 1 (bound), \tau_{final} = ' num2str(round(taus(j,1),2)) ' s, \tau_{MLE} = ' num2str(round(tauhats(j,1),2)) ' s, N = ' num2str(Ns{L}(j,1))], 'FontSize', 18, 'Interpreter', 'tex')
         subplot(2,2,2)
-        title(['CDF for state 1 (bound), \tau_{final} = ' num2str(round(taus(j,1),2)) ' s, \tau_{MLE} = ' num2str(round(tauhats(j,1),2)) ' s, N = ' num2str(Ns(j,1))], 'FontSize', 18, 'Interpreter', 'tex')
+        title(['CDF for state 1 (bound), \tau_{final} = ' num2str(round(taus(j,1),2)) ' s, \tau_{MLE} = ' num2str(round(tauhats(j,1),2)) ' s, N = ' num2str(Ns{L}(j,1))], 'FontSize', 18, 'Interpreter', 'tex')
         subplot(2,2,3)
-        title(['PDF for state 2 (unbound), \tau_{final} = ' num2str(round(taus(j,2),2)) ' s, \tau_{MLE} = ' num2str(round(tauhats(j,2),2)) ' s, N = ' num2str(Ns(j,2))], 'FontSize', 18, 'Interpreter', 'tex')
+        title(['PDF for state 2 (unbound), \tau_{final} = ' num2str(round(taus(j,2),2)) ' s, \tau_{MLE} = ' num2str(round(tauhats(j,2),2)) ' s, N = ' num2str(Ns{L}(j,2))], 'FontSize', 18, 'Interpreter', 'tex')
         subplot(2,2,4)
-        title(['CDF for state 2 (unbound), \tau_{final} = ' num2str(round(taus(j,2),2)) ' s, \tau_{MLE} = ' num2str(round(tauhats(j,2),2)) ' s, N = ' num2str(Ns(j,2))], 'FontSize', 18, 'Interpreter', 'tex')
+        title(['CDF for state 2 (unbound), \tau_{final} = ' num2str(round(taus(j,2),2)) ' s, \tau_{MLE} = ' num2str(round(tauhats(j,2),2)) ' s, N = ' num2str(Ns{L}(j,2))], 'FontSize', 18, 'Interpreter', 'tex')
         
         [~,h] = suplabel(['Species ' num2str(j) ': ' Names{j}],'t');
         set(h,'FontSize',20)
@@ -352,23 +474,96 @@ for j = 1:Nspecies
     dlmwrite(ID, lifetimes{j}.ScatDat(OUTdices{j},:), 'delimiter', '\t','-append')    
 end
 display('Done writing text file for scatter plot of main population')
-%% Error estimate by bootstrapping:
+%% Error estimate by bootstrapping: Get distribution
+%
+if ~exist('Nspecies','var')
+    Nspecies = numel(lifetimes);
+end
+bootstat = cell(Nspecies,2);
+bootsam = cell(Nspecies,2);
+bootkhat = cell(Nspecies,1);
+Nsam = 1e4;
+ax = cell(2,1);
+%
+for j = 1:Nspecies
+    LT = {vertcat(lifetimes{j}.ALL{INdices{j},1}) vertcat(lifetimes{j}.ALL{INdices{j},2})};
+    Tmax = max(max(LT{1}),max(LT{2}))+0.1;
+    for k = 2:-1:1
+        [bootstat{j,k},bootsam{j,k}] = bootstrp(Nsam,@mean,LT{k});
+    end
+    display(['Species #' num2str(j) ' of ' num2str(Nspecies) ': Bootstrapping done. Getting corrected rates...'])
+    bootkhat{j} = zeros(Nsam,2);
+    for i = 1:Nsam
+        bootkhat{j}(i,:) = get_corrected_rates({LT{1}(bootsam{j,1}(:,i)) LT{2}(bootsam{j,2}(:,i))},Tmin,Tmax);
+    end
+    display(['Species #' num2str(j) ' of ' num2str(Nspecies) ': Obtained corrected rates - moving on...'])
+    figure
+    for k = 1:2
+        subplot(2,2,k)
+        histogram(1./bootkhat{j}(:,k))
+        title([Names{j} ', state ' num2str(k) ', corrected'], 'FontSize', 12)
+        ax{1} = gca;
+        subplot(2,2,k+2)
+        histogram(bootstat{j,k})
+        title([Names{j} ', state ' num2str(k) ', mean'], 'FontSize', 12)
+        ax{2} = gca;
+        for i = 1:2
+            ax{i}.XLim = [min(ax{1}.XLim(1),ax{2}.XLim(1)) max(ax{1}.XLim(2),ax{2}.XLim(2))];
+        end
+    end
+end
+display('***************************************************')
+display('All done.')
+display('***************************************************')
+
+%% Save bootstrap data
+save rates_bootstrap.mat bootsam bootstat bootkhat
+
+%% Get mean value and 3*sigma error
 %{
-LT = {vertcat(lifetimes{1}.ALL{:,1}) vertcat(lifetimes{1}.ALL{:,2})}; % only works for Nspecies = 1;
-bootstat = cell(size(LT));
-bootsam = cell(size(LT));
-for s = 2:-1:1
-    [bootstat{s},bootsam{s}] = bootstrp(1000,@mean,LT{s});
-end
-bootkhat = zeros(1000,2);
-for i = 1:1000
-    bootkhat(i,:) = get_corrected_rates({LT{1}(bootsam{1}(:,i)) LT{2}(bootsam{2}(:,i))},Tmin,Tmax);
-end
-figure
+pctlim = [0.005 0.995];
+CIs = cell(1,2);
 for k = 1:2
-    subplot(2,2,k)
-    histogram(1./bootkhat(:,k))
-    subplot(2,2,k+2)
-    histogram(bootstat{k})
+    CIs{k} = zeros(Nspecies,2);
+    for j = 1:Nspecies
+        tmp = sort(bootkhat{j}(:,k));
+        CIs{k}(j,1) = tmp(ceil(numel(tmp)*pctlim(1)));
+        CIs{k}(j,2) = tmp(floor(numel(tmp)*pctlim(2)));
+    end
 end
+%}
+if ~exist('SID','var')
+    tmp = inputdlg({'Enter sample ID:'},'SID',1,{'M000'});
+    SID = tmp{1};
+end
+if ~exist('ID','var')
+    ID = inputdlg({'Enter tether ID'},'ID',1,{'L0'});
+    ID = ID{1};
+end
+% make .txt file for Igor Pro plotting
+waveNames = {['koffboot' ID], ...
+            ['konboot' ID], ...
+            ['ekoffboot' ID], ...
+            ['ekonboot' ID], ...
+            ['Keqboot' ID], ...
+            ['eKeqboot' ID]};
+datArray = zeros(Nspecies,numel(waveNames));
+errMult = 3;
+for j = 1:Nspecies
+    for k = 1:2
+        datArray(j,k) = mean(bootkhat{j}(:,k));
+        datArray(j,k+2) = errMult*std(bootkhat{j}(:,k));
+    end
+end
+datArray(:,5) = datArray(:,2)./datArray(:,1);
+datArray(:,6) = datArray(:,5).*sqrt((datArray(:,3)./datArray(:,1)).^2+ ...
+                                    (datArray(:,4)./datArray(:,2)).^2);
+
+fileID = fopen([SID '_bootRates.txt'],'w');
+for i = 1:numel(waveNames)
+    fprintf(fileID, [waveNames{i} '\t']);
+end
+fprintf(fileID,'\n');
+fclose(fileID);
+dlmwrite([SID '_bootRates.txt'],datArray, 'delimiter', '\t', '-append')
 %}

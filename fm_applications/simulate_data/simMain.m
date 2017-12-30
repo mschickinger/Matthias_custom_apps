@@ -7,14 +7,16 @@
 %     end
 %     tpfALL = [tpfALL;vertcat(tmp{:})];
 % end
-load('dataPostHMM_nost.mat')
-load('HMMdata1.mat')
+
+%load('dataPostHMM_nost.mat')
+%load('HMMdata1.mat')
 
 %%
 tpf = 50;
 
 %Fmin = [t1(findex) t2(findex)];
-Fmin = [17 9]; 
+
+%Fmin = [13 7]; POSSIBLY COMMENTED OUT FOR BATCH
 Tmin = Fmin*2*tpf/1000;
 Tmax = 0;
 
@@ -53,10 +55,13 @@ SEMs = [0 0];
 
 display(['Bound tau: ' num2str(taus(1)) ', unbound tau: ' num2str(taus(2))])
 
-Nmult = [0 0];
-for k = 1:2
-    Nmult(k) = exp(Tmin(k)*khat(k));
-end
+Nmult = exp(Tmin.*khat);
+alpha = Nmult - 1;
+
+mode = 3;
+naive = 0;
+
+meanTmissed = taus - exp(-Tmin./taus).*(Tmin+taus);
 
 pIN = zeros(size(lifetimes.ALL,1),2);
 
@@ -64,8 +69,41 @@ for i = 1:size(lifetimes.ALL,1)
 %     for k = 1:2
 %         pIN(i,k) = erlangcdf(lifetimes.SUM(i,k),khat(k),Nmult(k)*lifetimes.N(i,k));
 %     end
-    pIN(i,1) = erlangcdf(lifetimes.SUM(i,1),khat(1),Nmult(1)*lifetimes.N(i,1)+(1-1/Nmult(2))*lifetimes.N(i,2));
-    pIN(i,2) = erlangcdf(lifetimes.SUM(i,2),khat(2),Nmult(2)*lifetimes.N(i,2)+(1-1/Nmult(1))*lifetimes.N(i,1));
+    switch mode
+        case 0 % uncorrected
+            tmpN = lifetimes.N(i,:);
+            tmpS = lifetimes.SUM(i,:);
+        case 1 % 'traditional' CONTAINS ERROR
+            tmpN = [Nmult(1)*lifetimes.N(i,1)+(1-1/Nmult(2))*lifetimes.N(i,2) , Nmult(2)*lifetimes.N(i,2)+(1-1/Nmult(1))*lifetimes.N(i,1)];
+            tmpS = lifetimes.SUM(i,:);
+        case 2 % corrected 'other-state-N'
+            tmpN = Nmult.*lifetimes.N(i,:) + fliplr((Nmult-1).*lifetimes.N(i,:));
+            tmpS = lifetimes.SUM(i,:);
+        case 3 % correct both Ns and SUMs
+            if naive
+                tmpN = Nmult.*lifetimes.N(i,:) + fliplr((Nmult-1).*lifetimes.N(i,:));
+            else
+                tmpN = [(lifetimes.N(i,1) + alpha(2)*lifetimes.N(i,2)) , ...
+                        (lifetimes.N(i,2) + alpha(1)*lifetimes.N(i,1)) ].*(1+alpha)/(1-prod(alpha));
+            end
+            tmpS = lifetimes.SUM(i,:) + (tmpN-lifetimes.N(i,:)).*meanTmissed - fliplr((tmpN-lifetimes.N(i,:)).*meanTmissed);
+        case 4 % correct one N and SUM
+            if naive
+                tmpN = lifetimes.N(i,:) + fliplr((Nmult-1).*lifetimes.N(i,:));         
+            else
+                tmpN = [(lifetimes.N(i,1) + alpha(2)*lifetimes.N(i,2)) , ...
+                        (lifetimes.N(i,2) + alpha(1)*lifetimes.N(i,1)) ]./(1-prod(alpha));
+            end
+            tmpS = lifetimes.SUM(i,:) - fliplr((tmpN-lifetimes.N(i,:)).*meanTmissed);
+    end
+
+    for k = 1:2
+        if lifetimes.SUM(i,k)>0
+            pIN(i,k) = erlangcdf(tmpS(k),khat(k),tmpN(k));
+        else
+            pIN(i,k) = NaN;
+        end
+    end
 end
 
 for i = 1:2
@@ -76,7 +114,7 @@ end
 
 display([num2str(length(INdices)) ' spots, ' num2str(Ns(1)) ' bound lifetimes, ' num2str(Ns(2)) ' unbound lifetimes.'])
 
-%% Probability plots
+% Probability plots
 NONZEROS = nnz(min(lifetimes.N,[],2));
 counts = zeros(50,1);
 i = 0;
@@ -93,6 +131,7 @@ for k = 1:2
     subplot(1,2,k)
     histogram(pIN(:,k))
 end
+print('-dpng','-r96','probHist.png')
 
 figure
 bar(-1:-1:-length(counts),counts)
@@ -103,6 +142,7 @@ xlabel('probability limit (log10)')
 ylabel('counts, N_{in}', 'Interpreter', 'tex')
 title(['Number of spots with nonzero lifetimes in both states: ' num2str(NONZEROS) sprintf('\n')], 'FontSize', 12)
 print('-dpng','-r96','nINoverLim.png')
+
 %% Save data
 
 save lts_main_pop.mat lifetimes INdices taus Ns stDevs SEMs
@@ -112,6 +152,7 @@ fprintf(fileID, [num2str(taus(1)) '\t' num2str(taus(2)) '\t']);
 fprintf(fileID, [num2str(Ns(1)) '\t' num2str(Ns(2)) '\t']);
 fprintf(fileID, [num2str(stDevs(1)) '\t' num2str(stDevs(2))]);
 fclose(fileID);
+
 %% Plots
 LT = {vertcat(lifetimes.ALL{INdices,1}) vertcat(lifetimes.ALL{INdices,2})};
 exppdf_mod = @(t,tau,Tmin,Tmax)1./tau.*exp(-t./tau)./(exp(-Tmin./tau)-exp(-Tmax./tau));
@@ -133,6 +174,8 @@ for state = 1:2
     subplot(2,2,1+2*(state-1))
     hold off
     hg = histogram(LT{state},'Normalization','pdf','BinMethod','scott');
+    edges = hg.BinEdges + Tmin(state)-hg.BinEdges(1);
+    hg = histogram(LT{state},edges,'Normalization','pdf');
     hg.FaceColor = colors{state};
     hg.EdgeColor = 'white';
     hg.FaceAlpha = 1;

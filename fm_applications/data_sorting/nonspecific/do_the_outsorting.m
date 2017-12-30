@@ -1,6 +1,14 @@
-cutoffD = [1 0.2];
+cutoffD = [0.4 0.15];
 limitSEM = [4 4];
-
+%{
+%RESET
+stateFrames = stateFramesZ;
+densities = densitiesZ;
+noneAboveP2 = noneAboveP2Z;
+RMSintSeg = RMSintSegZ;
+removInds = removIndsZ;
+[allD, allDmax] = get_allDmax(densities, index_discard);
+%}
 GO_ON = 1;
 while GO_ON
     % identify suspects for unspecific sticking -> to be removed
@@ -23,12 +31,11 @@ while GO_ON
                                 ' is ' num2str(sum(allDmax{K}>cutoffD(K)))])
                     for isp = setdiff(1:size(densities,1),index_discard)
                         if ~isempty(densities{isp,K})
-                            tmpI = find(stateFrames{isp,K}(:,2)>((K==2)*(Nmax+2*floor(W/2))) & ...
-                                        densities{isp,K}(:,2)>cutoffD(K));         
+                            tmpI = find((stateFrames{isp,K}(:,2)>((K==2)*(Nmax+2*floor(W/2))) & densities{isp,K}(:,2)>cutoffD(K)) ...
+                                        | (K==2 & (densities{isp,K}(:,2)>=0.5 | noneAboveP2{isp,K} == 1)));         
                             if ~isempty(tmpI)
                                 %disp(length(tmpI));
                                 densities{isp,K}(tmpI,:) = NaN;
-                                %maxlBelow{isp,K}(tmpI) = NaN;
                                 removInds{K}{isp,1} = [removInds{K}{isp,1} ; tmpI];
                                 for i = 1:length(tmpI)
                                     removInds{K}{isp,2} = [removInds{K}{isp,2} ; (stateFrames{isp,K}(tmpI(i),1):sum(stateFrames{isp,K}(tmpI(i),:))-1)'];
@@ -52,7 +59,7 @@ while GO_ON
     %             end
 
                 %% Get density below 0.01% threshold for all bound intervals
-                globThreshs = get_globThreshs(RMSintSeg, 0.01);
+                [globThreshs, gThreshs2] = get_globThreshs(RMSintSeg, 0.01, 0.025);
     %             P = 0.01;
     %             for i = 1:size(globThreshs,2)
     %                 for k = 1:2
@@ -74,48 +81,46 @@ while GO_ON
                                 while stateFrames{isp,K}(i,1) > segments{isp}(tmpSeg,2)
                                     tmpSeg = tmpSeg + 1;
                                 end
-                                tmpA = zeros(1,stateFrames{isp,K}(i,2));
+                                tmpA = 1;
                                 tmpB = zeros(1,stateFrames{isp,K}(i,2));
                                 tmpI = stateFrames{isp,K}(i,1):sum(stateFrames{isp,K}(i,:))-1;
                                 tmpF = 0;
                                 while sum(stateFrames{isp,K}(i,:)) > segments{isp}(tmpSeg,2)
-                                    tmpA((tmpF+1):(segments{isp}(tmpSeg,2)-stateFrames{isp,K}(i,1))) = ...
-                                        tmpRMS(tmpI((tmpF+1):(segments{isp}(tmpSeg,2)-stateFrames{isp,K}(i,1))))-globThreshs(K,segmInds{isp}(tmpSeg));
+                                    tmpA = tmpA && ...
+                                        all(tmpRMS(tmpI((tmpF+1):(segments{isp}(tmpSeg,2)-stateFrames{isp,K}(i,1))))<gThreshs2(K,segmInds{isp}(tmpSeg)));
                                     tmpB((tmpF+1):(segments{isp}(tmpSeg,2)-stateFrames{isp,K}(i,1))) = ...
                                         tmpRMS(tmpI((tmpF+1):(segments{isp}(tmpSeg,2)-stateFrames{isp,K}(i,1))))<=globThreshs(K,segmInds{isp}(tmpSeg));
                                     tmpF = segments{isp}(tmpSeg,2)-stateFrames{isp,K}(i,1);
                                     tmpSeg = tmpSeg + 1;
                                 end
                                 if tmpF < stateFrames{isp,K}(i,2)
-                                    tmpA(tmpF+1:end) = tmpRMS(tmpI(tmpF+1:end))-globThreshs(K,segmInds{isp}(tmpSeg));
+                                    tmpA = tmpA && all(tmpRMS(tmpI(tmpF+1:end))<gThreshs2(K,segmInds{isp}(tmpSeg)));
                                     tmpB(tmpF+1:end) = tmpRMS(tmpI(tmpF+1:end))<=globThreshs(K,segmInds{isp}(tmpSeg));
                                 end
                                 densities{isp,K}(i,1) = sum(tmpB)/length(tmpB);
-                                areas{isp,K}(i,1) = abs(sum(tmpB.*tmpA));
+                                noneAboveP2{isp,K}(i) = tmpA;
                                 Nmax = 100;
                                 Lmin = [Nmax, (Nmax+2*floor(W/2))];
                                 if stateFrames{isp,K}(i,2)>Lmin(k)
                                     if K==2
                                         tmpB = tmpB(floor(W/2)+1:end-floor(W/2));
                                     end
-                                    tmpA2 = zeros(1,length(tmpB)-Nmax+1);
                                     tmpB2 = zeros(1,length(tmpB)-Nmax+1);
                                     for j = 1:length(tmpB2)
-                                        tmpA2(j) = abs(sum(tmpA(j:j+Nmax-1).*tmpB(j:j+Nmax-1)));
                                         tmpB2(j) = sum(tmpB(j:j+Nmax-1));
                                     end
                                     densities{isp,K}(i,2) = max(tmpB2)/Nmax;
-                                    areas{isp,K}(i,2) = max(tmpA2);
                                 elseif K==1
                                     densities{isp,K}(i,2) = densities{isp,K}(i,1);
-                                    areas{isp,K}(i,2) = areas{isp,K}(i,1);
-                                else
-                                    densities{isp,K}(i,2) = NaN;
-                                    areas{isp,K}(i,2) = NaN;
+                                elseif K==2
+                                    if densities{isp,K}(i,1)>=0.5
+                                        densities{isp,K}(i,2) = densities{isp,K}(i,1);
+                                    else
+                                        densities{isp,K}(i,2) = NaN;
+                                    end
                                 end
                             else
                                 densities{isp,K}(i,:) = NaN; % REDUNDANCY
-                                areas{isp,K}(i,:) = NaN; % REDUNDANCY
                             end
                         end
 
@@ -124,20 +129,14 @@ while GO_ON
                 close(h)
 
                 %%
-                [allD, allDmax, allA, allAmax] = get_allADmax(densities, index_discard, areas);
+                [allD, allDmax] = get_allDmax(densities, index_discard);
         %         allD = cell(2,1);
         %         allDmax = cell(2,1);
-        %         allA = cell(2,1);
-        %         allAmax = cell(2,1);
-        %         allLmax = cell(2,1);
         %         for k = 1:2
         %             for isp = setdiff(1:size(densities,1),index_discard)
         %                 if ~isempty(densities{isp,k})
         %                     allD{k} = [allD{k};densities{isp,k}(~isnan(densities{isp,k}(:,1)),1)];
         %                     allDmax{k} = [allDmax{k};densities{isp,k}(~isnan(densities{isp,k}(:,2)),2)];
-        %                     allA{k} = [allA{k};areas{isp,k}(~isnan(areas{isp,k}(:,1)),1)];
-        %                     allAmax{k} = [allAmax{k};areas{isp,k}(~isnan(areas{isp,k}(:,2)),2)];
-        %                     allLmax{k} = [allLmax{k};maxlBelow{isp,k}(~isnan(maxlBelow{isp,k}))];
         %                 end
         %             end
         %         end
@@ -246,7 +245,7 @@ while GO_ON
     GO_ON = Nremoved>0;
     if GO_ON
         %%
-        globThreshs = get_globThreshs(RMSintSeg, 0.01);
+        [globThreshs, gThreshs2] = get_globThreshs(RMSintSeg, 0.01, 0.025);
         %%
         h = waitbar(0,'');
         for isp = setdiff(1:size(densities,1),index_discard)
@@ -256,14 +255,17 @@ while GO_ON
                 if ~isempty(segments{isp})
                     tmpRMS = data{indicesHMM(isp,1)}{indicesHMM(isp,2),1}.vwcm.rms10(arxv{isp}.segments(1):arxv{isp}.segments(end))';
                     Lmin = [Nmax, (Nmax+2*floor(W/2))];
-                    [densities{isp,K}, areas{isp,K}] = update_density(densities{isp,K}, areas{isp,K}, tmpRMS, globThreshs(K,:), segments{isp}, segmInds{isp}, stateFrames{isp,K}, Lmin(K));
+                    [densities{isp,K}, noneAboveP2{isp,K} ] = update_density(densities{isp,K}, noneAboveP2{isp,K}, tmpRMS, globThreshs(K,:), segments{isp}, ...
+                                                                            segmInds{isp}, stateFrames{isp,K}, Lmin(K), gThreshs2(K,:));
                 end
             end
         end
         close(h)
         %%
-        [allD, allDmax, allA, allAmax] = get_allADmax(densities, index_discard, areas);
+        [allD, allDmax] = get_allDmax(densities, index_discard);
     end
 end
 display('Established final estimate for global thresholds.')
+
+%
 execute_sticky

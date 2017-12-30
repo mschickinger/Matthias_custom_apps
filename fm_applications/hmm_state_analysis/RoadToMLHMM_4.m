@@ -15,7 +15,7 @@ THINGS YOU NEED TO DO BEFOREHAND:
 clear variables
 run('my_prefs.m')
 
-SID = 'S032';
+SID = 'C001';
 load('data_spot_pairs.mat')
 load('GiTSiK.mat')
 
@@ -92,9 +92,9 @@ end
 
 %% Find number of traces containing more than a certain percentage of frames above increasing threshold levels
 % (exclude data points with unrealistic values from statistic)
-Dmax = 7; %INPUT - RESET FOR EVERY DATASET
+Dmax = 4; %INPUT - RESET FOR EVERY DATASET
 tol = 0.0001;
-threshs = 4:0.05:10;
+threshs = 1:0.05:8;
 nPmillAbove = zeros(length(threshs),1);
 for i = 1:length(xyG)
     tmp_data = xyG{i};
@@ -149,7 +149,7 @@ end
 
 %% Check distribution of data points in intensity intervals
 %iEdges = [6750 7500 8500];
-iEdges = [7000 8000 9000];
+iEdges = [7500 8500 10000];
 foo2 = N_below(medI,iEdges);
 disp(foo2.N/foo2.N_all)
 
@@ -157,7 +157,7 @@ disp(foo2.N/foo2.N_all)
 models = cell(size(xyHMM));
 state_trajectories = cell(size(xyHMM));
 arxv = cell(size(xyHMM));
-sigManual = [0.3 1.3];
+sigManual = [0.2 0.8];
 h = waitbar(0,['Spot-by-spot HMM analysis: ' num2str(0) ' of ' num2str(length(xyHMM)) ' done.']);
 tic
 for i = 1:length(xyHMM)
@@ -250,23 +250,26 @@ save HMMdata1.mat state_trajectories arxv iEdges xyHMM xyHMMcorr indicesHMM inte
 
 %% truncate or discard data from specific particles
 % INPUT SPECIFICALLY FOR EVERY NEW DATASET:
-discard_manual = [51,62];
+discard_manual = [23, 41];
 truncate_from = ...
     [ ...
-16	25500
-18	44700
-19	44980
-29	44750
-53	26520
-58	39370
-61	33290
-65	44720
-72	43000
-90	44980
+4	5100
+7	16200
+11	6000
+16	25000
+19	10000
+24	10600
+26	22500
+28	15946
+39	10400
+42	14400
+46	17100
+50	18700
 ];
 truncate_to = ...
     [ ...
-82  20
+5	13780
+51	1700
 ];
 if ~isempty(truncate_from)
     index_truncate_from = truncate_from(:,1); %[,];
