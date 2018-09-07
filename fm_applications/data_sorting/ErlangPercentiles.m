@@ -1,6 +1,6 @@
 figure
 tau = 5;
-N = [5 10 50 100];
+N = [2 5 10 50 100];
 ts = cell(numel(N),1);
 for p = 1:2
     subplot(2,1,p)
