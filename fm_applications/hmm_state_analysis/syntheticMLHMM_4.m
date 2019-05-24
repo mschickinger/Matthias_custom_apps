@@ -93,7 +93,7 @@ disp(foo2.N/foo2.N_all)
 models = cell(size(xyHMM));
 state_trajectories = cell(size(xyHMM));
 arxv = cell(size(xyHMM));
-sigManual = [0.45 0.85];
+sigManual = [0.4 1.2];
 h = waitbar(0,['Spot-by-spot HMM analysis: ' num2str(0) ' of ' num2str(length(xyHMM)) ' done.']);
 tic
 for i = 1:length(xyHMM)
