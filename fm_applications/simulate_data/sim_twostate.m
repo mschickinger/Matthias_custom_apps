@@ -6,7 +6,7 @@ run('my_prefs.m')
 %% Generate dummy data
 % MAKE SURE YOU ARE INSIDE THE RIGHT FOLDER!!!!!!
 SID = 'T069';
-sample_means = {30, 20}; % in seconds
+sample_means = {50, 50}; % in seconds
 Tmin = [1.3 1.0];
 
 k_in = get_corrected_rates(sample_means, Tmin, Inf);
@@ -35,13 +35,12 @@ for n = 1:N
 end
 close(h)
 %
-save sim_data.mat simT simStraj simXY simRMS11 simParams
 data = {cell(N,1)};
 for s = 1:N
     data{1}{s}.vwcm.pos = simXY{s}';
     data{1}{s}.vwcm.rms10 = simRMS11{s}';
-end    
-save data_spot_pairs.mat data
+end
+save sim_data.mat simT simStraj simParams data
 
 %%
 simEx = cell(size(simStraj));
