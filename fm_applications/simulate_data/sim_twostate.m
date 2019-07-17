@@ -5,21 +5,21 @@ run('my_prefs.m')
 
 %% Generate dummy data
 % MAKE SURE YOU ARE INSIDE THE RIGHT FOLDER!!!!!!
-SID = 'T016';
-sample_means = {27.19, 14.27}; % in seconds
+SID = 'T069';
+sample_means = {30, 20}; % in seconds
 Tmin = [1.3 1.0];
 
 k_in = get_corrected_rates(sample_means, Tmin, Inf);
 disp(1./k_in)
 %%
-simParams.tau = 1./k_in; %[];
+simParams.tau = [30 20];%1./k_in; %[];
 simParams.tpf = 50;
 simParams.L = 45000;
 simParams.mu = 0;
-simParams.sigma = [0.45 0.83];
+simParams.sigma = [0.4 1.2];
 simParams.wSize = 11;
 
-N = 100;
+N = 1;
 
 simStraj = cell(N,1);
 simXY = cell(N,1);
