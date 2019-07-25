@@ -18,9 +18,9 @@ jumpFrames = cell(size(jumpMovs));
 ignore = cell(size(jumpMovs));
 
 %% Produce cell array with xy-displacements
-xyG = cell(length(indicesG),1);
+xyG = cell(size(indicesG,1),1);
 
-for i = 1:length(indicesG)
+for i = 1:numel(xyG)
     xyG{i} = data{1}{i}.vwcm.pos';
 end
 
@@ -47,13 +47,13 @@ THR = threshs(find(nPmillAbove>=P*length(indicesG),1));
 figure
 plot(threshs, nPmillAbove)
 hold on
-plot([threshs(1) threshs(end)], ceil(length(xyG)*P*[1 1]), 'r--')
+plot([threshs(1) threshs(end)], ceil(numel(xyG)*P*[1 1]), 'r--')
 plot([THR THR], [0 length(xyG)],'r--')
 
 %% Pick best-suited interval of each trace for HMM evaluation:
 intervalsHMM = zeros(size(indicesG));
 xyHMM = cell(size(xyG));
-for i = 1:length(intervalsHMM)
+for i = 1:size(intervalsHMM,1)
     tmpM = indicesG(i,1);
     tmpS = indicesG(i,2);
     %tmpI = longest_good_interval(xyG{i},Dmax,THR,'ignore',ignore{tmpM});
