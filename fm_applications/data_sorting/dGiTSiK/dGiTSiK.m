@@ -273,7 +273,7 @@ while m <= length(GiTSiK.behaviour)
     end
     m = m+1;
 end
-close(gcf),
+close(gcf)
 %% Appendix B: Output bar graphs of category / behaviour counts + summary pie chart:
 close all
 tmp = vertcat(GiTSiK.categorized{:});
