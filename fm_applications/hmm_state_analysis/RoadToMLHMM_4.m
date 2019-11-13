@@ -250,26 +250,14 @@ save HMMdata1.mat state_trajectories arxv iEdges xyHMM xyHMMcorr indicesHMM inte
 
 %% truncate or discard data from specific particles
 % INPUT SPECIFICALLY FOR EVERY NEW DATASET:
-discard_manual = [23, 41];
+discard_manual = [];
 truncate_from = ...
     [ ...
-4	5100
-7	16200
-11	6000
-16	25000
-19	10000
-24	10600
-26	22500
-28	15946
-39	10400
-42	14400
-46	17100
-50	18700
+
 ];
 truncate_to = ...
     [ ...
-5	13780
-51	1700
+
 ];
 if ~isempty(truncate_from)
     index_truncate_from = truncate_from(:,1); %[,];
