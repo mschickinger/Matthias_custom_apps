@@ -1,5 +1,9 @@
-function [ segments, segments_idx ] = iSegments( trace , thr )
-
+function [ segments, segments_idx ] = iSegments( trace , thr, minLEN )
+    
+    if nargin<3
+        minLEN = 1000;
+    end
+    
     thr = sort(thr,'descend');
     lasts = zeros(length(thr),1);
     segments_idx = zeros(length(thr),1);
@@ -19,8 +23,7 @@ function [ segments, segments_idx ] = iSegments( trace , thr )
     else
         segments = [];
     end
-    
-    minLEN = 1000;
+ 
     if ~isempty(segments)
         LEN = segments(:,2) - segments(:,1) + 1;
         if sum(LEN)>=minLEN
